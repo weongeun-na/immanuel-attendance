@@ -66,7 +66,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
@@ -89,6 +89,9 @@
     dateInput.addEventListener('change', loadData);
 
     const villageOrder = ['열매', '믿음', '소망', '축복', '온유', '만배', '생명수', '갈렙', '약속'];
+    
+    // 빈 창고를 채워줄 원본 데이터
+    const rawData = `열매	목자	정경채(박현정)\n열매		임충열(이영숙)\n열매		권성현(백수정)\n열매		최병일(허미영)\n열매		황주상(이진형)\n열매		이주원(임지혜)\n열매		김귀송(권정아)\n열매		정대범(오서윤)\n열매		조상기(김혜연)\n열매		신재환\n믿음	목자	김영일(정정인)\n믿음	순장	배주석<br>(김 경)\n믿음		최갑수(고현진)\n믿음		곽웅비(김수진)\n믿음		조예닮(주예슬)\n소망	목자	이경훈(박연희)\n소망		이동일(신순자)\n소망		정용균(문미정)\n소망		최민호(박미순)\n소망		김영도(진보람)\n소망		방용지(주현영)\n소망		이동섭\n축복	목자	김동원(김미라)\n축복		김환모(김혜영)\n축복		이성철\n축복		박영곤\n온유	목자	조승구(박금이)\n온유		이도현(윤미영)\n온유		문종호(조혜숙)\n온유		오태현<br>(김 민)\n온유		박인호(김미경)\n온유		김경석(박정미)\n만배	목자	나원근(이혜련)\n만배		조봉현(이윤희)\n만배		최 욱<br>(김혜정)\n만배		안영섭(윤숙자)\n만배		정우진(박선아)\n생명수	목자	임수열(김윤경)\n생명수	순장	이성진(고윤정)\n생명수		김병헌(임혜선)\n생명수		임알렉산더\n생명수		전홍석(강호연)\n생명수		김선웅\n생명수		조영환(이혜진)\n생명수		이재익\n생명수		김장기\n갈렙	목자	선종식(이정례)\n갈렙		김재봉(서금희)\n갈렙		정용국(손정림)\n약속	목자	황민우(고유은)\n약속	순장	고대봉(허태현)\n약속		김산웅(고경미)\n약속		이동혁(이재영)`;
 
     let audioCtx;
     function playSound(isCheck) {
@@ -109,8 +112,20 @@
         } catch(e) {}
     }
 
-    function init() {
-        onValue(ref(db, 'members'), (snap) => {
+    async function init() {
+        const membersRef = ref(db, 'members');
+        
+        // 데이터 채우기 마법 코드
+        const snapshot = await get(membersRef);
+        if (!snapshot.exists()) {
+            const initialMembers = rawData.split('\n').map(line => {
+                const [v, r, n] = line.split('\t');
+                return { village: v.trim(), role: r ? r.trim() : "", name: n.trim() };
+            });
+            await set(membersRef, initialMembers);
+        }
+
+        onValue(membersRef, (snap) => {
             let loadedMembers = snap.val() || [];
             loadedMembers = loadedMembers.filter(m => m !== null && m !== undefined);
             members = loadedMembers.sort((a, b) => {
