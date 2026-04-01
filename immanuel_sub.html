@@ -18,20 +18,20 @@
         .header-title { font-size: 18px; font-weight: bold; }
         .date-input { font-size: 18px; border: none; outline: none; color: #0044cc; font-weight: bold; font-family: inherit; text-align: center; }
         
-        .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 15px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 10px 2px; border: 1px solid #333; letter-spacing: -0.5px; }
+        .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 15px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 10px 2px; border: 1px solid #333; letter-spacing: -0.5px; flex-wrap: wrap; gap: 5px; }
         .summary-box div { white-space: nowrap; }
         .summary-box span { color: #0044cc; margin: 0 2px; font-size: 14px; }
 
         table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        th, td { border: 1px solid #333; padding: 8px 2px; font-size: 12px; }
+        th, td { border: 1px solid #333; padding: 8px 1px; font-size: 11px; }
         th { background-color: #fff8e1; word-break: keep-all; }
         
-        th:nth-child(1) { width: 14%; } 
+        th:nth-child(1) { width: 16%; } 
         th:nth-child(2) { width: 14%; } 
-        th:nth-child(3) { width: 28%; } 
-        th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 11%; } 
+        th:nth-child(3) { width: 20%; } 
+        th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7), th:nth-child(8) { width: 10%; } 
         
-        .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 16px; user-select: none; }
+        .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 15px; user-select: none; }
         .check-cell:hover { background-color: #e3f2fd; }
         .village-divider { border-bottom: 2px solid #000; }
         .notice { text-align: center; font-size: 12px; color: #666; margin-bottom: 10px; word-break: keep-all; }
@@ -47,20 +47,20 @@
     </div>
 
     <div class="summary-box">
-        <div>수요:<span id="tot-wed">0</span>명</div>
-        <div>금요:<span id="tot-fri">0</span>명</div>
-        <div>주일:<span id="tot-sun">0</span>명</div>
-        <div>마을:<span id="tot-vil">0</span>명</div>
+        <div>주일:<span id="tot-sun">0</span></div>
+        <div>화요:<span id="tot-tue">0</span></div>
+        <div>수요:<span id="tot-wed">0</span></div>
+        <div>마을:<span id="tot-vil">0</span></div>
+        <div>금요:<span id="tot-fri">0</span></div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>마을</th><th>직분</th><th>이름</th><th>수요</th><th>금요</th><th>주일</th><th>마을</th>
+                <th>마을</th><th>직분</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>마을</th><th>금요</th>
             </tr>
         </thead>
-        <tbody id="tableBody">
-            </tbody>
+        <tbody id="tableBody"></tbody>
     </table>
 </div>
 
@@ -88,11 +88,6 @@
     dateInput.valueAsDate = new Date();
     dateInput.addEventListener('change', loadData);
 
-    const villageOrder = ['열매', '믿음', '소망', '축복', '온유', '만배', '생명수', '갈렙', '약속'];
-    
-    // 빈 창고를 채워줄 원본 데이터
-    const rawData = `열매	목자	정경채(박현정)\n열매		임충열(이영숙)\n열매		권성현(백수정)\n열매		최병일(허미영)\n열매		황주상(이진형)\n열매		이주원(임지혜)\n열매		김귀송(권정아)\n열매		정대범(오서윤)\n열매		조상기(김혜연)\n열매		신재환\n믿음	목자	김영일(정정인)\n믿음	순장	배주석<br>(김 경)\n믿음		최갑수(고현진)\n믿음		곽웅비(김수진)\n믿음		조예닮(주예슬)\n소망	목자	이경훈(박연희)\n소망		이동일(신순자)\n소망		정용균(문미정)\n소망		최민호(박미순)\n소망		김영도(진보람)\n소망		방용지(주현영)\n소망		이동섭\n축복	목자	김동원(김미라)\n축복		김환모(김혜영)\n축복		이성철\n축복		박영곤\n온유	목자	조승구(박금이)\n온유		이도현(윤미영)\n온유		문종호(조혜숙)\n온유		오태현<br>(김 민)\n온유		박인호(김미경)\n온유		김경석(박정미)\n만배	목자	나원근(이혜련)\n만배		조봉현(이윤희)\n만배		최 욱<br>(김혜정)\n만배		안영섭(윤숙자)\n만배		정우진(박선아)\n생명수	목자	임수열(김윤경)\n생명수	순장	이성진(고윤정)\n생명수		김병헌(임혜선)\n생명수		임알렉산더\n생명수		전홍석(강호연)\n생명수		김선웅\n생명수		조영환(이혜진)\n생명수		이재익\n생명수		김장기\n갈렙	목자	선종식(이정례)\n갈렙		김재봉(서금희)\n갈렙		정용국(손정림)\n약속	목자	황민우(고유은)\n약속	순장	고대봉(허태현)\n약속		김산웅(고경미)\n약속		이동혁(이재영)`;
-
     let audioCtx;
     function playSound(isCheck) {
         try {
@@ -114,27 +109,11 @@
 
     async function init() {
         const membersRef = ref(db, 'members');
-        
-        // 데이터 채우기 마법 코드
-        const snapshot = await get(membersRef);
-        if (!snapshot.exists()) {
-            const initialMembers = rawData.split('\n').map(line => {
-                const [v, r, n] = line.split('\t');
-                return { village: v.trim(), role: r ? r.trim() : "", name: n.trim() };
-            });
-            await set(membersRef, initialMembers);
-        }
-
         onValue(membersRef, (snap) => {
             let loadedMembers = snap.val() || [];
             loadedMembers = loadedMembers.filter(m => m !== null && m !== undefined);
-            members = loadedMembers.sort((a, b) => {
-                let aIndex = villageOrder.indexOf(a.village);
-                let bIndex = villageOrder.indexOf(b.village);
-                if (aIndex === -1) aIndex = 99;
-                if (bIndex === -1) bIndex = 99;
-                return aIndex - bIndex;
-            });
+            const uniqueVillages = [...new Set(loadedMembers.map(m => m.village))];
+            members = loadedMembers.sort((a, b) => uniqueVillages.indexOf(a.village) - uniqueVillages.indexOf(b.village));
             renderTable();
         });
         loadData();
@@ -151,39 +130,33 @@
     function renderTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
-        let wedCount = 0, friCount = 0, sunCount = 0, vilCount = 0;
+        let cSun = 0, cTue = 0, cWed = 0, cVil = 0, cFri = 0;
 
         members.forEach((m, idx) => {
             if(!m) return;
             const checks = attendanceData[idx] || {};
-            if(checks.wed) wedCount++;
-            if(checks.fri) friCount++;
-            if(checks.sun) sunCount++;
-            if(checks.vil) vilCount++;
+            if(checks.sun) cSun++; if(checks.tue) cTue++;
+            if(checks.wed) cWed++; if(checks.vil) cVil++; if(checks.fri) cFri++;
 
             const tr = document.createElement('tr');
-            const isLastInVillage = (idx === members.length - 1) || (members[idx+1].village !== m.village);
-            if(isLastInVillage) tr.classList.add('village-divider');
+            const isLast = (idx === members.length - 1) || (members[idx+1].village !== m.village);
+            if(isLast) tr.classList.add('village-divider');
             
-            let displayName = m.name;
-            if (displayName.includes('(') && !displayName.includes('<br>')) {
-                displayName = displayName.replace('(', '<br>(');
-            }
+            let dName = m.name.includes('(') ? m.name.replace('(', '<br>(') : m.name;
             
             tr.innerHTML = `
-                <td>${m.village}</td><td>${m.role}</td><td>${displayName}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td>
+                <td>${m.village}</td><td>${m.role}</td><td>${dName}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td>
+                <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td>
+                <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>
+                <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td>
             `;
             tbody.appendChild(tr);
         });
         
-        document.getElementById('tot-wed').innerText = wedCount;
-        document.getElementById('tot-fri').innerText = friCount;
-        document.getElementById('tot-sun').innerText = sunCount;
-        document.getElementById('tot-vil').innerText = vilCount;
+        document.getElementById('tot-sun').innerText = cSun; document.getElementById('tot-tue').innerText = cTue;
+        document.getElementById('tot-wed').innerText = cWed; document.getElementById('tot-vil').innerText = cVil; document.getElementById('tot-fri').innerText = cFri;
     }
 
     window.toggleCheck = (idx, day) => {
