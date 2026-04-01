@@ -22,14 +22,14 @@
         .summary-box span { color: #0044cc; margin: 0 1px; font-size: 12px; }
 
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 4px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
+        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
         .mobile-table th { background-color: #fff8e1; }
         
-        /* 💡 레이아웃 수정: 마을(25%-한줄), 직분(10%), 이름(12%-축소), 체크5개(각 10.6%) */
-        .mobile-table th:nth-child(1) { width: 25%; } 
+        /* 💡 레이아웃 수정: 마을(28%-한줄), 직분(10%), 이름(12%-축소), 체크5개(각 10%) */
+        .mobile-table th:nth-child(1) { width: 28%; } 
         .mobile-table th:nth-child(2) { width: 10%; } 
         .mobile-table th:nth-child(3) { width: 12%; } 
-        .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 10.6%; } 
+        .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 10%; } 
         
         .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 16px; user-select: none; background-color: #fafafa; }
         .village-divider { border-bottom: 2px solid #000; }
@@ -38,7 +38,7 @@
 </head>
 <body>
 <div class="container">
-    <div class="notice">터치하면 실시간 공유됩니다. (주간 단위 관리)</div>
+    <div class="notice">터치하면 실시간 공유됩니다. (화~일 주간 관리)</div>
     <div class="header">
         <div class="header-title">2026년 임마누엘 목장 출석부 (목자용)</div>
         <div class="week-label" id="weekRange">데이터 로딩 중...</div>
@@ -91,28 +91,6 @@
         onValue(mRef, (snap) => {
             let loaded = snap.val() || [];
             members = loaded.filter(m => m !== null);
-            
-            let needsUpdate = false;
-            members.forEach(m => {
-                if(m.village === "4. 암미 마을") { m.village = "4. 양떼 마을"; needsUpdate = true; }
-                if(m.village === "11. 상록수 마을") { m.village = "11. 상속자 마을"; needsUpdate = true; }
-                if(m.village === "15. 만석 마을") { m.village = "15. 지성소 마을"; needsUpdate = true; }
-                if(m.name === "민윤임") { m.name = "민종임"; needsUpdate = true; }
-                if(m.name === "강변형") { m.name = "강현정"; needsUpdate = true; }
-                if(m.name === "권경희") { m.name = "현경희"; needsUpdate = true; }
-                if(m.name === "김명자" && m.village.includes("4.")) { m.name = "김행자"; needsUpdate = true; }
-                if(m.name === "김애숙" && m.village.includes("4.")) { m.name = "강애숙"; needsUpdate = true; }
-                if(m.name === "최순례" && m.village.includes("10.")) { m.name = "허순례"; needsUpdate = true; }
-                if(m.name === "김인숙" && m.village.includes("13.")) { m.name = "강민숙"; needsUpdate = true; }
-                if(m.name === "조명자" && m.village.includes("14.")) { m.name = "조영자"; needsUpdate = true; }
-                if(m.name === "이명복" && m.village.includes("14.")) { m.name = "이명옥"; needsUpdate = true; }
-                if(m.name === "정명순" && m.village.includes("14.")) { m.name = "정영순"; needsUpdate = true; }
-                if(m.name === "이태란" && m.village.includes("16.")) { m.name = "이해란"; needsUpdate = true; }
-                if(m.name === "이채님" && m.village.includes("19.")) { m.name = "이채남"; needsUpdate = true; }
-                if(m.name === "김비영" && m.village.includes("20.")) { m.name = "김혜영"; needsUpdate = true; }
-            });
-            if(needsUpdate) { set(mRef, members); return; }
-
             const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
             members.sort((a, b) => vOrder.findIndex(v => a.village.startsWith(v)) - vOrder.findIndex(v => b.village.startsWith(v)));
             renderTable();
