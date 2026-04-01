@@ -21,22 +21,21 @@
         .header-title { font-size: 16px; font-weight: bold; }
         .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; cursor: pointer; }
         .week-label { font-size: 11px; color: #666; font-weight: bold; }
-        
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 12px; background: #fff8e1; padding: 5px 2px; border: 1px solid #333; }
         .summary-box span { color: #0044cc; margin: 0 1px; font-size: 12px; }
 
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 4px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
+        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 3px 0; font-size: 11px; line-height: 1.2; }
         .mobile-table th { background-color: #fff8e1; }
         
-        /* 컬럼 비율: 마을(20%), 직분(10%), 이름(13%), 체크5개(각 9.5%), 관리(9.5%) */
-        .mobile-table th:nth-child(1) { width: 20%; } 
+        /* 컬럼 비율 최적화 (관리자용) */
+        .mobile-table th:nth-child(1) { width: 12%; } 
         .mobile-table th:nth-child(2) { width: 10%; } 
-        .mobile-table th:nth-child(3) { width: 13%; } 
-        .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 9.5%; } 
-        .mobile-table th:nth-child(9) { width: 9.5%; } 
+        .mobile-table th:nth-child(3) { width: 16%; } 
+        .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 10.4%; } 
+        .mobile-table th:nth-child(9) { width: 10%; } 
         
-        .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 16px; user-select: none; background-color: #fafafa; }
+        .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 15px; user-select: none; background-color: #fafafa; }
         .village-divider { border-bottom: 2px solid #000; }
         .admin-btn { padding: 8px 12px; margin: 3px; cursor: pointer; border: none; border-radius: 5px; color: white; font-weight: bold; font-size: 12px; }
         .btn-img { background-color: #4CAF50; }
@@ -77,7 +76,7 @@
 <div id="mobile-view">
     <div class="header">
         <div class="header-title">2026년 임마누엘 목장 출석부 (관리자)</div>
-        <div class="week-label" id="weekRange">화~일 데이터</div>
+        <div class="week-label" id="weekRange">화~일 주간 데이터</div>
         <div><input type="date" class="date-input" id="currentDate"></div>
     </div>
     <div class="summary-box">
@@ -166,41 +165,22 @@
         return d.toISOString().split('T')[0];
     }
 
-    // 🌟 오타 수정된 진짜 원본 명단 (130여 명)
-    const rawData = `1. 섬김 마을	목자	신금옥\n1. 섬김 마을	순장	박정아\n1. 섬김 마을		구점례\n1. 섬김 마을		김옥녀\n1. 섬김 마을		김미애\n1. 섬김 마을	순장	고영임\n1. 섬김 마을		박금순\n1. 섬김 마을		신정자\n2. 사랑스런 마을	목자	문이정\n2. 사랑스런 마을		강애정\n2. 사랑스런 마을		김희\n2. 사랑스런 마을		전숙련\n2. 사랑스런 마을		고옥희\n2. 사랑스런 마을		김정아\n2. 사랑스런 마을		김성자\n2. 사랑스런 마을		장순애\n2. 사랑스런 마을		민종임\n3. 워십 마을	목자	주일심\n3. 워십 마을	순장	강현정\n3. 워십 마을	순장	고경미\n3. 워십 마을		고유은\n3. 워십 마을		김선화\n3. 워십 마을		현경희\n4. 양떼 마을	목자	이윤희\n4. 양떼 마을		김행자\n4. 양떼 마을		허옥자\n4. 양떼 마을		김경자\n4. 양떼 마을		신인심\n4. 양떼 마을	순장	김영희\n4. 양떼 마을		박영희\n4. 양떼 마을		강애숙\n4. 양떼 마을		김윤경\n4. 양떼 마을		박학순\n5. 은혜 마을	목자	신하영\n5. 은혜 마을		박영순\n5. 은혜 마을		윤서연\n6. 포도원 마을	목자	임수자\n6. 포도원 마을	순장	박경자\n6. 포도원 마을		서경자\n6. 포도원 마을	순장	신순희\n7. 회복 마을	목자	서금희\n8. 새생명 마을	목자	김연희\n8. 새생명 마을	순장	장선영\n8. 새생명 마을		남진숙\n9. 청솔 마을	목자	서연화\n9. 청솔 마을	순장	최경자\n9. 청솔 마을		한채화\n9. 청솔 마을	순장	진선양\n10. 풍성한 마을	목자	염상남\n10. 풍성한 마을	순장	천경희\n10. 풍성한 마을		신수진\n10. 풍성한 마을		허순례\n10. 풍성한 마을		이명자\n10. 풍성한 마을		이진자\n10. 풍성한 마을		김은미\n10. 풍성한 마을	순장	송남숙\n10. 풍성한 마을		김영순\n10. 풍성한 마을		송동순\n10. 풍성한 마을		김가연\n10. 풍성한 마을		최숙자\n10. 풍성한 마을		박명덕\n10. 풍성한 마을		이태남\n10. 풍성한 마을		박채정\n10. 풍성한 마을		오선명\n11. 상속자 마을	목자	최원래\n11. 상속자 마을		박현미\n12. 보배 마을	목자	김칠례\n12. 보배 마을		전덕례\n12. 보배 마을		안순자\n12. 보배 마을		안옥심\n12. 보배 마을		이갑주\n13. 순종 마을	목자	강민숙\n13. 순종 마을	순장	이영숙\n13. 순종 마을		박경이\n13. 순종 마을		이근엽\n13. 순종 마을		고채연\n13. 순종 마을		정미영\n13. 순종 마을		기연자\n13. 순종 마을		최진숙\n14. 반석 마을	목자	임영자\n14. 반석 마을	순장	백순금\n14. 반석 마을		전혜란\n14. 반석 마을		조영자\n14. 반석 마을		김옥경\n14. 반석 마을		김은순\n14. 반석 마을		김현주\n14. 반석 마을		이명옥\n14. 반석 마을		채영순\n14. 반석 마을		이정오\n14. 반석 마을		강남옥\n14. 반석 마을		정영순\n15. 지성소 마을	목자	강미현\n15. 지성소 마을		김일순\n15. 지성소 마을		최순남\n16. 번성 마을	목자	이해란\n16. 번성 마을		박미나\n16. 번성 마을		장광희\n16. 번성 마을		안진선\n16. 번성 마을		김은미\n16. 번성 마을		황희\n17. 권능 마을	목자	임혜선\n17. 권능 마을	순장	한승진\n17. 권능 마을		박미순\n17. 권능 마을		윤경숙\n17. 권능 마을		김소영\n17. 권능 마을		김옥심\n18. 열매맺는 마을	목자	윤은순\n18. 열매맺는 마을	순장	전예영\n18. 열매맺는 마을		유봉은\n18. 열매맺는 마을		박미영\n18. 열매맺는 마을		양순금\n18. 열매맺는 마을		이시연\n19. 온유 마을	목자	기영란\n19. 온유 마을		박영덕\n19. 온유 마을		이채남\n19. 온유 마을		박채정\n19. 온유 마을		손장엽\n19. 온유 마을		오선영\n20. 승리 마을	목자	김혜영\n20. 승리 마을		박승혜`;
+    // 🌟 요청하신 오타 및 인원 이동이 완벽하게 수정된 명단
+    const rawData = `1. 섬김 마을	목자	신금옥\n1. 섬김 마을	순장	박정아\n1. 섬김 마을		구점례\n1. 섬김 마을		김옥녀\n1. 섬김 마을		김미애\n1. 섬김 마을	순장	고영임\n1. 섬김 마을		박금순\n1. 섬김 마을		신정자\n2. 사랑스런 마을	목자	문미정\n2. 사랑스런 마을		강여정\n2. 사랑스런 마을		김희\n2. 사랑스런 마을		전숙현\n2. 사랑스런 마을		고옥희\n2. 사랑스런 마을		김정아\n2. 사랑스런 마을		김성자\n2. 사랑스런 마을		장순애\n2. 사랑스런 마을		민종임\n3. 워십 마을	목자	주일심\n3. 워십 마을	순장	강현정\n3. 워십 마을	순장	고경미\n3. 워십 마을		고유은\n3. 워십 마을		김선화\n3. 워십 마을		현경희\n4. 양떼 마을	목자	이윤희\n4. 양떼 마을		김행자\n4. 양떼 마을		허옥자\n4. 양떼 마을		김경자\n4. 양떼 마을		신인심\n4. 양떼 마을	순장	김영희\n4. 양떼 마을		박영희\n4. 양떼 마을		강애숙\n4. 양떼 마을		김윤경\n4. 양떼 마을		박학순\n5. 은혜 마을	목자	신화영\n5. 은혜 마을		박영순\n5. 은혜 마을		윤서연\n6. 포도원 마을	목자	임수자\n6. 포도원 마을	순장	박경자\n6. 포도원 마을		서경자\n6. 포도원 마을	순장	신순희\n7. 회복 마을	목자	서금희\n8. 새생명 마을	목자	김연희\n8. 새생명 마을	순장	장선영\n8. 새생명 마을		남진숙\n9. 청솔 마을	목자	서연화\n9. 청솔 마을	순장	최경자\n9. 청솔 마을		한재화\n9. 청솔 마을	순장	전선양\n10. 풍성한 마을	목자	염상남\n10. 풍성한 마을	순장	천경희\n10. 풍성한 마을		신수진\n10. 풍성한 마을		허순례\n10. 풍성한 마을		이명자\n10. 풍성한 마을		이진자\n10. 풍성한 마을		김은미\n10. 풍성한 마을	순장	송남숙\n10. 풍성한 마을		김영순\n10. 풍성한 마을		송동순\n10. 풍성한 마을		김가연\n10. 풍성한 마을		최숙자\n11. 상속자 마을	목자	최원래\n11. 상속자 마을		박현미\n12. 보배 마을	목자	김칠례\n12. 보배 마을		전덕례\n12. 보배 마을		안순자\n12. 보배 마을		안옥심\n12. 보배 마을		이갑주\n13. 순종 마을	목자	강민숙\n13. 순종 마을	순장	이영숙\n13. 순종 마을		박경이\n13. 순종 마을		이근엽\n13. 순종 마을		고채연\n13. 순종 마을		정미영\n13. 순종 마을		기연자\n13. 순종 마을		최진숙\n14. 반석 마을	목자	임영자\n14. 반석 마을	순장	백순금\n14. 반석 마을		전혜란\n14. 반석 마을		조영자\n14. 반석 마을		김옥경\n14. 반석 마을		김온순\n14. 반석 마을		김현주\n14. 반석 마을		이명옥\n14. 반석 마을		채영순\n14. 반석 마을		이정오\n14. 반석 마을		강남옥\n14. 반석 마을		정영순\n15. 지성소 마을	목자	강미현\n15. 지성소 마을		김일순\n15. 지성소 마을		최순남\n16. 번성 마을	목자	이해란\n16. 번성 마을		박미나\n16. 번성 마을		장광희\n16. 번성 마을		안진선\n16. 번성 마을		김은미\n16. 번성 마을		황희\n17. 권능 마을	목자	임혜선\n17. 권능 마을	순장	한승진\n17. 권능 마을		박미순\n17. 권능 마을		윤경숙\n17. 권능 마을		김소영\n17. 권능 마을		김옥심\n18. 열매맺는 마을	목자	윤은순\n18. 열매맺는 마을	순장	전예영\n18. 열매맺는 마을		유정은\n18. 열매맺는 마을		박미영\n18. 열매맺는 마을		양순금\n18. 열매맺는 마을		이시언\n19. 온유 마을	목자	기영란\n19. 온유 마을		박영덕\n19. 온유 마을		이채남\n19. 온유 마을		박채정\n19. 온유 마을		손정엽\n19. 온유 마을		오선영\n20. 승리 마을	목자	김혜영\n20. 승리 마을		박승혜`;
 
     dateInput.valueAsDate = new Date();
     dateInput.addEventListener('change', loadData);
 
     async function init() {
         const mRef = ref(db, 'members');
-        onValue(mRef, (snap) => {
-            let loaded = snap.val() || [];
+        const snap = await get(mRef);
+        if(!snap.exists()) {
+            const initial = rawData.split('\n').map(l => { const [v, r, n] = l.split('\t'); return { village: v.trim(), role: r ? r.trim() : "", name: n.trim() }; });
+            await set(mRef, initial);
+        }
+        onValue(mRef, (s) => {
+            let loaded = s.val() || [];
             members = loaded.filter(m => m !== null);
-            
-            // 💡 자동 수정 엔진: 4, 11, 15번 마을 및 기타 오타 자동 교정
-            let needsUpdate = false;
-            members.forEach(m => {
-                if(m.village === "4. 암미 마을") { m.village = "4. 양떼 마을"; needsUpdate = true; }
-                if(m.village === "11. 상록수 마을") { m.village = "11. 상속자 마을"; needsUpdate = true; }
-                if(m.village === "15. 만석 마을") { m.village = "15. 지성소 마을"; needsUpdate = true; }
-                // 개별 이름 오타 자동 교정 샘플 (민윤임 -> 민종임 등)
-                if(m.name === "민윤임") { m.name = "민종임"; needsUpdate = true; }
-                if(m.name === "강변형") { m.name = "강현정"; needsUpdate = true; }
-                if(m.name === "권경희") { m.name = "현경희"; needsUpdate = true; }
-                if(m.name === "김명자" && m.village.includes("4.")) { m.name = "김행자"; needsUpdate = true; }
-                if(m.name === "김애숙" && m.village.includes("4.")) { m.name = "강애숙"; needsUpdate = true; }
-                if(m.name === "최순례" && m.village.includes("10.")) { m.name = "허순례"; needsUpdate = true; }
-                if(m.name === "김인숙" && m.village.includes("13.")) { m.name = "강민숙"; needsUpdate = true; }
-                if(m.name === "조명자" && m.village.includes("14.")) { m.name = "조영자"; needsUpdate = true; }
-                if(m.name === "이명복" && m.village.includes("14.")) { m.name = "이명옥"; needsUpdate = true; }
-                if(m.name === "정명순" && m.village.includes("14.")) { m.name = "정영순"; needsUpdate = true; }
-                if(m.name === "이태란" && m.village.includes("16.")) { m.name = "이해란"; needsUpdate = true; }
-                if(m.name === "이채님" && m.village.includes("19.")) { m.name = "이채남"; needsUpdate = true; }
-                if(m.name === "김비영" && m.village.includes("20.")) { m.name = "김혜영"; needsUpdate = true; }
-            });
-            if(needsUpdate) { set(mRef, members); return; }
-
             const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
             members.sort((a, b) => vOrder.findIndex(v => a.village.startsWith(v)) - vOrder.findIndex(v => b.village.startsWith(v)));
             renderTable();
@@ -223,9 +203,12 @@
             if(checks.sun) c.sun++; if(checks.tue) c.tue++; if(checks.wed) c.wed++; if(checks.fri) c.fri++; if(checks.vil) c.vil++;
             const tr = document.createElement('tr');
             if(idx === members.length - 1 || members[idx+1].village !== m.village) tr.classList.add('village-divider');
+            
+            let vName = m.village.replace(' 마을', '<br>마을');
             let dName = m.name.includes('(') ? m.name.replace('(', '<br>(') : m.name;
+
             tr.innerHTML = `
-                <td>${m.village}</td><td>${m.role}</td><td>${dName}</td>
+                <td>${vName}</td><td>${m.role}</td><td>${dName}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td>
