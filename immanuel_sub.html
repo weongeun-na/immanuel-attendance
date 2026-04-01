@@ -16,18 +16,22 @@
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; }
         .header-title { font-size: 16px; font-weight: bold; }
-        .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; cursor: pointer; }
+        .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; }
         .week-label { font-size: 11px; color: #666; font-weight: bold; }
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 12px; background: #fff8e1; padding: 5px 2px; border: 1px solid #333; }
         .summary-box span { color: #0044cc; margin: 0 1px; font-size: 12px; }
+
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 3px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
+        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 4px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
         .mobile-table th { background-color: #fff8e1; }
-        .mobile-table th:nth-child(1) { width: 14%; } 
-        .mobile-table th:nth-child(2) { width: 11%; } 
-        .mobile-table th:nth-child(3) { width: 20%; } 
+        
+        /* 💡 너비 최적화: 마을(20%), 직분(10%), 이름(15%), 체크5개(각 11%) */
+        .mobile-table th:nth-child(1) { width: 20%; } 
+        .mobile-table th:nth-child(2) { width: 10%; } 
+        .mobile-table th:nth-child(3) { width: 15%; } 
         .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 11%; } 
-        .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 15px; user-select: none; background-color: #fafafa; }
+        
+        .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 16px; user-select: none; background-color: #fafafa; }
         .village-divider { border-bottom: 2px solid #000; }
         .notice { text-align: center; font-size: 10px; color: #666; margin-bottom: 5px; word-break: keep-all; }
     </style>
@@ -37,7 +41,7 @@
     <div class="notice">터치하면 실시간 공유됩니다. (주간 단위 관리)</div>
     <div class="header">
         <div class="header-title">2026년 임마누엘 목장 출석부 (목자용)</div>
-        <div class="week-label" id="weekRange">데이터 로딩 중...</div>
+        <div class="week-label" id="weekRange">화~일 주간 데이터</div>
         <div><input type="date" class="date-input" id="currentDate"></div>
     </div>
     <div class="summary-box">
@@ -82,16 +86,23 @@
     dateInput.valueAsDate = new Date();
     dateInput.addEventListener('change', loadData);
 
-    function init() {
-        onValue(ref(db, 'members'), (snap) => {
+    async function init() {
+        const mRef = ref(db, 'members');
+        onValue(mRef, (snap) => {
             let loaded = snap.val() || [];
             members = loaded.filter(m => m !== null);
-            const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
-            members.sort((a, b) => {
-                const aIdx = vOrder.findIndex(v => a.village.startsWith(v));
-                const bIdx = vOrder.findIndex(v => b.village.startsWith(v));
-                return aIdx - bIdx;
+            
+            // 💡 오타 자동수정 엔진
+            let needsUpdate = false;
+            members.forEach(m => {
+                if(m.village === "4. 암미 마을") { m.village = "4. 양떼 마을"; needsUpdate = true; }
+                if(m.village === "11. 상록수 마을") { m.village = "11. 상속자 마을"; needsUpdate = true; }
+                if(m.village === "15. 만석 마을") { m.village = "15. 지성소 마을"; needsUpdate = true; }
             });
+            if(needsUpdate) { set(mRef, members); return; }
+
+            const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
+            members.sort((a, b) => vOrder.findIndex(v => a.village.startsWith(v)) - vOrder.findIndex(v => b.village.startsWith(v)));
             renderTable();
         });
         loadData();
@@ -99,9 +110,8 @@
 
     function loadData() {
         const weekKey = getWeekKey(dateInput.value);
-        const startDay = new Date(weekKey); const endDay = new Date(startDay);
-        endDay.setDate(endDay.getDate() + 5);
-        document.getElementById('weekRange').innerText = `${startDay.getMonth()+1}/${startDay.getDate()}(화)~${endDay.getMonth()+1}/${endDay.getDate()}(일) 데이터`;
+        const startDay = new Date(weekKey);
+        document.getElementById('weekRange').innerText = `${startDay.getMonth()+1}/${startDay.getDate()}(화) 시작 주간`;
         onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
     }
 
@@ -113,11 +123,8 @@
             if(checks.sun) c.sun++; if(checks.tue) c.tue++; if(checks.wed) c.wed++; if(checks.fri) c.fri++; if(checks.vil) c.vil++;
             const tr = document.createElement('tr');
             if(idx === members.length - 1 || members[idx+1].village !== m.village) tr.classList.add('village-divider');
-            
-            let vName = m.village.replace(' 마을', '<br>마을');
             let dName = m.name.includes('(') ? m.name.replace('(', '<br>(') : m.name;
-
-            tr.innerHTML = `<td>${vName}</td><td>${m.role}</td><td>${dName}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>`;
+            tr.innerHTML = `<td>${m.village}</td><td>${m.role}</td><td>${dName}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>`;
             tbody.appendChild(tr);
         });
         document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
