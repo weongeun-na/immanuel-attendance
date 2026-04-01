@@ -7,10 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>2026년 임마누엘 목장 출석부 (목자용)</title>
-    
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛪️</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛪️</text></svg>">
-    
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -19,26 +16,20 @@
         .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; }
         .week-label { font-size: 11px; color: #666; font-weight: bold; }
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 12px; background: #fff8e1; padding: 5px 2px; border: 1px solid #333; }
-        .summary-box span { color: #0044cc; margin: 0 1px; font-size: 12px; }
-
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
+        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 4px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
         .mobile-table th { background-color: #fff8e1; }
         
-        /* 💡 레이아웃 수정: 마을(28%-한줄), 직분(10%), 이름(12%-축소), 체크5개(각 10%) */
-        .mobile-table th:nth-child(1) { width: 28%; } 
-        .mobile-table th:nth-child(2) { width: 10%; } 
-        .mobile-table th:nth-child(3) { width: 12%; } 
+        /* 💡 목자용 레이아웃 최적화: 마을(28%-한줄), 직분(10%), 이름(12%-슬림), 체크5개(각 10%) */
+        .mobile-table th:nth-child(1) { width: 28%; } .mobile-table th:nth-child(2) { width: 10%; } .mobile-table th:nth-child(3) { width: 12%; } 
         .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 10%; } 
         
         .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 16px; user-select: none; background-color: #fafafa; }
         .village-divider { border-bottom: 2px solid #000; }
-        .notice { text-align: center; font-size: 10px; color: #666; margin-bottom: 5px; word-break: keep-all; }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="notice">터치하면 실시간 공유됩니다. (화~일 주간 관리)</div>
     <div class="header">
         <div class="header-title">2026년 임마누엘 목장 출석부 (목자용)</div>
         <div class="week-label" id="weekRange">데이터 로딩 중...</div>
@@ -50,16 +41,14 @@
         <div>마을:<span id="tot-vil">0</span></div>
     </div>
     <table class="mobile-table">
-        <thead>
-            <tr><th>마을</th><th>직분</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th></tr>
-        </thead>
+        <thead><tr><th>마을</th><th>직분</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th></tr></thead>
         <tbody id="tableBody"></tbody>
     </table>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
@@ -76,6 +65,22 @@
     let members = []; let attendanceData = {};
     const dateInput = document.getElementById('currentDate');
 
+    // 💡 소리 엔진 개선
+    let audioCtx;
+    function playSound(isCheck) {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(isCheck ? 880 : 440, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+        } catch(e) {}
+    }
+
     function getWeekKey(date) {
         const d = new Date(date); const day = d.getDay();
         const diff = (day >= 2) ? (day - 2) : (day + 5);
@@ -87,10 +92,8 @@
     dateInput.addEventListener('change', loadData);
 
     async function init() {
-        const mRef = ref(db, 'members');
-        onValue(mRef, (snap) => {
-            let loaded = snap.val() || [];
-            members = loaded.filter(m => m !== null);
+        onValue(ref(db, 'members'), (snap) => {
+            members = (snap.val() || []).filter(m => m !== null);
             const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
             members.sort((a, b) => vOrder.findIndex(v => a.village.startsWith(v)) - vOrder.findIndex(v => b.village.startsWith(v)));
             renderTable();
@@ -113,8 +116,7 @@
             if(checks.sun) c.sun++; if(checks.tue) c.tue++; if(checks.wed) c.wed++; if(checks.fri) c.fri++; if(checks.vil) c.vil++;
             const tr = document.createElement('tr');
             if(idx === members.length - 1 || members[idx+1].village !== m.village) tr.classList.add('village-divider');
-            let dName = m.name.includes('(') ? m.name.replace('(', '<br>(') : m.name;
-            tr.innerHTML = `<td>${m.village}</td><td>${m.role}</td><td>${dName}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>`;
+            tr.innerHTML = `<td>${m.village}</td><td>${m.role}</td><td>${m.name}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>`;
             tbody.appendChild(tr);
         });
         document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
@@ -122,7 +124,9 @@
 
     window.toggleCheck = (idx, day) => {
         const weekKey = getWeekKey(dateInput.value);
-        set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !(attendanceData[idx]?.[day] || false));
+        const next = !(attendanceData[idx]?.[day] || false);
+        set(ref(db, `attendance/${weekKey}/${idx}/${day}`), next);
+        playSound(next); // 👈 소리 실행
     };
     init();
 </script>
