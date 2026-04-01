@@ -31,12 +31,11 @@
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 8px 1px; font-size: 11px; }
         .mobile-table th { background-color: #fff8e1; word-break: keep-all; }
         
-        /* 5개 체크 항목 비율 조정 */
-        .mobile-table th:nth-child(1) { width: 15%; } /* 마을 */
-        .mobile-table th:nth-child(2) { width: 12%; } /* 직분 */
-        .mobile-table th:nth-child(3) { width: 20%; } /* 이름 */
+        .mobile-table th:nth-child(1) { width: 15%; } 
+        .mobile-table th:nth-child(2) { width: 12%; } 
+        .mobile-table th:nth-child(3) { width: 20%; } 
         .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 8%; } 
-        .mobile-table th:nth-child(9) { width: 12%; } /* 관리 */
+        .mobile-table th:nth-child(9) { width: 12%; } 
         
         .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 14px; user-select: none; }
         .check-cell:hover { background-color: #e3f2fd; }
@@ -47,11 +46,13 @@
         .btn-add { background-color: #1976D2; width: 100%; margin-top: 10px; padding: 12px; font-size: 16px; }
         .btn-del { background-color: #ff9800; padding: 4px 6px; font-size: 11px; cursor: pointer; }
 
-        /* 🖨️ 인쇄 전용(A4) 2단 레이아웃 디자인 (평소엔 숨김) */
+        /* 🖨️ 인쇄 전용(A4) 디자인 */
         #print-view { display: none; width: 1100px; background: white; padding: 20px; box-sizing: border-box; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
         .print-title { font-size: 28px; font-weight: bold; letter-spacing: -1px; }
         .print-date { font-size: 16px; font-weight: normal; margin-left: 10px; }
+        
+        /* 출력물 요약표 원래대로 심플하게 2개 복구 */
         .print-summary-tbl { border-collapse: collapse; text-align: center; border: 2px solid #000; font-size: 12px; font-weight: bold; }
         .print-summary-tbl th, .print-summary-tbl td { border: 1px solid #000; padding: 4px 10px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
@@ -83,15 +84,15 @@
         <div>주일:<span id="tot-sun">0</span></div>
         <div>화요:<span id="tot-tue">0</span></div>
         <div>수요:<span id="tot-wed">0</span></div>
-        <div>마을:<span id="tot-vil">0</span></div>
         <div>금요:<span id="tot-fri">0</span></div>
+        <div>마을:<span id="tot-vil">0</span></div>
     </div>
 
     <table class="mobile-table">
         <thead>
             <tr>
                 <th>마을</th><th>직분</th><th>이름</th>
-                <th>주일</th><th>화요</th><th>수요</th><th>마을</th><th>금요</th>
+                <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th>
                 <th>관리</th>
             </tr>
         </thead>
@@ -103,9 +104,15 @@
 <div id="print-view">
     <div class="print-header-area">
         <div class="print-title" id="printTitle">임마누엘 목장 <span class="print-date" id="printDateTxt">(2026년 월 일)</span></div>
+        
         <table class="print-summary-tbl">
-            <tr><th>주일</th><th>마을</th><th rowspan="2">계</th></tr>
-            <tr><td id="print-tot-sun" style="color:#d32f2f;">0</td><td id="print-tot-vil" style="color:#d32f2f;">0</td></tr>
+            <tr>
+                <th>주일</th><th>마을</th><th rowspan="2" style="padding: 0 15px;">계</th>
+            </tr>
+            <tr>
+                <td id="print-tot-sun" style="color:#d32f2f;">0</td>
+                <td id="print-tot-vil" style="color:#d32f2f;">0</td>
+            </tr>
         </table>
     </div>
     
@@ -113,26 +120,25 @@
         <table class="print-table">
             <thead>
                 <tr>
-                    <th rowspan="2" class="col-name">성 명</th><th class="col-chk">주</th><th class="col-chk">화</th><th class="col-chk">수</th><th class="col-chk">마</th><th class="col-chk">금</th>
-                    <th rowspan="2" class="col-name">성 명</th><th class="col-chk">주</th><th class="col-chk">화</th><th class="col-chk">수</th><th class="col-chk">마</th><th class="col-chk">금</th>
+                    <th rowspan="2" class="col-name">성 명</th><th class="col-chk">주</th><th class="col-chk">화</th><th class="col-chk">수</th><th class="col-chk">금</th><th class="col-chk">마</th>
+                    <th rowspan="2" class="col-name">성 명</th><th class="col-chk">주</th><th class="col-chk">화</th><th class="col-chk">수</th><th class="col-chk">금</th><th class="col-chk">마</th>
                 </tr>
                 <tr>
-                    <th>일</th><th>요</th><th>요</th><th>을</th><th>요</th>
-                    <th>일</th><th>요</th><th>요</th><th>을</th><th>요</th>
+                    <th>일</th><th>요</th><th>요</th><th>요</th><th>을</th>
+                    <th>일</th><th>요</th><th>요</th><th>요</th><th>을</th>
                 </tr>
             </thead>
             <tbody id="printLeftBody"></tbody>
         </table>
-        
         <table class="print-table">
             <thead>
                 <tr>
-                    <th rowspan="2" class="col-name">성 명</th><th class="col-chk">주</th><th class="col-chk">화</th><th class="col-chk">수</th><th class="col-chk">마</th><th class="col-chk">금</th>
-                    <th rowspan="2" class="col-name">성 명</th><th class="col-chk">주</th><th class="col-chk">화</th><th class="col-chk">수</th><th class="col-chk">마</th><th class="col-chk">금</th>
+                    <th rowspan="2" class="col-name">성 명</th><th class="col-chk">주</th><th class="col-chk">화</th><th class="col-chk">수</th><th class="col-chk">금</th><th class="col-chk">마</th>
+                    <th rowspan="2" class="col-name">성 명</th><th class="col-chk">주</th><th class="col-chk">화</th><th class="col-chk">수</th><th class="col-chk">금</th><th class="col-chk">마</th>
                 </tr>
                 <tr>
-                    <th>일</th><th>요</th><th>요</th><th>을</th><th>요</th>
-                    <th>일</th><th>요</th><th>요</th><th>을</th><th>요</th>
+                    <th>일</th><th>요</th><th>요</th><th>요</th><th>을</th>
+                    <th>일</th><th>요</th><th>요</th><th>요</th><th>을</th>
                 </tr>
             </thead>
             <tbody id="printRightBody"></tbody>
@@ -164,9 +170,6 @@
     dateInput.valueAsDate = new Date();
     dateInput.addEventListener('change', loadData);
 
-    // 🌟 임마누엘 목장 130명 원본 데이터 (사진 100% 반영)
-    const rawData = `1. 섬김 마을	목자	신금옥\n1. 섬김 마을	순장	박정아\n1. 섬김 마을		구점례\n1. 섬김 마을		김옥녀\n1. 섬김 마을		김미애\n1. 섬김 마을	순장	고영임\n1. 섬김 마을		박금순\n1. 섬김 마을		신정자\n2. 사랑스런 마을	목자	문이정\n2. 사랑스런 마을		강애정\n2. 사랑스런 마을		김희\n2. 사랑스런 마을		전숙련\n2. 사랑스런 마을		고옥희\n2. 사랑스런 마을		김정아\n2. 사랑스런 마을		김성자\n2. 사랑스런 마을		장순애\n2. 사랑스런 마을		민윤임\n3. 워십 마을	목자	주일심\n3. 워십 마을	순장	강변형\n3. 워십 마을	순장	고경미\n3. 워십 마을		고유은\n3. 워십 마을		김선화\n3. 워십 마을		권경희\n4. 암미 마을	목자	이윤희\n4. 암미 마을		김명자\n4. 암미 마을		허옥자\n4. 암미 마을	순장	김영희\n4. 암미 마을		박영희\n4. 암미 마을		김애숙\n5. 은혜 마을	목자	신하영\n5. 은혜 마을		박영순\n5. 은혜 마을		윤서연\n6. 포도원 마을	목자	임수자\n6. 포도원 마을	순장	박경자\n6. 포도원 마을		서경자\n6. 포도원 마을	순장	신순희\n7. 회복 마을	목자	서금희\n8. 새생명 마을	목자	김연희\n8. 새생명 마을	순장	정선명\n8. 새생명 마을		남진숙\n9. 청솔 마을	목자	서연화\n9. 청솔 마을	순장	최경자\n9. 청솔 마을		한채화\n9. 청솔 마을	순장	진선양\n10. 풍성한 마을	목자	염상남\n10. 풍성한 마을	순장	천경희\n10. 풍성한 마을		신수진\n10. 풍성한 마을		최순례\n10. 풍성한 마을		이명자\n10. 풍성한 마을		이진자\n10. 풍성한 마을		김은미\n10. 풍성한 마을	순장	송남숙\n10. 풍성한 마을		김영순\n10. 풍성한 마을		송동순\n10. 풍성한 마을		김가연\n10. 풍성한 마을		최숙자\n10. 풍성한 마을		박명덕\n10. 풍성한 마을		이태남\n10. 풍성한 마을		박채정\n10. 풍성한 마을		오선명\n11. 상록수 마을	목자	최원래\n11. 상록수 마을		박현미\n12. 보배 마을	목자	김철례\n12. 보배 마을		전덕례\n12. 보배 마을		안순자\n12. 보배 마을		안옥심\n12. 보배 마을		이갑주\n13. 순종 마을	목자	김인숙\n13. 순종 마을	순장	이영숙\n13. 순종 마을		박경이\n13. 순종 마을		이근엽\n13. 순종 마을		고채연\n13. 순종 마을		정미영\n13. 순종 마을		기연자\n13. 순종 마을		최진숙\n14. 반석 마을	목자	임영자\n14. 반석 마을	순장	백순금\n14. 반석 마을		전혜란\n14. 반석 마을		조명자\n14. 반석 마을		이명복\n14. 반석 마을		채영순\n14. 반석 마을		이정오\n14. 반석 마을		강남옥\n14. 반석 마을		김경자\n14. 반석 마을		신인심\n14. 반석 마을		김윤경\n14. 반석 마을		박학순\n14. 반석 마을		김옥경\n14. 반석 마을		김은순\n14. 반석 마을		김현주\n14. 반석 마을		정명순\n15. 만석 마을	목자	김미현\n15. 만석 마을		김일순\n15. 만석 마을		최순남\n16. 번성 마을	목자	이태란\n16. 번성 마을		박미나\n16. 번성 마을		장광희\n16. 번성 마을		안진선\n16. 번성 마을		김은미\n16. 번성 마을		황희\n17. 권능 마을	목자	임혜선\n17. 권능 마을	순장	한승진\n17. 권능 마을		박미순\n17. 권능 마을		윤경숙\n17. 권능 마을		김소영\n17. 권능 마을		김옥심\n18. 열매맺는 마을	목자	윤은순\n18. 열매맺는 마을	순장	전예영\n18. 열매맺는 마을		유봉은\n18. 열매맺는 마을		박미영\n18. 열매맺는 마을		양순금\n18. 열매맺는 마을		이시연\n19. 온유 마을	목자	기영란\n19. 온유 마을		손장엽\n20. 승리 마을	목자	김비영\n20. 승리 마을		박승혜`;
-
     let audioCtx;
     function playSound(isCheck) {
         try {
@@ -188,25 +191,11 @@
 
     async function init() {
         const membersRef = ref(db, 'members');
-        const snapshot = await get(membersRef);
-        if (!snapshot.exists()) {
-            const initialMembers = rawData.split('\n').map(line => {
-                const [v, r, n] = line.split('\t');
-                return { village: v.trim(), role: r ? r.trim() : "", name: n.trim() };
-            });
-            await set(membersRef, initialMembers);
-        }
-
         onValue(membersRef, (snap) => {
             let loadedMembers = snap.val() || [];
             loadedMembers = loadedMembers.filter(m => m !== null && m !== undefined);
-            
-            // 등록된 고유 마을 목록을 추출하여 순서대로 정렬
             const uniqueVillages = [...new Set(loadedMembers.map(m => m.village))];
-            
-            members = loadedMembers.sort((a, b) => {
-                return uniqueVillages.indexOf(a.village) - uniqueVillages.indexOf(b.village);
-            });
+            members = loadedMembers.sort((a, b) => uniqueVillages.indexOf(a.village) - uniqueVillages.indexOf(b.village));
             renderTable();
         });
         loadData();
@@ -224,14 +213,13 @@
         const tbodyMobile = document.getElementById('mobileBody');
         tbodyMobile.innerHTML = '';
         
-        let cSun = 0, cTue = 0, cWed = 0, cVil = 0, cFri = 0;
+        let cSun = 0, cTue = 0, cWed = 0, cFri = 0, cVil = 0;
 
-        // 1. 모바일 화면 그리기
         members.forEach((m, idx) => {
             if(!m) return;
             const checks = attendanceData[idx] || {};
             if(checks.sun) cSun++; if(checks.tue) cTue++;
-            if(checks.wed) cWed++; if(checks.vil) cVil++; if(checks.fri) cFri++;
+            if(checks.wed) cWed++; if(checks.fri) cFri++; if(checks.vil) cVil++; 
 
             const tr = document.createElement('tr');
             const isLast = (idx === members.length - 1) || (members[idx+1].village !== m.village);
@@ -239,23 +227,27 @@
             
             let dName = m.name.includes('(') ? m.name.replace('(', '<br>(') : m.name;
             
+            // 모바일 테이블 데이터 요일 순서 맞춤
             tr.innerHTML = `
                 <td>${m.village}</td><td>${m.role}</td><td>${dName}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td>
+                <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>
                 <td><button class="admin-btn btn-del" onclick="deleteMember(${idx})">삭제</button></td>
             `;
             tbodyMobile.appendChild(tr);
         });
         
         document.getElementById('tot-sun').innerText = cSun; document.getElementById('tot-tue').innerText = cTue;
-        document.getElementById('tot-wed').innerText = cWed; document.getElementById('tot-vil').innerText = cVil; document.getElementById('tot-fri').innerText = cFri;
-        document.getElementById('print-tot-sun').innerText = cSun; document.getElementById('print-tot-vil').innerText = cVil;
+        document.getElementById('tot-wed').innerText = cWed; document.getElementById('tot-fri').innerText = cFri; document.getElementById('tot-vil').innerText = cVil; 
+        
+        // 인쇄 요약표(2칸) 데이터 업데이트
+        document.getElementById('print-tot-sun').innerText = cSun; 
+        document.getElementById('print-tot-vil').innerText = cVil; 
 
-        // 2. 인쇄 화면(2단 그리드) 그리기
+        // 인쇄 화면(2단) 그리기
         const allVillages = [...new Set(members.map(m => m.village))];
         const half = Math.ceil(allVillages.length / 2);
         const vLeft = allVillages.slice(0, half);
@@ -274,12 +266,10 @@
             const vMems = members.filter(m => m.village === vName);
             if(vMems.length === 0) return;
 
-            // 마을 타이틀
             const trHead = document.createElement('tr');
             trHead.innerHTML = `<td colspan="12" class="print-village-title">${vName}</td>`;
             tbodyObj.appendChild(trHead);
 
-            // 명단 절반으로 나누기 (2단)
             const mid = Math.ceil(vMems.length / 2);
             const col1 = vMems.slice(0, mid);
             const col2 = vMems.slice(mid);
@@ -288,22 +278,21 @@
                 const tr = document.createElement('tr');
                 let html = '';
                 
-                // 왼쪽 칸
                 const m1 = col1[i];
                 if(m1) {
                     const idx = members.indexOf(m1);
                     const c = attendanceData[idx] || {};
                     const roleTag = m1.role ? `<span style="font-size:10px; color:#555;">${m1.role}</span> ` : '';
-                    html += `<td>${roleTag}${m1.name}</td><td>${c.sun?'O':''}</td><td>${c.tue?'O':''}</td><td>${c.wed?'O':''}</td><td>${c.vil?'O':''}</td><td>${c.fri?'O':''}</td>`;
+                    // 출력물 요일 순서 맞춤 (주, 화, 수, 금, 마)
+                    html += `<td>${roleTag}${m1.name}</td><td>${c.sun?'O':''}</td><td>${c.tue?'O':''}</td><td>${c.wed?'O':''}</td><td>${c.fri?'O':''}</td><td>${c.vil?'O':''}</td>`;
                 } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td>`; }
 
-                // 오른쪽 칸
                 const m2 = col2[i];
                 if(m2) {
                     const idx = members.indexOf(m2);
                     const c = attendanceData[idx] || {};
                     const roleTag = m2.role ? `<span style="font-size:10px; color:#555;">${m2.role}</span> ` : '';
-                    html += `<td>${roleTag}${m2.name}</td><td>${c.sun?'O':''}</td><td>${c.tue?'O':''}</td><td>${c.wed?'O':''}</td><td>${c.vil?'O':''}</td><td>${c.fri?'O':''}</td>`;
+                    html += `<td>${roleTag}${m2.name}</td><td>${c.sun?'O':''}</td><td>${c.tue?'O':''}</td><td>${c.wed?'O':''}</td><td>${c.fri?'O':''}</td><td>${c.vil?'O':''}</td>`;
                 } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td>`; }
 
                 tr.innerHTML = html;
@@ -338,7 +327,6 @@
         }
     });
 
-    // 📸 캡처 실행 (모바일 숨기고 A4 가로 그리기)
     function executeCapture(isPdf) {
         document.getElementById('mobile-view').style.display = 'none';
         document.getElementById('print-view').style.display = 'block';
@@ -346,7 +334,6 @@
         setTimeout(() => { 
             html2canvas(document.getElementById('print-view'), {scale: 2}).then(canvas => {
                 if (isPdf) {
-                    // A4 가로(Landscape)로 PDF 만들기
                     const imgData = canvas.toDataURL('image/png');
                     const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4'); 
                     const imgWidth = 297; 
