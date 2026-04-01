@@ -82,15 +82,15 @@
         <div>주일:<span id="tot-sun">0</span></div>
         <div>화요:<span id="tot-tue">0</span></div>
         <div>수요:<span id="tot-wed">0</span></div>
-        <div>마을:<span id="tot-vil">0</span></div>
         <div>금요:<span id="tot-fri">0</span></div>
+        <div>마을:<span id="tot-vil">0</span></div>
     </div>
 
     <table class="mobile-table">
         <thead>
             <tr>
                 <th>마을</th><th>직분</th><th>이름</th>
-                <th>주일</th><th>화요</th><th>수요</th><th>마을</th><th>금요</th>
+                <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th>
                 <th>관리</th>
             </tr>
         </thead>
@@ -216,7 +216,7 @@
             if(!m) return;
             const checks = attendanceData[idx] || {};
             if(checks.sun) cSun++; if(checks.tue) cTue++;
-            if(checks.wed) cWed++; if(checks.vil) cVil++; if(checks.fri) cFri++;
+            if(checks.wed) cWed++; if(checks.fri) cFri++; if(checks.vil) cVil++; 
 
             const tr = document.createElement('tr');
             const isLast = (idx === members.length - 1) || (members[idx+1].village !== m.village);
@@ -229,15 +229,15 @@
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>
                 <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td>
+                <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>
                 <td><button class="admin-btn btn-del" onclick="deleteMember(${idx})">삭제</button></td>
             `;
             tbodyMobile.appendChild(tr);
         });
         
         document.getElementById('tot-sun').innerText = cSun; document.getElementById('tot-tue').innerText = cTue;
-        document.getElementById('tot-wed').innerText = cWed; document.getElementById('tot-vil').innerText = cVil; document.getElementById('tot-fri').innerText = cFri;
+        document.getElementById('tot-wed').innerText = cWed; document.getElementById('tot-fri').innerText = cFri; document.getElementById('tot-vil').innerText = cVil; 
         
         document.getElementById('print-tot-sun').innerText = cSun; 
         document.getElementById('print-tot-vil').innerText = cVil; 
