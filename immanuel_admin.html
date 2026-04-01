@@ -54,7 +54,7 @@
         .col-name { width: 20%; }
         .col-chk { width: 6%; color: #0044cc; font-weight: bold; font-size: 12px; }
 
-        /* 💡 새 인원 추가 레이어(모달) 스타일 */
+        /* 모달 스타일 */
         #add-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; box-sizing: border-box; }
         .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
@@ -76,7 +76,7 @@
 <div id="mobile-view">
     <div class="header">
         <div class="header-title">2026년 임마누엘 목장 출석부 (관리자)</div>
-        <div class="week-label" id="weekRange">주간 데이터 계산 중...</div>
+        <div class="week-label" id="weekRange">데이터 로딩 중...</div>
         <div><input type="date" class="date-input" id="currentDate"></div>
     </div>
     <div class="summary-box">
@@ -101,18 +101,18 @@
             <option value="1. 섬김 마을">1. 섬김 마을</option>
             <option value="2. 사랑스런 마을">2. 사랑스런 마을</option>
             <option value="3. 워십 마을">3. 워십 마을</option>
-            <option value="4. 암미 마을">4. 암미 마을</option>
+            <option value="4. 양떼 마을">4. 양떼 마을</option>
             <option value="5. 은혜 마을">5. 은혜 마을</option>
             <option value="6. 포도원 마을">6. 포도원 마을</option>
             <option value="7. 회복 마을">7. 회복 마을</option>
             <option value="8. 새생명 마을">8. 새생명 마을</option>
             <option value="9. 청솔 마을">9. 청솔 마을</option>
             <option value="10. 풍성한 마을">10. 풍성한 마을</option>
-            <option value="11. 상록수 마을">11. 상록수 마을</option>
+            <option value="11. 상속자 마을">11. 상속자 마을</option>
             <option value="12. 보배 마을">12. 보배 마을</option>
             <option value="13. 순종 마을">13. 순종 마을</option>
             <option value="14. 반석 마을">14. 반석 마을</option>
-            <option value="15. 만석 마을">15. 만석 마을</option>
+            <option value="15. 지성소 마을">15. 지성소 마을</option>
             <option value="16. 번성 마을">16. 번성 마을</option>
             <option value="17. 권능 마을">17. 권능 마을</option>
             <option value="18. 열매맺는 마을">18. 열매맺는 마을</option>
@@ -156,7 +156,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
@@ -183,22 +183,18 @@
     dateInput.valueAsDate = new Date();
     dateInput.addEventListener('change', loadData);
 
-    let audioCtx;
-    function playSound(isCheck) {
-        try {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.setValueAtTime(isCheck ? 880 : 440, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        } catch(e) {}
-    }
+    // 원본 데이터 오타 수정 반영 (데이터베이스 초기화 시 사용)
+    const rawData = `1. 섬김 마을	목자	신금옥\n1. 섬김 마을	순장	박정아\n1. 섬김 마을		구점례\n1. 섬김 마을		김옥녀\n1. 섬김 마을		김미애\n1. 섬김 마을	순장	고영임\n1. 섬김 마을		박금순\n1. 섬김 마을		신정자\n2. 사랑스런 마을	목자	문이정\n2. 사랑스런 마을		강애정\n2. 사랑스런 마을		김희\n2. 사랑스런 마을		전숙련\n2. 사랑스런 마을		고옥희\n2. 사랑스런 마을		김정아\n2. 사랑스런 마을		김성자\n2. 사랑스런 마을		장순애\n2. 사랑스런 마을		민윤임\n3. 워십 마을	목자	주일심\n3. 워십 마을	순장	강변형\n3. 워십 마을	순장	고경미\n3. 워십 마을		고유은\n3. 워십 마을		김선화\n3. 워십 마을		권경희\n4. 양떼 마을	목자	이윤희\n4. 양떼 마을		김명자\n4. 양떼 마을		허옥자\n4. 양떼 마을	순장	김영희\n4. 양떼 마을		박영희\n4. 양떼 마을		김애숙\n5. 은혜 마을	목자	신하영\n5. 은혜 마을		박영순\n5. 은혜 마을		윤서연\n6. 포도원 마을	목자	임수자\n6. 포도원 마을	순장	박경자\n6. 포도원 마을		서경자\n6. 포도원 마을	순장	신순희\n7. 회복 마을	목자	서금희\n8. 새생명 마을	목자	김연희\n8. 새생명 마을	순장	정선명\n8. 새생명 마을		남진숙\n9. 청솔 마을	목자	서연화\n9. 청솔 마을	순장	최경자\n9. 청솔 마을		한채화\n9. 청솔 마을	순장	진선양\n10. 풍성한 마을	목자	염상남\n10. 풍성한 마을	순장	천경희\n10. 풍성한 마을		신수진\n10. 풍성한 마을		최순례\n10. 풍성한 마을		이명자\n10. 풍성한 마을		이진자\n10. 풍성한 마을		김은미\n10. 풍성한 마을	순장	송남숙\n10. 풍성한 마을		김영순\n10. 풍성한 마을		송동순\n10. 풍성한 마을		김가연\n10. 풍성한 마을		최숙자\n10. 풍성한 마을		박명덕\n10. 풍성한 마을		이태남\n10. 풍성한 마을		박채정\n10. 풍성한 마을		오선명\n11. 상속자 마을	목자	최원래\n11. 상속자 마을		박현미\n12. 보배 마을	목자	김철례\n12. 보배 마을		전덕례\n12. 보배 마을		안순자\n12. 보배 마을		안옥심\n12. 보배 마을		이갑주\n13. 순종 마을	목자	김인숙\n13. 순종 마을	순장	이영숙\n13. 순종 마을		박경이\n13. 순종 마을		이근엽\n13. 순종 마을		고채연\n13. 순종 마을		정미영\n13. 순종 마을		기연자\n13. 순종 마을		최진숙\n14. 반석 마을	목자	임영자\n14. 반석 마을	순장	백순금\n14. 반석 마을		전혜란\n14. 반석 마을		조명자\n14. 반석 마을		이명복\n14. 반석 마을		채영순\n14. 반석 마을		이정오\n14. 반석 마을		강남옥\n14. 반석 마을		김경자\n14. 반석 마을		신인심\n14. 반석 마을		김윤경\n14. 반석 마을		박학순\n14. 반석 마을		김옥경\n14. 반석 마을		김은순\n14. 반석 마을		김현주\n14. 반석 마을		정명순\n15. 지성소 마을	목자	김미현\n15. 지성소 마을		김일순\n15. 지성소 마을		최순남\n16. 번성 마을	목자	이태란\n16. 번성 마을		박미나\n16. 번성 마을		장광희\n16. 번성 마을		안진선\n16. 번성 마을		김은미\n16. 번성 마을		황희\n17. 권능 마을	목자	임혜선\n17. 권능 마을	순장	한승진\n17. 권능 마을		박미순\n17. 권능 마을		윤경숙\n17. 권능 마을		김소영\n17. 권능 마을		김옥심\n18. 열매맺는 마을	목자	윤은순\n18. 열매맺는 마을	순장	전예영\n18. 열매맺는 마을		유봉은\n18. 열매맺는 마을		박미영\n18. 열매맺는 마을		양순금\n18. 열매맺는 마을		이시연\n19. 온유 마을	목자	기영란\n19. 온유 마을		손장엽\n20. 승리 마을	목자	김비영\n20. 승리 마을		박승혜`;
 
     async function init() {
-        onValue(ref(db, 'members'), (snap) => {
-            let loaded = snap.val() || [];
+        const mRef = ref(db, 'members');
+        const snap = await get(mRef);
+        if(!snap.exists()) {
+            const initial = rawData.split('\n').map(l => { const [v, r, n] = l.split('\t'); return { village: v.trim(), role: r ? r.trim() : "", name: n.trim() }; });
+            await set(mRef, initial);
+        }
+        onValue(mRef, (s) => {
+            let loaded = s.val() || [];
             members = loaded.filter(m => m !== null);
             const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
             members.sort((a, b) => {
@@ -223,8 +219,7 @@
     }
 
     function renderTable() {
-        const tbodyMobile = document.getElementById('mobileBody');
-        tbodyMobile.innerHTML = '';
+        const tbodyMobile = document.getElementById('mobileBody'); tbodyMobile.innerHTML = '';
         let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
         members.forEach((m, idx) => {
             const checks = attendanceData[idx] || {};
@@ -288,7 +283,6 @@
 
     window.deleteMember = (idx) => { if(confirm("삭제하시겠습니까?")) { members.splice(idx, 1); set(ref(db, 'members'), members); } };
 
-    // 💡 모달 제어 로직
     const modal = document.getElementById('add-modal');
     document.getElementById('addBtn').onclick = () => { modal.style.display = 'flex'; };
     document.getElementById('modal-cancel').onclick = () => { modal.style.display = 'none'; };
@@ -296,13 +290,8 @@
         const v = document.getElementById('modal-village').value;
         const r = document.getElementById('modal-role').value;
         const n = document.getElementById('modal-name').value;
-        if(n) {
-            members.push({ village: v, role: r, name: n });
-            set(ref(db, 'members'), members);
-            modal.style.display = 'none';
-            document.getElementById('modal-role').value = '';
-            document.getElementById('modal-name').value = '';
-        } else { alert("이름을 입력해주세요."); }
+        if(n) { members.push({ village: v, role: r, name: n }); set(ref(db, 'members'), members); modal.style.display = 'none'; document.getElementById('modal-role').value = ''; document.getElementById('modal-name').value = ''; }
+        else { alert("이름을 입력해주세요."); }
     };
 
     document.getElementById('pdfBtn').addEventListener('click', () => {
