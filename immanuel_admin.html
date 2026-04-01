@@ -61,7 +61,8 @@
         .print-table thead th { background-color: #e8f5e9; font-weight: bold; line-height: 1.2; }
         .print-village-title { background-color: #c8e6c9 !important; font-weight: bold; letter-spacing: 1px; font-size: 12px; }
         
-        .col-name { width: 28%; }
+        /* 💡 너비 비율 수정: 좌우 이름 칸이 동일하게 넓어지도록 20%로 고정 */
+        .col-name { width: 20%; }
         .col-chk { width: 6%; color: #0044cc; font-weight: bold; font-size: 12px; }
     </style>
 </head>
@@ -123,13 +124,26 @@
                     <th class="col-chk">수<br>요</th>
                     <th class="col-chk">마<br>을</th>
                     <th class="col-chk">금<br>요</th>
+                    <th class="col-name">성 명</th>
+                    <th class="col-chk">주<br>일</th>
+                    <th class="col-chk">화<br>요</th>
+                    <th class="col-chk">수<br>요</th>
+                    <th class="col-chk">마<br>을</th>
+                    <th class="col-chk">금<br>요</th>
                 </tr>
             </thead>
             <tbody id="printLeftBody"></tbody>
         </table>
+        
         <table class="print-table">
             <thead>
                 <tr>
+                    <th class="col-name">성 명</th>
+                    <th class="col-chk">주<br>일</th>
+                    <th class="col-chk">화<br>요</th>
+                    <th class="col-chk">수<br>요</th>
+                    <th class="col-chk">마<br>을</th>
+                    <th class="col-chk">금<br>요</th>
                     <th class="col-name">성 명</th>
                     <th class="col-chk">주<br>일</th>
                     <th class="col-chk">화<br>요</th>
