@@ -29,12 +29,12 @@
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 4px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
         .mobile-table th { background-color: #fff8e1; }
         
-        /* 컬럼 비율 최적화: 마을(17%), 직분(10%), 이름(15%), 체크5개(각 9.5%), 관리(10.5%) */
-        .mobile-table th:nth-child(1) { width: 17%; } 
+        /* 컬럼 비율: 마을(20%), 직분(10%), 이름(13%), 체크5개(각 9.5%), 관리(9.5%) */
+        .mobile-table th:nth-child(1) { width: 20%; } 
         .mobile-table th:nth-child(2) { width: 10%; } 
-        .mobile-table th:nth-child(3) { width: 15%; } 
+        .mobile-table th:nth-child(3) { width: 13%; } 
         .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 9.5%; } 
-        .mobile-table th:nth-child(9) { width: 10.5%; } 
+        .mobile-table th:nth-child(9) { width: 9.5%; } 
         
         .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 16px; user-select: none; background-color: #fafafa; }
         .village-divider { border-bottom: 2px solid #000; }
@@ -44,7 +44,16 @@
         .btn-add { background-color: #1976D2; width: 100%; margin-top: 10px; padding: 12px; font-size: 15px; }
         .btn-del { background-color: #ff9800; padding: 2px 4px; font-size: 10px; color: white; border-radius: 3px; border: none; }
 
-        /* 🖨️ 인쇄 전용(A4) */
+        #add-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; box-sizing: border-box; }
+        .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
+        .modal-content label { display: block; margin: 15px 0 5px; font-weight: bold; font-size: 14px; }
+        .modal-content select, .modal-content input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn-save { background: #1976D2; color: white; }
+        .btn-cancel { background: #999; color: white; }
+
         #print-view { display: none; width: 1100px; background: white; padding: 20px; box-sizing: border-box; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
         .print-title { font-size: 28px; font-weight: bold; letter-spacing: -1px; }
@@ -56,17 +65,6 @@
         .print-table th, .print-table td { border: 1px solid #000; padding: 3px 1px; }
         .print-table thead th { background-color: #e8f5e9; font-weight: bold; line-height: 1.2; }
         .print-village-title { background-color: #c8e6c9 !important; font-weight: bold; letter-spacing: 1px; font-size: 12px; }
-
-        /* 모달 스타일 */
-        #add-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; box-sizing: border-box; }
-        .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
-        .modal-content label { display: block; margin: 15px 0 5px; font-weight: bold; font-size: 14px; }
-        .modal-content select, .modal-content input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .btn-save { background: #1976D2; color: white; }
-        .btn-cancel { background: #999; color: white; }
     </style>
 </head>
 <body>
@@ -79,7 +77,7 @@
 <div id="mobile-view">
     <div class="header">
         <div class="header-title">2026년 임마누엘 목장 출석부 (관리자)</div>
-        <div class="week-label" id="weekRange">화~일 주간 데이터</div>
+        <div class="week-label" id="weekRange">화~일 데이터</div>
         <div><input type="date" class="date-input" id="currentDate"></div>
     </div>
     <div class="summary-box">
@@ -122,10 +120,8 @@
             <option value="19. 온유 마을">19. 온유 마을</option>
             <option value="20. 승리 마을">20. 승리 마을</option>
         </select>
-        <label>직분</label>
-        <input type="text" id="modal-role" placeholder="예: 목자">
-        <label>이름</label>
-        <input type="text" id="modal-name" placeholder="성함">
+        <label>직분</label><input type="text" id="modal-role" placeholder="예: 목자">
+        <label>이름</label><input type="text" id="modal-name" placeholder="성함">
         <div class="modal-btns">
             <button class="btn-cancel" id="modal-cancel">취소</button>
             <button class="btn-save" id="modal-save">저장</button>
@@ -170,6 +166,9 @@
         return d.toISOString().split('T')[0];
     }
 
+    // 🌟 오타 수정된 진짜 원본 명단 (130여 명)
+    const rawData = `1. 섬김 마을	목자	신금옥\n1. 섬김 마을	순장	박정아\n1. 섬김 마을		구점례\n1. 섬김 마을		김옥녀\n1. 섬김 마을		김미애\n1. 섬김 마을	순장	고영임\n1. 섬김 마을		박금순\n1. 섬김 마을		신정자\n2. 사랑스런 마을	목자	문이정\n2. 사랑스런 마을		강애정\n2. 사랑스런 마을		김희\n2. 사랑스런 마을		전숙련\n2. 사랑스런 마을		고옥희\n2. 사랑스런 마을		김정아\n2. 사랑스런 마을		김성자\n2. 사랑스런 마을		장순애\n2. 사랑스런 마을		민종임\n3. 워십 마을	목자	주일심\n3. 워십 마을	순장	강현정\n3. 워십 마을	순장	고경미\n3. 워십 마을		고유은\n3. 워십 마을		김선화\n3. 워십 마을		현경희\n4. 양떼 마을	목자	이윤희\n4. 양떼 마을		김행자\n4. 양떼 마을		허옥자\n4. 양떼 마을		김경자\n4. 양떼 마을		신인심\n4. 양떼 마을	순장	김영희\n4. 양떼 마을		박영희\n4. 양떼 마을		강애숙\n4. 양떼 마을		김윤경\n4. 양떼 마을		박학순\n5. 은혜 마을	목자	신하영\n5. 은혜 마을		박영순\n5. 은혜 마을		윤서연\n6. 포도원 마을	목자	임수자\n6. 포도원 마을	순장	박경자\n6. 포도원 마을		서경자\n6. 포도원 마을	순장	신순희\n7. 회복 마을	목자	서금희\n8. 새생명 마을	목자	김연희\n8. 새생명 마을	순장	장선영\n8. 새생명 마을		남진숙\n9. 청솔 마을	목자	서연화\n9. 청솔 마을	순장	최경자\n9. 청솔 마을		한채화\n9. 청솔 마을	순장	진선양\n10. 풍성한 마을	목자	염상남\n10. 풍성한 마을	순장	천경희\n10. 풍성한 마을		신수진\n10. 풍성한 마을		허순례\n10. 풍성한 마을		이명자\n10. 풍성한 마을		이진자\n10. 풍성한 마을		김은미\n10. 풍성한 마을	순장	송남숙\n10. 풍성한 마을		김영순\n10. 풍성한 마을		송동순\n10. 풍성한 마을		김가연\n10. 풍성한 마을		최숙자\n10. 풍성한 마을		박명덕\n10. 풍성한 마을		이태남\n10. 풍성한 마을		박채정\n10. 풍성한 마을		오선명\n11. 상속자 마을	목자	최원래\n11. 상속자 마을		박현미\n12. 보배 마을	목자	김칠례\n12. 보배 마을		전덕례\n12. 보배 마을		안순자\n12. 보배 마을		안옥심\n12. 보배 마을		이갑주\n13. 순종 마을	목자	강민숙\n13. 순종 마을	순장	이영숙\n13. 순종 마을		박경이\n13. 순종 마을		이근엽\n13. 순종 마을		고채연\n13. 순종 마을		정미영\n13. 순종 마을		기연자\n13. 순종 마을		최진숙\n14. 반석 마을	목자	임영자\n14. 반석 마을	순장	백순금\n14. 반석 마을		전혜란\n14. 반석 마을		조영자\n14. 반석 마을		김옥경\n14. 반석 마을		김은순\n14. 반석 마을		김현주\n14. 반석 마을		이명옥\n14. 반석 마을		채영순\n14. 반석 마을		이정오\n14. 반석 마을		강남옥\n14. 반석 마을		정영순\n15. 지성소 마을	목자	강미현\n15. 지성소 마을		김일순\n15. 지성소 마을		최순남\n16. 번성 마을	목자	이해란\n16. 번성 마을		박미나\n16. 번성 마을		장광희\n16. 번성 마을		안진선\n16. 번성 마을		김은미\n16. 번성 마을		황희\n17. 권능 마을	목자	임혜선\n17. 권능 마을	순장	한승진\n17. 권능 마을		박미순\n17. 권능 마을		윤경숙\n17. 권능 마을		김소영\n17. 권능 마을		김옥심\n18. 열매맺는 마을	목자	윤은순\n18. 열매맺는 마을	순장	전예영\n18. 열매맺는 마을		유봉은\n18. 열매맺는 마을		박미영\n18. 열매맺는 마을		양순금\n18. 열매맺는 마을		이시연\n19. 온유 마을	목자	기영란\n19. 온유 마을		박영덕\n19. 온유 마을		이채남\n19. 온유 마을		박채정\n19. 온유 마을		손장엽\n19. 온유 마을		오선영\n20. 승리 마을	목자	김혜영\n20. 승리 마을		박승혜`;
+
     dateInput.valueAsDate = new Date();
     dateInput.addEventListener('change', loadData);
 
@@ -179,12 +178,26 @@
             let loaded = snap.val() || [];
             members = loaded.filter(m => m !== null);
             
-            // 💡 구형 마을이름 자동수정 로직
+            // 💡 자동 수정 엔진: 4, 11, 15번 마을 및 기타 오타 자동 교정
             let needsUpdate = false;
             members.forEach(m => {
                 if(m.village === "4. 암미 마을") { m.village = "4. 양떼 마을"; needsUpdate = true; }
                 if(m.village === "11. 상록수 마을") { m.village = "11. 상속자 마을"; needsUpdate = true; }
                 if(m.village === "15. 만석 마을") { m.village = "15. 지성소 마을"; needsUpdate = true; }
+                // 개별 이름 오타 자동 교정 샘플 (민윤임 -> 민종임 등)
+                if(m.name === "민윤임") { m.name = "민종임"; needsUpdate = true; }
+                if(m.name === "강변형") { m.name = "강현정"; needsUpdate = true; }
+                if(m.name === "권경희") { m.name = "현경희"; needsUpdate = true; }
+                if(m.name === "김명자" && m.village.includes("4.")) { m.name = "김행자"; needsUpdate = true; }
+                if(m.name === "김애숙" && m.village.includes("4.")) { m.name = "강애숙"; needsUpdate = true; }
+                if(m.name === "최순례" && m.village.includes("10.")) { m.name = "허순례"; needsUpdate = true; }
+                if(m.name === "김인숙" && m.village.includes("13.")) { m.name = "강민숙"; needsUpdate = true; }
+                if(m.name === "조명자" && m.village.includes("14.")) { m.name = "조영자"; needsUpdate = true; }
+                if(m.name === "이명복" && m.village.includes("14.")) { m.name = "이명옥"; needsUpdate = true; }
+                if(m.name === "정명순" && m.village.includes("14.")) { m.name = "정영순"; needsUpdate = true; }
+                if(m.name === "이태란" && m.village.includes("16.")) { m.name = "이해란"; needsUpdate = true; }
+                if(m.name === "이채님" && m.village.includes("19.")) { m.name = "이채남"; needsUpdate = true; }
+                if(m.name === "김비영" && m.village.includes("20.")) { m.name = "김혜영"; needsUpdate = true; }
             });
             if(needsUpdate) { set(mRef, members); return; }
 
@@ -225,6 +238,8 @@
         document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue;
         document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
         document.getElementById('print-tot-sun').innerText = c.sun; document.getElementById('print-tot-vil').innerText = c.vil;
+        const dObj = new Date(dateInput.value);
+        document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
     }
 
     window.toggleCheck = (idx, day) => {
@@ -244,7 +259,6 @@
         const n = document.getElementById('modal-name').value;
         if(n) { members.push({ village: v, role: r, name: n }); set(ref(db, 'members'), members); modal.style.display = 'none'; }
     };
-
     init();
 </script>
 </body>
