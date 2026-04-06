@@ -18,7 +18,7 @@
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; position: relative; }
         .header-title { font-size: 16px; font-weight: bold; }
-        .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; background: transparent; }
+        .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; background: transparent; cursor: pointer; }
         .week-label { font-size: 11px; color: #666; font-weight: bold; margin-top: 3px; }
         .btn-settings { position: absolute; right: 5px; top: 10px; background: #333; color: white; border: none; border-radius: 4px; padding: 5px 8px; font-size: 10px; cursor: pointer; }
         
@@ -28,14 +28,13 @@
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
         
-        /* 💡 혁신적인 레이아웃 너비 설정 (최상단 메뉴 삭제) */
+        /* 💡 혁신적인 레이아웃 너비 설정 (총 100%) */
         .col-role { width: 9%; } 
         .col-name { width: 15%; } 
-        .col-check { width: 10.5%; } /* 주, 화, 수, 금, 마 (5개) */
+        .col-check { width: 10.5%; } 
         .col-etc { width: 10.5%; } 
         .col-manage { width: 13%; } 
         
-        /* 마을 헤더를 일반 메뉴처럼 사용 */
         .village-header-row { background-color: #c8e6c9; }
         .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
         .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
@@ -48,7 +47,6 @@
         .btn-add { background-color: #1976D2; width: 100%; margin-top: 10px; padding: 12px; font-size: 15px; }
         .btn-manage { background-color: #424242; padding: 4px 6px; font-size: 10px; color: white; border-radius: 3px; border: none; cursor: pointer; }
 
-        /* 공통 모달 스타일 */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; box-sizing: border-box; }
         .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; text-align: center; }
@@ -58,7 +56,6 @@
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) */
         #print-view { display: none; width: 1100px; background: white; padding: 20px; box-sizing: border-box; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
         .print-title { font-size: 28px; font-weight: bold; letter-spacing: -1px; }
@@ -157,4 +154,23 @@
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w
+        apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
+        authDomain: "immanuel-attendance.firebaseapp.com",
+        databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com",
+        projectId: "immanuel-attendance"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    let members = []; let attendanceData = {}; let attOptions = [];
+    const dateInput = document.getElementById('currentDate');
+
+    let currentCheckIdx = null; let currentManageIdx = null;
+
+    let audioCtx = null;
+    window.unlockAudio = function() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    };
+    function playSound() {
+        try { unlockAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination);
