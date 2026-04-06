@@ -13,41 +13,64 @@
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; }
         .header-title { font-size: 16px; font-weight: bold; }
-        .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; }
-        .week-label { font-size: 11px; color: #666; font-weight: bold; }
+        .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; background: transparent; }
+        .week-label { font-size: 11px; color: #666; font-weight: bold; margin-top: 3px; }
+        
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 12px; background: #fff8e1; padding: 5px 2px; border: 1px solid #333; }
         .summary-box span { color: #0044cc; margin: 0 1px; font-size: 12px; }
+
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.2; word-break: keep-all; }
+        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
         .mobile-table th { background-color: #fff8e1; }
         
-        /* 목자용 레이아웃 최적화 */
-        .mobile-table th:nth-child(1) { width: 28%; } 
-        .mobile-table th:nth-child(2) { width: 10%; } 
-        .mobile-table th:nth-child(3) { width: 12%; } 
-        .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 10%; } 
+        /* 💡 레이아웃: 마을열 제거 (총 7열) */
+        .mobile-table th:nth-child(1) { width: 12%; } /* 직분 */
+        .mobile-table th:nth-child(2) { width: 23%; } /* 이름 */
+        .mobile-table th:nth-child(3), .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7) { width: 13%; } /* 체크 5개 */
         
-        .check-cell { cursor: pointer; color: #0044cc; font-weight: bold; font-size: 16px; user-select: none; background-color: #fafafa; min-height: 35px; }
-        .village-divider { border-bottom: 2px solid #000; }
+        .village-header { background-color: #c8e6c9 !important; font-weight: bold; text-align: left; padding-left: 10px !important; font-size: 12px; letter-spacing: 1px; }
+        .check-cell { cursor: pointer; font-weight: bold; font-size: 14px; user-select: none; background-color: #fafafa; }
+        .check-cell:active { background-color: #e3f2fd; }
         .notice { text-align: center; font-size: 10px; color: #666; margin-bottom: 5px; word-break: keep-all; }
+
+        /* 공통 모달 스타일 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; box-sizing: border-box; text-align: center; }
+        .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
+        .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
+        .opt-btn-primary { background: #1976D2; color: white; }
     </style>
 </head>
-<body onclick="unlockAudio()"> <div class="container">
-    <div class="notice">터치하면 실시간 공유됩니다. (주간 단위 관리)</div>
+<body onclick="unlockAudio()">
+
+<div class="container">
+    <div class="notice">빈칸을 터치하여 사유를 선택하세요.</div>
     <div class="header">
-        <div class="header-title">2026년 임마누엘 목장 출석부 (목자용)</div>
-        <div class="week-label" id="weekRange">데이터 로딩 중...</div>
+        <div class="header-title">2026년 임마누엘 출석부 (목자용)</div>
         <div><input type="date" class="date-input" id="currentDate"></div>
+        <div class="week-label" id="weekRange">데이터 로딩 중...</div>
     </div>
+
     <div class="summary-box">
         <div>주일:<span id="tot-sun">0</span></div><div>화요:<span id="tot-tue">0</span></div>
         <div>수요:<span id="tot-wed">0</span></div><div>금요:<span id="tot-fri">0</span></div>
         <div>마을:<span id="tot-vil">0</span></div>
     </div>
+
     <table class="mobile-table">
-        <thead><tr><th>마을</th><th>직분</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th></tr></thead>
+        <thead>
+            <tr><th>직분</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th></tr>
+        </thead>
         <tbody id="tableBody"></tbody>
     </table>
+</div>
+
+<div id="check-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>상태 선택</h3>
+        <div id="check-buttons" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-bottom:20px;"></div>
+        <button style="width:100%; padding:12px; background:#999; color:white; border:none; border-radius:5px; font-weight:bold;" onclick="closeModal('check-modal')">닫기</button>
+    </div>
 </div>
 
 <script type="module">
@@ -58,89 +81,107 @@
         apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
         authDomain: "immanuel-attendance.firebaseapp.com",
         databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com",
-        projectId: "immanuel-attendance",
-        storageBucket: "immanuel-attendance.firebasestorage.app",
-        messagingSenderId: "1027964994475",
-        appId: "1:1027964994475:web:4e21453cc5ce2c11ab48ee"
+        projectId: "immanuel-attendance"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    let members = []; let attendanceData = {};
+    let members = []; let attendanceData = {}; let attOptions = [];
     const dateInput = document.getElementById('currentDate');
 
-    // 💡 웹앱 소리 차단 해제 마법
+    let currentCheckIdx = null; let currentCheckDay = null;
+
     let audioCtx = null;
     window.unlockAudio = function() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
     };
+    function playSound() { try { unlockAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch(e) {} }
 
-    function playSound(isCheck) {
-        try {
-            unlockAudio(); // 소리 재생 전 상태 확인
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(isCheck ? 880 : 440, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        } catch(e) { console.log("Audio Error:", e); }
+    const today = new Date(); dateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    function getWeekKey(dateStr) {
+        if (!dateStr) return ""; const parts = dateStr.split('-');
+        const d = new Date(parts[0], parts[1] - 1, parts[2]); const diff = (d.getDay() >= 2) ? (d.getDay() - 2) : (d.getDay() + 5);
+        d.setDate(d.getDate() - diff); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
-
-    function getWeekKey(date) {
-        const d = new Date(date); const day = d.getDay();
-        const diff = (day >= 2) ? (day - 2) : (day + 5);
-        d.setDate(d.getDate() - diff);
-        return d.toISOString().split('T')[0];
-    }
-
-    dateInput.valueAsDate = new Date();
     dateInput.addEventListener('change', loadData);
 
-    async function init() {
+    function init() {
+        onValue(ref(db, 'settings/attendanceOptions'), snap => { attOptions = snap.val() || ['출석', '병원', '시외', '여행', '기타']; });
         onValue(ref(db, 'members'), (snap) => {
-            members = (snap.val() || []).filter(m => m !== null);
+            const data = snap.val() || []; members = data.filter(m => m && typeof m === 'object');
             const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
-            members.sort((a, b) => vOrder.findIndex(v => a.village.startsWith(v)) - vOrder.findIndex(v => b.village.startsWith(v)));
+            members.sort((a, b) => vOrder.findIndex(v => (a.village||"").startsWith(v)) - vOrder.findIndex(v => (b.village||"").startsWith(v)));
             renderTable();
         });
         loadData();
     }
 
     function loadData() {
-        const weekKey = getWeekKey(dateInput.value);
-        const startDay = new Date(weekKey);
-        document.getElementById('weekRange').innerText = `${startDay.getMonth()+1}/${startDay.getDate()}(화) 시작 주간`;
+        const weekKey = getWeekKey(dateInput.value); if (!weekKey) return;
+        document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
         onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
     }
 
     function renderTable() {
         const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
         let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
+        let currentVil = ""; const mainOpt = attOptions[0] || '출석';
+
+        const formatVal = (val) => {
+            if (val === true || val === mainOpt) return `<span style="color:#0044cc;">O</span>`;
+            if (val) return `<span style="color:#d32f2f; font-size:10px;">${val}</span>`;
+            return '';
+        };
+
         members.forEach((m, idx) => {
-            const checks = attendanceData[idx] || {};
-            if(checks.sun) c.sun++; if(checks.tue) c.tue++; if(checks.wed) c.wed++; if(checks.fri) c.fri++; if(checks.vil) c.vil++;
+            if(!m) return;
+            const ch = attendanceData[idx] || {};
+            if(ch.sun === true || ch.sun === mainOpt) c.sun++; if(ch.tue === true || ch.tue === mainOpt) c.tue++;
+            if(ch.wed === true || ch.wed === mainOpt) c.wed++; if(ch.fri === true || ch.fri === mainOpt) c.fri++; if(ch.vil === true || ch.vil === mainOpt) c.vil++;
+            
+            if (m.village !== currentVil) {
+                const trH = document.createElement('tr');
+                trH.innerHTML = `<td colspan="7" class="village-header">${m.village || "미지정"}</td>`;
+                tbody.appendChild(trH); currentVil = m.village;
+            }
+            
+            let dName = (m.name||"").includes('(') ? m.name.replace('(', '<br>(') : (m.name||"");
             const tr = document.createElement('tr');
-            if(idx === members.length - 1 || members[idx+1].village !== m.village) tr.classList.add('village-divider');
-            tr.innerHTML = `<td>${m.village}</td><td>${m.role}</td><td>${m.name}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${checks.sun ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${checks.tue ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${checks.wed ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${checks.fri ? 'O' : ''}</td><td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${checks.vil ? 'O' : ''}</td>`;
+            tr.innerHTML = `
+                <td>${m.role || ""}</td><td>${dName}</td>
+                <td class="check-cell" onclick="openCheck(${idx}, 'sun')">${formatVal(ch.sun)}</td>
+                <td class="check-cell" onclick="openCheck(${idx}, 'tue')">${formatVal(ch.tue)}</td>
+                <td class="check-cell" onclick="openCheck(${idx}, 'wed')">${formatVal(ch.wed)}</td>
+                <td class="check-cell" onclick="openCheck(${idx}, 'fri')">${formatVal(ch.fri)}</td>
+                <td class="check-cell" onclick="openCheck(${idx}, 'vil')">${formatVal(ch.vil)}</td>
+            `;
             tbody.appendChild(tr);
         });
+        
         document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
     }
 
-    window.toggleCheck = (idx, day) => {
-        const weekKey = getWeekKey(dateInput.value);
-        const next = !(attendanceData[idx]?.[day] || false);
-        set(ref(db, `attendance/${weekKey}/${idx}/${day}`), next);
-        playSound(next);
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
+    window.openCheck = (idx, day) => {
+        currentCheckIdx = idx; currentCheckDay = day;
+        const container = document.getElementById('check-buttons'); container.innerHTML = '';
+        attOptions.forEach((opt, i) => {
+            const btn = document.createElement('button'); btn.className = i===0 ? 'opt-btn opt-btn-primary' : 'opt-btn'; btn.innerText = opt;
+            btn.onclick = () => saveCheck(opt); container.appendChild(btn);
+        });
+        const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "선택 초기화 (빈칸)";
+        clearBtn.onclick = () => saveCheck(""); container.appendChild(clearBtn);
+        document.getElementById('check-modal').style.display = 'flex';
     };
+
+    window.saveCheck = (val) => {
+        const weekKey = getWeekKey(dateInput.value);
+        set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/${currentCheckDay}`), val);
+        playSound(); closeModal('check-modal');
+    };
+
     init();
 </script>
 </body>
