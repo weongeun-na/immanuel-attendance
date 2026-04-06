@@ -29,11 +29,11 @@
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 4px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
         .mobile-table th { background-color: #fff8e1; }
         
-        /* 💡 레이아웃: 마을열 제거 (총 8열) */
-        .mobile-table th:nth-child(1) { width: 10%; } /* 직분 */
-        .mobile-table th:nth-child(2) { width: 20%; } /* 이름 */
-        .mobile-table th:nth-child(3), .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7) { width: 11%; } /* 체크 5개 */
-        .mobile-table th:nth-child(8) { width: 15%; } /* 관리 */
+        /* 💡 레이아웃: 기타칸 추가 (총 9열) */
+        .mobile-table th:nth-child(1) { width: 9%; } /* 직분 */
+        .mobile-table th:nth-child(2) { width: 16%; } /* 이름 */
+        .mobile-table th:nth-child(3), .mobile-table th:nth-child(4), .mobile-table th:nth-child(5), .mobile-table th:nth-child(6), .mobile-table th:nth-child(7), .mobile-table th:nth-child(8) { width: 10%; } /* 체크 6개 */
+        .mobile-table th:nth-child(9) { width: 15%; } /* 관리 */
         
         .village-header { background-color: #c8e6c9 !important; font-weight: bold; text-align: left; padding-left: 10px !important; font-size: 12px; letter-spacing: 1px; }
         .check-cell { cursor: pointer; font-weight: bold; font-size: 14px; user-select: none; background-color: #fafafa; }
@@ -53,9 +53,20 @@
         .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         
-        /* 출석 체크 옵션 버튼 */
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
-        .opt-btn-primary { background: #1976D2; color: white; }
+
+        /* 🖨️ 인쇄 전용(A4) */
+        #print-view { display: none; width: 1100px; background: white; padding: 20px; box-sizing: border-box; }
+        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+        .print-title { font-size: 28px; font-weight: bold; letter-spacing: -1px; }
+        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 2px solid #000; font-size: 12px; font-weight: bold; }
+        .print-summary-tbl th, .print-summary-tbl td { border: 1px solid #000; padding: 4px 10px; }
+        .print-summary-tbl th { background-color: #f0f0f0; }
+        .print-grid { display: flex; gap: 15px; width: 100%; }
+        .print-table { width: 50%; border-collapse: collapse; text-align: center; font-size: 11px; border: 2px solid #000; table-layout: fixed; }
+        .print-table th, .print-table td { border: 1px solid #000; padding: 3px 1px; }
+        .print-table thead th { background-color: #e8f5e9; font-weight: bold; line-height: 1.2; }
+        .print-village-title { background-color: #c8e6c9 !important; font-weight: bold; letter-spacing: 1px; font-size: 12px; text-align: left; padding-left: 10px; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -67,7 +78,7 @@
 
 <div class="container" id="capture-area">
     <div class="header">
-        <button class="btn-settings" onclick="openSettings()">항목설정</button>
+        <button class="btn-settings" onclick="openSettings()">기타사유 설정</button>
         <div class="header-title">2026년 임마누엘 출석부 (관리자)</div>
         <div><input type="date" class="date-input" id="currentDate"></div>
         <div class="week-label" id="weekRange">데이터 로딩 중...</div>
@@ -81,7 +92,7 @@
 
     <table class="mobile-table">
         <thead>
-            <tr><th>직분</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th class="hide-on-print">관리</th></tr>
+            <tr><th>직분</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th></tr>
         </thead>
         <tbody id="mobileBody"></tbody>
     </table>
@@ -90,7 +101,7 @@
 
 <div id="check-modal" class="modal-overlay">
     <div class="modal-content" style="text-align:center;">
-        <h3>상태 선택</h3>
+        <h3>사유 선택</h3>
         <div id="check-buttons" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-bottom:20px;"></div>
         <button style="width:100%; padding:12px; background:#999; color:white; border:none; border-radius:5px; font-weight:bold;" onclick="closeModal('check-modal')">닫기</button>
     </div>
@@ -98,9 +109,9 @@
 
 <div id="settings-modal" class="modal-overlay">
     <div class="modal-content">
-        <h3>출석 항목 설정</h3>
-        <p style="font-size:11px; color:#666; text-align:center;">쉼표(,)로 구분하여 입력하세요.<br>첫 번째 항목이 '출석(O)'으로 계산됩니다.</p>
-        <input type="text" id="settings-options" placeholder="예: 출석, 병원, 시외, 여행, 기타">
+        <h3>'기타' 사유 설정</h3>
+        <p style="font-size:11px; color:#666; text-align:center;">쉼표(,)로 구분하여 입력하세요.</p>
+        <input type="text" id="settings-options" placeholder="예: 병원, 시외, 여행, 기타">
         <div class="modal-btns">
             <button style="background:#999; color:white;" onclick="closeModal('settings-modal')">취소</button>
             <button style="background:#1976D2; color:white;" onclick="saveSettings()">저장</button>
@@ -113,5 +124,4 @@
         <h3 id="manage-title">인원 관리</h3>
         <label>마을 선택</label>
         <select id="manage-village">
-            <option value="1. 섬김 마을">1. 섬김 마을</option><option value="2. 사랑스런 마을">2. 사랑스런 마을</option><option value="3. 워십 마을">3. 워십 마을</option><option value="4. 양떼 마을">4. 양떼 마을</option><option value="5. 은혜 마을">5. 은혜 마을</option><option value="6. 포도원 마을">6. 포도원 마을</option><option value="7. 회복 마을">7. 회복 마을</option><option value="8. 새생명 마을">8. 새생명 마을</option><option value="9. 청솔 마을">9. 청솔 마을</option><option value="10. 풍성한 마을">10. 풍성한 마을</option><option value="11. 상속자 마을">11. 상속자 마을</option><option value="12. 보배 마을">12. 보배 마을</option><option value="13. 순종 마을">13. 순종 마을</option><option value="14. 반석 마을">14. 반석 마을</option><option value="15. 지성소 마을">15. 지성소 마을</option><option value="16. 번성 마을">16. 번성 마을</option><option value="17. 권능 마을">17. 권능 마을</option><option value="18. 열매맺는 마을">18. 열매맺는 마을</option><option value="19. 온유 마을">19. 온유 마을</option><option value="20. 승리 마을">20. 승리 마을</option>
-        </
+            <option value="1. 섬김 마을">1. 섬김 마을</option><option value="2. 사랑스런 마을">2. 사랑스런 마을</option><option value="3. 워십 마을">3. 워십 마을</option><option value="4. 양떼 마을">4. 양떼 마을</option><option value="5. 은혜 마을">5. 은혜 마을</option><option value="6. 포도원 마을">6. 포도원 마을</option><option value="7. 회복 마을">7. 회복 마을</option><option value="8. 새생명 마을">8. 새생명 마을</option><option value="9. 청솔 마을">9. 청솔 마을</option><option value="10
