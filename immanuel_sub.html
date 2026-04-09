@@ -2,189 +2,127 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>2026년 임마누엘 목장 출석부 (목자용)</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛪️</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>임마누엘 출석부 (목자용)</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; }
-        .header-title { font-size: 16px; font-weight: bold; }
-        .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; background: transparent; }
-        .week-label { font-size: 11px; color: #666; font-weight: bold; margin-top: 3px; }
+        /* 로그인 화면 디자인 */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* 화면 전체 높이 사용 */
+            background-color: #f4f4f9;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 350px;
+        }
+        .login-box h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* 패딩 포함 너비 계산 */
+        }
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .login-box button:hover {
+            background-color: #45a049;
+        }
         
-        .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 12px; background: #fff8e1; padding: 5px 2px; border: 1px solid #333; }
-        .summary-box span { color: #0044cc; margin: 0 1px; font-size: 12px; }
-
-        .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
-        
-        /* 💡 목자용 너비 최적화 (총 8열) */
-        .col-role { width: 11%; } 
-        .col-name { width: 17%; } 
-        .col-check { width: 12%; } /* 체크 6개 */
-        
-        .village-header-row { background-color: #c8e6c9; }
-        .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
-        .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
-        
-        .check-cell { cursor: pointer; font-weight: bold; font-size: 15px; user-select: none; background-color: #fafafa; }
-        .check-cell:active { background-color: #e3f2fd; }
-        .notice { text-align: center; font-size: 10px; color: #666; margin-bottom: 5px; word-break: keep-all; }
-
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; text-align: center; }
-        .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
-        .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
+        /* 진짜 출석부 화면은 처음엔 숨겨둡니다 */
+        #main-app {
+            display: none; 
+        }
     </style>
 </head>
-<body onclick="unlockAudio()">
+<body>
 
-<div class="container">
-    <div class="notice">일반 출석은 터치(O), '기타' 칸은 사유 팝업</div>
-    <div class="header">
-        <div class="header-title">2026년 임마누엘 출석부 (목자용)</div>
-        <div><input type="date" class="date-input" id="currentDate"></div>
-        <div class="week-label" id="weekRange">데이터 로딩 중...</div>
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>임마누엘 출석부</h2>
+            <p style="color: #666; font-size: 14px;">목자용 비밀번호를 입력해주세요.</p>
+            <input type="password" id="app-password" placeholder="비밀번호 입력">
+            <button onclick="checkLogin()">입장하기</button>
+        </div>
     </div>
 
-    <div class="summary-box">
-        <div>주일:<span id="tot-sun">0</span></div><div>화요:<span id="tot-tue">0</span></div>
-        <div>수요:<span id="tot-wed">0</span></div><div>금요:<span id="tot-fri">0</span></div>
-        <div>마을:<span id="tot-vil">0</span></div>
-    </div>
-
-    <table class="mobile-table">
-        <colgroup>
-            <col class="col-role"><col class="col-name">
-            <col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check">
-        </colgroup>
-        <tbody id="tableBody"></tbody>
-    </table>
-</div>
-
-<div id="check-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>사유 선택</h3>
-        <div id="check-buttons" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-bottom:20px;"></div>
-        <button style="width:100%; padding:12px; background:#999; color:white; border:none; border-radius:5px; font-weight:bold;" onclick="closeModal('check-modal')">닫기</button>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
-        authDomain: "immanuel-attendance.firebaseapp.com",
-        databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com",
-        projectId: "immanuel-attendance"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    let members = []; let attendanceData = {}; let attOptions = [];
-    const dateInput = document.getElementById('currentDate');
-    let currentCheckIdx = null;
-
-    let audioCtx = null;
-    window.unlockAudio = function() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); };
-    function playSound() { try { unlockAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch(e) {} }
-
-    const today = new Date(); dateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    function getWeekKey(dateStr) {
-        if (!dateStr) return ""; const parts = dateStr.split('-');
-        const d = new Date(parts[0], parts[1] - 1, parts[2]); const diff = (d.getDay() >= 2) ? (d.getDay() - 2) : (d.getDay() + 5);
-        d.setDate(d.getDate() - diff); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    }
-    dateInput.addEventListener('change', loadData);
-
-    function init() {
-        onValue(ref(db, 'settings/etcOptions'), snap => { attOptions = snap.val() || ['병원', '시외', '여행', '기타']; });
-        onValue(ref(db, 'members'), (snap) => {
-            const data = snap.val() || []; members = data.filter(m => m && typeof m === 'object');
-            const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
-            members.sort((a, b) => vOrder.findIndex(v => (a.village||"").startsWith(v)) - vOrder.findIndex(v => (b.village||"").startsWith(v)));
-            renderTable();
-        });
-        loadData();
-    }
-
-    function loadData() {
-        const weekKey = getWeekKey(dateInput.value); if (!weekKey) return;
-        document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
-        onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
-    }
-
-    function renderTable() {
-        const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
-        let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
-        let currentVil = "";
-
-        members.forEach((m, idx) => {
-            if(!m) return;
-            const ch = attendanceData[idx] || {};
-            if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
-            
-            if (m.village !== currentVil) {
-                const trH = document.createElement('tr');
-                trH.className = 'village-header-row';
-                trH.innerHTML = `
-                    <td colspan="2" class="village-header-name">${m.village || "미지정"}</td>
-                    <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th>
-                `;
-                tbody.appendChild(trH); currentVil = m.village;
-            }
-            
-            const safeName = m.name ? String(m.name) : "";
-            const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
-            const tr = document.createElement('tr');
-            
-            tr.innerHTML = `
-                <td>${m.role || ""}</td><td>${dName}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px;">${ch.etc}</span>`:''}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+    <div id="main-app">
         
-        document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-    }
+        </div>
 
-    window.toggleCheck = (idx, day) => {
-        const weekKey = getWeekKey(dateInput.value);
-        set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !(attendanceData[idx]?.[day] || false));
-        playSound();
-    };
+    <script>
+        // 파이어베이스 초기화(firebase.initializeApp) 코드는 이 파일 어딘가에 이미 있어야 합니다!
 
-    window.openEtcCheck = (idx) => {
-        currentCheckIdx = idx;
-        const container = document.getElementById('check-buttons'); container.innerHTML = '';
-        attOptions.forEach((opt) => {
-            const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt;
-            btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn);
-        });
-        const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)";
-        clearBtn.onclick = () => saveEtcCheck(""); container.appendChild(clearBtn);
-        document.getElementById('check-modal').style.display = 'flex';
-    };
+        // [핵심 로직] 페이지가 켜질 때, 예전에 로그인한 적이 있는지 검사합니다.
+        window.onload = function() {
+            // 브라우저 저장소(localStorage)에 'login_success'라는 도장이 찍혀있다면?
+            if(localStorage.getItem("login_success") === "true") {
+                document.getElementById("login-screen").style.display = "none"; // 로그인 화면 숨기기
+                document.getElementById("main-app").style.display = "block";  // 출석부 화면 보이기
+            }
+        };
 
-    window.saveEtcCheck = (val) => {
-        const weekKey = getWeekKey(dateInput.value);
-        set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val);
-        playSound(); closeModal('check-modal');
-    };
+        // [핵심 로직] 입장하기 버튼을 눌렀을 때 실행되는 함수
+        function checkLogin() {
+            var inputPw = document.getElementById("app-password").value; // 사용자가 친 비밀번호
 
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-    init();
-</script>
+            if(!inputPw) {
+                alert("비밀번호를 입력해주세요.");
+                return;
+            }
+
+            // 파이어베이스 DB의 'settings/app_password' 경로에서 비밀번호를 가져옵니다.
+            firebase.database().ref('settings/app_password').once('value')
+            .then(function(snapshot) {
+                var adminPw = snapshot.val(); // DB에 저장된 진짜 비밀번호
+
+                // 만약 관리자가 DB에 비밀번호를 설정 안 해뒀을 때를 대비한 안전장치 (기본값 1234)
+                if(adminPw === null) {
+                    adminPw = "1234"; 
+                }
+
+                // 입력한 비밀번호와 DB의 비밀번호가 일치하는지 확인
+                if (inputPw === String(adminPw)) {
+                    // 로그인 성공!
+                    // 다음에 들어올 때 또 비번 안 치게 브라우저에 도장을 찍어둡니다.
+                    localStorage.setItem("login_success", "true"); 
+                    
+                    // 화면 전환
+                    document.getElementById("login-screen").style.display = "none";
+                    document.getElementById("main-app").style.display = "block";
+                } else {
+                    // 로그인 실패
+                    alert("비밀번호가 틀렸습니다. 다시 확인해주세요!");
+                    document.getElementById("app-password").value = ""; // 입력칸 비워주기
+                }
+            })
+            .catch(function(error) {
+                alert("비밀번호 확인 중 오류가 발생했습니다: " + error.message);
+            });
+        }
+    </script>
+
 </body>
 </html>
