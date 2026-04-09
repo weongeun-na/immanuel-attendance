@@ -89,40 +89,24 @@
 </div>
 
 <script>
-    // 🔑 비밀번호 설정
     const SECRET_PASSWORD = "1234"; 
-    // 기존 캐시를 피하기 위해 새로운 보안키 발급
     const AUTH_KEY = 'immanuel_sub_lock_v2'; 
 
-    document.addEventListener("DOMContentLoaded", () => {
-        // 이미 로그인한 사용자라면 바로 화면 띄우기
-        if(localStorage.getItem(AUTH_KEY) === 'true') {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-        }
-        
-        // 오늘 날짜 즉시 세팅
-        const dInput = document.getElementById('currentDate');
-        if(dInput) {
-            const today = new Date(); 
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            dInput.value = `${yyyy}-${mm}-${dd}`;
-        }
-    });
+    if(localStorage.getItem(AUTH_KEY) === 'true') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+    }
 
-    // 비밀번호 확인 함수
     function checkPassword() {
         const input = document.getElementById('pw-input').value;
         if(input === SECRET_PASSWORD) {
-            localStorage.setItem(AUTH_KEY, 'true'); // 로그인 성공 저장
+            localStorage.setItem(AUTH_KEY, 'true');
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             window.scrollTo(0,0);
         } else {
             alert("비밀번호가 틀렸습니다. 다시 입력해주세요.");
-            document.getElementById('pw-input').value = ""; // 틀리면 칸 비워주기
+            document.getElementById('pw-input').value = ""; 
         }
     }
 </script>
@@ -130,6 +114,16 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+    // 💡 관리자용과 똑같이 날짜를 "무조건 가장 먼저" 꽂아넣는 방어 코드 적용!!
+    const dateInput = document.getElementById('currentDate');
+    if(dateInput) {
+        const todayObj = new Date(); 
+        const yyyy = todayObj.getFullYear();
+        const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(todayObj.getDate()).padStart(2, '0');
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
 
     try {
         const firebaseConfig = {
@@ -142,23 +136,36 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         let members = []; let attendanceData = {}; let attOptions = [];
-        const dateInput = document.getElementById('currentDate');
         let currentCheckIdx = null;
 
         let audioCtx = null;
         window.unlockAudio = function() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); };
         function playSound() { try { unlockAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch(e) {} }
 
+        // 💡 무적의 날짜 해석 엔진 (아이폰/카톡 브라우저 100% 호환)
         function getWeekKey(dateStr) {
-            if (!dateStr) return ""; const parts = dateStr.split('-');
-            if (parts.length !== 3) return "";
-            const d = new Date(parts[0], parts[1] - 1, parts[2]); const diff = (d.getDay() >= 2) ? (d.getDay() - 2) : (d.getDay() + 5);
-            d.setDate(d.getDate() - diff); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            let d = new Date();
+            if (dateStr) {
+                let parsed = new Date(dateStr.replace(/[\.\/]/g, '-'));
+                if (!isNaN(parsed.getTime())) d = parsed;
+            }
+            const day = d.getDay(); 
+            const diff = (day >= 2) ? (day - 2) : (day + 5);
+            d.setDate(d.getDate() - diff); 
+            
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const date = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${date}`;
         }
+        
         dateInput.addEventListener('change', loadData);
 
         function init() {
-            onValue(ref(db, 'settings/etcOptions'), snap => { try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } });
+            onValue(ref(db, 'settings/etcOptions'), snap => { 
+                try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } 
+            });
+
             onValue(ref(db, 'members'), (snap) => {
                 try {
                     const data = snap.val();
@@ -172,14 +179,20 @@
         }
 
         function loadData() {
-            const weekKey = getWeekKey(dateInput.value); if (!weekKey) return;
+            const weekKey = getWeekKey(dateInput.value); 
+            if (!weekKey) return;
+            
+            // 데이터 연결 성공 즉시 로딩 글씨 변경!
             document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
+            
             onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
         }
 
         function renderTable() {
             try {
-                const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
+                const tbody = document.getElementById('tableBody'); 
+                if(!tbody) return;
+                tbody.innerHTML = '';
                 let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
                 let currentVil = "";
 
@@ -218,13 +231,27 @@
             } catch(e) {}
         }
 
-        window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playSound(); };
-        window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
+        // 💡 클릭 이벤트 정상 등록 완료!
+        window.toggleCheck = (idx, day) => { 
+            const weekKey = getWeekKey(dateInput.value); 
+            const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; 
+            set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); 
+            playSound(); 
+        };
+
+        window.openEtcCheck = (idx) => { 
+            currentCheckIdx = idx; 
+            const container = document.getElementById('check-buttons'); container.innerHTML = ''; 
+            attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); 
+            const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); container.appendChild(clearBtn); 
+            document.getElementById('check-modal').style.display = 'flex'; 
+        };
+
         window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playSound(); closeModal('check-modal'); };
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
 
         init();
-    } catch(err) {}
+    } catch(err) { console.log(err); }
 </script>
 </body>
 </html>
