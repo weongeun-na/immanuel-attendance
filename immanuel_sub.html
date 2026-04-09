@@ -11,7 +11,6 @@
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
         
-        /* 🔒 잠금 화면 스타일 */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; width: 80%; max-width: 300px; }
         .login-box h2 { margin-top: 0; color: #1976D2; letter-spacing: -1px; }
@@ -24,13 +23,17 @@
         .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; background: transparent; cursor: pointer; }
         .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 3px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
         
-        .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 12px; background: #fff8e1; padding: 5px 2px; border: 1px solid #333; }
+        .summary-box { display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 11px; background: #fff8e1; padding: 5px 2px; border: 1px solid #333; gap: 3px; }
         .summary-box span { color: #0044cc; margin: 0 1px; font-size: 12px; }
 
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
+        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 10.5px; line-height: 1.2; word-break: keep-all; }
         
-        .col-role { width: 11%; } .col-name { width: 17%; } .col-check { width: 12%; }
+        /* 💡 9열 레이아웃 최적화 (목자용 - 주일밤 포함) */
+        .col-role { width: 10%; } 
+        .col-name { width: 15%; } 
+        .col-check { width: 10%; } /* 주일, 주밤, 화, 수, 금, 마을 = 6개 */
+        .col-etc { width: 15%; }
         
         .village-header-row { background-color: #c8e6c9; }
         .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
@@ -66,8 +69,11 @@
     </div>
 
     <div class="summary-box">
-        <div>주일:<span id="tot-sun">0</span></div><div>화요:<span id="tot-tue">0</span></div>
-        <div>수요:<span id="tot-wed">0</span></div><div>금요:<span id="tot-fri">0</span></div>
+        <div>주일:<span id="tot-sun">0</span></div>
+        <div>주밤:<span id="tot-sun_night">0</span></div>
+        <div>화요:<span id="tot-tue">0</span></div>
+        <div>수요:<span id="tot-wed">0</span></div>
+        <div>금요:<span id="tot-fri">0</span></div>
         <div>마을:<span id="tot-vil">0</span></div>
     </div>
 
@@ -75,6 +81,7 @@
         <colgroup>
             <col class="col-role"><col class="col-name">
             <col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check">
+            <col class="col-etc">
         </colgroup>
         <tbody id="tableBody"></tbody>
     </table>
@@ -109,13 +116,7 @@
             document.getElementById('pw-input').value = ""; 
         }
     }
-</script>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-    // 💡 관리자용과 똑같이 날짜를 "무조건 가장 먼저" 꽂아넣는 방어 코드 적용!!
     const dateInput = document.getElementById('currentDate');
     if(dateInput) {
         const todayObj = new Date(); 
@@ -124,6 +125,11 @@
         const dd = String(todayObj.getDate()).padStart(2, '0');
         dateInput.value = `${yyyy}-${mm}-${dd}`;
     }
+</script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     try {
         const firebaseConfig = {
@@ -142,7 +148,6 @@
         window.unlockAudio = function() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); };
         function playSound() { try { unlockAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch(e) {} }
 
-        // 💡 무적의 날짜 해석 엔진 (아이폰/카톡 브라우저 100% 호환)
         function getWeekKey(dateStr) {
             let d = new Date();
             if (dateStr) {
@@ -159,7 +164,7 @@
             return `${year}-${month}-${date}`;
         }
         
-        dateInput.addEventListener('change', loadData);
+        document.getElementById('currentDate').addEventListener('change', loadData);
 
         function init() {
             onValue(ref(db, 'settings/etcOptions'), snap => { 
@@ -179,12 +184,9 @@
         }
 
         function loadData() {
-            const weekKey = getWeekKey(dateInput.value); 
+            const weekKey = getWeekKey(document.getElementById('currentDate').value); 
             if (!weekKey) return;
-            
-            // 데이터 연결 성공 즉시 로딩 글씨 변경!
             document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
-            
             onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
         }
 
@@ -193,20 +195,20 @@
                 const tbody = document.getElementById('tableBody'); 
                 if(!tbody) return;
                 tbody.innerHTML = '';
-                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
+                let c = { sun: 0, sun_night: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
                 let currentVil = "";
 
                 members.forEach((m, idx) => {
                     if(!m) return;
                     const ch = attendanceData[idx] || {};
-                    if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
+                    if(ch.sun) c.sun++; if(ch.sun_night) c.sun_night++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
                     
                     if (m.village !== currentVil) {
                         const trH = document.createElement('tr');
                         trH.className = 'village-header-row';
                         trH.innerHTML = `
                             <td colspan="2" class="village-header-name">${m.village || "미지정"}</td>
-                            <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th>
+                            <th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th>
                         `;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
@@ -218,6 +220,7 @@
                     tr.innerHTML = `
                         <td>${m.role || ""}</td><td>${dName}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
+                        <td class="check-cell" onclick="toggleCheck(${idx}, 'sun_night')">${ch.sun_night?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
@@ -227,31 +230,18 @@
                     tbody.appendChild(tr);
                 });
                 
-                document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
+                document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-sun_night').innerText = c.sun_night; document.getElementById('tot-tue').innerText = c.tue;
+                document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
             } catch(e) {}
         }
 
-        // 💡 클릭 이벤트 정상 등록 완료!
-        window.toggleCheck = (idx, day) => { 
-            const weekKey = getWeekKey(dateInput.value); 
-            const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; 
-            set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); 
-            playSound(); 
-        };
-
-        window.openEtcCheck = (idx) => { 
-            currentCheckIdx = idx; 
-            const container = document.getElementById('check-buttons'); container.innerHTML = ''; 
-            attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); 
-            const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); container.appendChild(clearBtn); 
-            document.getElementById('check-modal').style.display = 'flex'; 
-        };
-
-        window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playSound(); closeModal('check-modal'); };
+        window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(document.getElementById('currentDate').value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playSound(); };
+        window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); container.appendChild(clearBtn); document.getElementById('check-modal').style.display = 'flex'; };
+        window.saveEtcCheck = (val) => { const weekKey = getWeekKey(document.getElementById('currentDate').value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playSound(); closeModal('check-modal'); };
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
 
         init();
-    } catch(err) { console.log(err); }
+    } catch(err) {}
 </script>
 </body>
 </html>
