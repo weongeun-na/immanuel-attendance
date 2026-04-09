@@ -155,14 +155,14 @@
 </div>
 
 <script>
-    // 날짜 즉시 세팅 (가장 최우선 실행)
+    // 날짜 즉시 세팅
     document.addEventListener("DOMContentLoaded", () => {
         const dInput = document.getElementById('currentDate');
         if(dInput) {
             const today = new Date(); 
             const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = (today.getMonth() + 1 < 10) ? '0' + (today.getMonth() + 1) : (today.getMonth() + 1);
+            const dd = (today.getDate() < 10) ? '0' + today.getDate() : today.getDate();
             dInput.value = `${yyyy}-${mm}-${dd}`;
         }
     });
@@ -172,10 +172,10 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-    // 상태 알림창 조작 함수
-    function setStatus(msg) {
-        const el = document.getElementById('weekRange');
-        if(el) el.innerText = msg;
+    // 💡 에러 방어용 텍스트 업데이트 함수
+    function safeSetText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
     }
 
     const firebaseConfig = {
@@ -190,7 +190,7 @@
     
     let members = []; 
     let attendanceData = {}; 
-    let attOptions = ['병원', '시외', '여행', '기타']; // 기본값
+    let attOptions = ['병원', '시외', '여행', '기타'];
     
     const dateInput = document.getElementById('currentDate');
     let currentCheckIdx = null; 
@@ -207,40 +207,52 @@
     }
 
     function getWeekKey(dateStr) {
-        if (!dateStr) return ""; const parts = dateStr.split('-');
+        if (!dateStr) return ""; 
+        const parts = dateStr.split('-');
         if (parts.length !== 3) return "";
-        const d = new Date(parts[0], parts[1] - 1, parts[2]); 
+        const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)); 
         const diff = (d.getDay() >= 2) ? (d.getDay() - 2) : (d.getDay() + 5);
         d.setDate(d.getDate() - diff); 
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        
+        const year = d.getFullYear();
+        const month = d.getMonth() + 1;
+        const date = d.getDate();
+        return year + '-' + (month < 10 ? '0' + month : month) + '-' + (date < 10 ? '0' + date : date);
     }
 
     dateInput.addEventListener('change', loadData);
 
-    // 파이어베이스 데이터 불러오기 시작
-    onValue(ref(db, 'settings/etcOptions'), snap => {
-        let val = snap.val();
-        if (val && !Array.isArray(val)) val = Object.values(val);
-        if (val && val.length > 0) attOptions = val;
-    });
+    function init() {
+        onValue(ref(db, 'settings/etcOptions'), snap => {
+            try {
+                let val = snap.val();
+                if (val && !Array.isArray(val)) val = Object.values(val);
+                if (val && val.length > 0) attOptions = val;
+            } catch(e) {}
+        });
 
-    onValue(ref(db, 'members'), (snap) => {
-        const data = snap.val();
-        if (!data) { members = []; } 
-        else {
-            let dataArr = Array.isArray(data) ? data : Object.values(data);
-            members = dataArr.filter(m => m && typeof m === 'object');
-        }
-        const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
-        members.sort((a, b) => vOrder.findIndex(v => (a.village||"").startsWith(v)) - vOrder.findIndex(v => (b.village||"").startsWith(v)));
-        renderTable();
-    });
+        onValue(ref(db, 'members'), (snap) => {
+            try {
+                const data = snap.val();
+                if (!data) { members = []; } 
+                else {
+                    let dataArr = Array.isArray(data) ? data : Object.values(data);
+                    members = dataArr.filter(m => m && typeof m === 'object');
+                }
+                const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
+                members.sort((a, b) => vOrder.findIndex(v => (a.village||"").startsWith(v)) - vOrder.findIndex(v => (b.village||"").startsWith(v)));
+                renderTable();
+            } catch(e) {}
+        });
+        loadData();
+    }
 
     function loadData() {
         const weekKey = getWeekKey(dateInput.value);
         if (!weekKey) return;
         
-        setStatus(`${weekKey} (화) 시작 주간`);
+        // 💡 안전하게 로딩 텍스트 업데이트 (여기서 절대 멈추지 않음)
+        safeSetText('weekRange', `${weekKey} (화) 시작 주간`);
         
         onValue(ref(db, `attendance/${weekKey}`), (snap) => { 
             attendanceData = snap.val() || {}; 
@@ -249,56 +261,61 @@
     }
 
     function renderTable() {
-        const tbody = document.getElementById('mobileBody'); 
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
-        let currentVil = "";
+        try {
+            const tbody = document.getElementById('mobileBody'); 
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
+            let currentVil = "";
 
-        members.forEach((m, idx) => {
-            if(!m) return;
-            const ch = attendanceData[idx] || {};
-            if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
-            
-            if (m.village !== currentVil) {
-                const trH = document.createElement('tr');
-                trH.className = 'village-header-row';
-                trH.innerHTML = `
-                    <td colspan="2" class="village-header-name">${m.village || "미지정"}</td>
-                    <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>
+            members.forEach((m, idx) => {
+                if(!m) return;
+                const ch = attendanceData[idx] || {};
+                if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
+                
+                if (m.village !== currentVil) {
+                    const trH = document.createElement('tr');
+                    trH.className = 'village-header-row';
+                    trH.innerHTML = `
+                        <td colspan="2" class="village-header-name">${m.village || "미지정"}</td>
+                        <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>
+                    `;
+                    tbody.appendChild(trH);
+                    currentVil = m.village;
+                }
+                
+                const safeName = m.name ? String(m.name) : "";
+                const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${m.role || ""}</td><td>${dName}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
+                    <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>
+                    <td class="hide-on-print"><button class="btn-manage" onclick="openManage(${idx})">관리</button></td>
                 `;
-                tbody.appendChild(trH);
-                currentVil = m.village;
+                tbody.appendChild(tr);
+            });
+            
+            safeSetText('tot-sun', c.sun); safeSetText('tot-tue', c.tue);
+            safeSetText('tot-wed', c.wed); safeSetText('tot-fri', c.fri); safeSetText('tot-vil', c.vil);
+            
+            buildPrintGrid();
+            
+            const parts = dateInput.value.split('-');
+            if(parts.length === 3) {
+                safeSetText('printDateTxt', `(${parts[0]}년 ${parseInt(parts[1], 10)}월 ${parseInt(parts[2], 10)}일)`);
             }
-            
-            const safeName = m.name ? String(m.name) : "";
-            const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
-            const tr = document.createElement('tr');
-            
-            tr.innerHTML = `
-                <td>${m.role || ""}</td><td>${dName}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
-                <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>
-                <td class="hide-on-print"><button class="btn-manage" onclick="openManage(${idx})">관리</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-        
-        document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue;
-        document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-        
-        buildPrintGrid();
-        const dObj = new Date(dateInput.value);
-        document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
+        } catch(e) {}
     }
 
-    // 💡 글로벌 스코프로 등록하여 HTML onClick 속성에서 무조건 찾을 수 있게 보장!
     window.toggleCheck = (idx, day) => {
         const weekKey = getWeekKey(dateInput.value);
+        if(!weekKey) return;
         const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false;
         set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal);
         playSound();
@@ -322,7 +339,10 @@
         playSound(); closeModal('check-modal');
     };
 
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+    window.closeModal = (id) => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    };
 
     window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
     window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
@@ -345,27 +365,29 @@
     window.confirmDelete = () => { if(confirm("정말 이 인원을 삭제하시겠습니까?")) { members.splice(currentManageIdx, 1); set(ref(db, 'members'), members); closeModal('manage-modal'); } };
 
     function buildPrintGrid() {
-        const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
-        if(!tLeft || !tRight) return;
-        tLeft.innerHTML = ''; tRight.innerHTML = '';
-        
-        const allVils = [...new Set(members.map(m => m.village || "미지정"))];
-        const half = Math.ceil(allVils.length / 2);
-        
-        const generateHtml = (vils) => {
-            let h = '<table class="print-table"><colgroup><col style="width:16%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"></colgroup><tbody>';
-            vils.forEach(vName => {
-                const vMems = members.filter(m => (m.village || "미지정") === vName);
-                h += `<tr style="background-color:#c8e6c9"><td class="print-village-title" colspan="7">${vName}</td></tr><tr style="background-color:#c8e6c9"><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
-                vMems.forEach(m => {
-                    const idx = members.indexOf(m); const ch = attendanceData[idx] || {};
-                    const safeName = m.name ? String(m.name) : "";
-                    h += `<tr><td>${m.role?m.role+' ':''}${safeName}</td><td>${ch.sun?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:9px; color:#d32f2f; font-weight:bold;">${ch.etc||''}</td></tr>`;
+        try {
+            const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
+            if(!tLeft || !tRight) return;
+            tLeft.innerHTML = ''; tRight.innerHTML = '';
+            
+            const allVils = [...new Set(members.map(m => m.village || "미지정"))];
+            const half = Math.ceil(allVils.length / 2);
+            
+            const generateHtml = (vils) => {
+                let h = '<table class="print-table"><colgroup><col style="width:16%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"></colgroup><tbody>';
+                vils.forEach(vName => {
+                    const vMems = members.filter(m => (m.village || "미지정") === vName);
+                    h += `<tr style="background-color:#c8e6c9"><td class="print-village-title" colspan="7">${vName}</td></tr><tr style="background-color:#c8e6c9"><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
+                    vMems.forEach(m => {
+                        const idx = members.indexOf(m); const ch = attendanceData[idx] || {};
+                        const safeName = m.name ? String(m.name) : "";
+                        h += `<tr><td>${m.role?m.role+' ':''}${safeName}</td><td>${ch.sun?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:9px; color:#d32f2f; font-weight:bold;">${ch.etc||''}</td></tr>`;
+                    });
                 });
-            });
-            return h + '</tbody></table>';
-        };
-        tLeft.innerHTML = generateHtml(allVils.slice(0, half)); tRight.innerHTML = generateHtml(allVils.slice(half));
+                return h + '</tbody></table>';
+            };
+            tLeft.innerHTML = generateHtml(allVils.slice(0, half)); tRight.innerHTML = generateHtml(allVils.slice(half));
+        } catch(e) {}
     }
 
     document.getElementById('imgBtn').addEventListener('click', () => {
@@ -373,8 +395,10 @@
         document.getElementById('print-view').style.display = 'block';
         window.scrollTo(0,0);
         
-        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText;
-        document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
+        const totSun = document.getElementById('tot-sun');
+        const totVil = document.getElementById('tot-vil');
+        safeSetText('print-tot-sun', totSun ? totSun.innerText : '0');
+        safeSetText('print-tot-vil', totVil ? totVil.innerText : '0');
 
         setTimeout(() => { 
             html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => {
@@ -393,8 +417,10 @@
         document.getElementById('print-view').style.display = 'block';
         window.scrollTo(0,0);
         
-        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText;
-        document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
+        const totSun = document.getElementById('tot-sun');
+        const totVil = document.getElementById('tot-vil');
+        safeSetText('print-tot-sun', totSun ? totSun.innerText : '0');
+        safeSetText('print-tot-vil', totVil ? totVil.innerText : '0');
 
         setTimeout(() => { 
             html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => {
@@ -409,8 +435,9 @@
         }, 500);
     });
 
-    // 앱 즉시 실행
-    loadData();
+    // 🚀 앱 즉시 실행!
+    init();
+
 </script>
 </body>
 </html>
