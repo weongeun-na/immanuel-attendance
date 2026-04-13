@@ -17,7 +17,7 @@
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         
-        .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; position: relative; }
+        .header { display: flex; flex-direction: column; align-items: center; border: 1px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; position: relative; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
         .header-spacer { width: 110px; } 
         .header-title { font-size: 16px; font-weight: bold; flex: 1; }
@@ -31,18 +31,17 @@
         .summary-box span { color: #0044cc; margin: 0 1px; font-size: 12px; }
 
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
-        .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
+        .mobile-table th, .mobile-table td { border: 0.5px solid #444; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
         
-        /* 📱 모바일 너비 재조정 (항목 1개 추가됨) */
         .col-role { width: 9%; } 
         .col-name { width: 14%; } 
-        .col-check { width: 9%; } /* 주일, 주밤, 화, 수, 금, 마을 총 6개 */
+        .col-check { width: 8.5%; } 
         .col-etc { width: 10%; } 
-        .col-manage { width: 13%; } 
+        .col-manage { width: 15%; } 
         
         .village-header-row { background-color: #c8e6c9; }
         .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
-        .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; letter-spacing: -0.5px; }
+        .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; border: 0.5px solid #444; }
         
         .check-cell { cursor: pointer; font-weight: bold; font-size: 14px; user-select: none; background-color: #fafafa; }
         .check-cell:active { background-color: #e3f2fd; }
@@ -50,7 +49,7 @@
         .admin-btn { padding: 8px 12px; margin: 3px; cursor: pointer; border: none; border-radius: 5px; color: white; font-weight: bold; font-size: 12px; }
         .btn-img { background-color: #4CAF50; } .btn-pdf { background-color: #d32f2f; }
         .btn-add { background-color: #1976D2; width: 100%; margin-top: 10px; padding: 12px; font-size: 15px; }
-        .btn-manage { background-color: #424242; padding: 4px 6px; font-size: 10px; color: white; border-radius: 3px; border: none; cursor: pointer; }
+        .btn-manage { background-color: #424242; padding: 4px 3px; font-size: 9px; color: white; border-radius: 2px; border: none; cursor: pointer; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; box-sizing: border-box; }
@@ -59,25 +58,24 @@
         .modal-content select, .modal-content input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
         .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
-        .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) 매우 굵고 진한 마법의 레이아웃 */
+        /* 🖨️ 인쇄 전용(A4) 가늘고 정갈한 레이아웃 */
         #print-view { display: none; width: 1050px; background: white; padding: 20px; box-sizing: border-box; margin: 0 auto; color: #000; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
         .print-title { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
-        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 2px solid #000; font-size: 12px; font-weight: 900; }
-        .print-summary-tbl th, .print-summary-tbl td { border: 1.5px solid #000; padding: 4px 10px; }
+        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 1px solid #000; font-size: 12px; font-weight: 900; }
+        .print-summary-tbl th, .print-summary-tbl td { border: 0.5px solid #000; padding: 4px 10px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
         
         .print-grid { display: flex; gap: 15px; width: 100%; align-items: flex-start; }
         .print-half { width: 50%; }
         
-        /* 폰트 및 선 두께 대폭 강화 */
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; font-weight: 900; border: 2px solid #000; table-layout: fixed; margin-bottom: 8px; }
-        .print-table th, .print-table td { border: 1.5px solid #000; padding: 3px 1px; word-break: keep-all; letter-spacing: -1px; }
-        .print-table th { background-color: #e8f5e9; font-size: 11px; font-weight: 900; }
+        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; font-weight: 900; border: 1px solid #000; table-layout: fixed; margin-bottom: 8px; }
+        .print-table th, .print-table td { border: 0.5px solid #000; padding: 3px 1px; word-break: keep-all; letter-spacing: -1px; }
+        .print-table th { background-color: #e8f5e9; font-size: 10px; font-weight: 900; }
         .print-village-title { font-weight: 900; font-size: 13px; text-align: left; padding-left: 5px; background-color: #c8e6c9; letter-spacing: -0.5px; }
-        .print-name-cell { text-align: left; padding-left: 3px; font-weight: 900; font-size: 11px; letter-spacing: -0.5px; }
+        /* 이름 가운데 정렬 및 굵게 */
+        .print-name-cell { text-align: center; font-weight: 900; font-size: 11px; letter-spacing: -0.5px; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -102,12 +100,9 @@
     </div>
 
     <div class="summary-box">
-        <div>주일:<span id="tot-sun">0</span></div>
-        <div>주밤:<span id="tot-sun-night">0</span></div>
-        <div>화요:<span id="tot-tue">0</span></div>
-        <div>수요:<span id="tot-wed">0</span></div>
-        <div>금요:<span id="tot-fri">0</span></div>
-        <div>마을:<span id="tot-vil">0</span></div>
+        <div>주일:<span id="tot-sun">0</span></div><div>주밤:<span id="tot-sun-night">0</span></div>
+        <div>화요:<span id="tot-tue">0</span></div><div>수요:<span id="tot-wed">0</span></div>
+        <div>금요:<span id="tot-fri">0</span></div><div>마을:<span id="tot-vil">0</span></div>
     </div>
 
     <table class="mobile-table">
@@ -175,9 +170,9 @@
 
 <div id="print-view">
     <div class="print-header-area">
-        <div class="print-title">임마누엘 목장 <span class="print-date" id="printDateTxt" style="font-size: 18px;"></span></div>
+        <div class="print-title">임마누엘 목장 <span class="print-date" id="printDateTxt"></span></div>
         <table class="print-summary-tbl">
-            <tr><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th rowspan="2" style="padding: 0 15px;">계</th></tr>
+            <tr><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th rowspan="2" style="padding: 0 10px;">계</th></tr>
             <tr><td id="print-tot-sun">0</td><td id="print-tot-sun-night">0</td><td id="print-tot-tue">0</td><td id="print-tot-wed">0</td><td id="print-tot-fri">0</td><td id="print-tot-vil">0</td></tr>
         </table>
     </div>
@@ -186,19 +181,6 @@
         <div id="printRightHalf" class="print-half"></div>
     </div>
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const dInput = document.getElementById('currentDate');
-        if(dInput) {
-            const today = new Date(); 
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            dInput.value = `${yyyy}-${mm}-${dd}`;
-        }
-    });
-</script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -217,23 +199,17 @@
     const dateInput = document.getElementById('currentDate');
     let currentCheckIdx = null; let currentManageIdx = null;
 
-    let audioCtx = null;
-    window.unlockAudio = function() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-    };
+    // 날짜 즉시 세팅
+    const tObj = new Date(); dateInput.value = `${tObj.getFullYear()}-${String(tObj.getMonth() + 1).padStart(2, '0')}-${String(tObj.getDate()).padStart(2, '0')}`;
 
-    function playSound() {
-        try { unlockAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch(e) {}
-    }
+    let audioCtx = null;
+    window.unlockAudio = function() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); };
+    function playSound() { try { unlockAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch(e) {} }
 
     function getWeekKey(dateStr) {
-        let d = new Date();
-        if (dateStr) { let parsed = new Date(dateStr.replace(/[\.\/]/g, '-')); if (!isNaN(parsed.getTime())) d = parsed; }
-        const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5);
-        d.setDate(d.getDate() - diff); 
-        const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const date = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${date}`;
+        let d = new Date(); if (dateStr) { let parsed = new Date(dateStr.replace(/[\.\/]/g, '-')); if (!isNaN(parsed.getTime())) d = parsed; }
+        const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5); d.setDate(d.getDate() - diff); 
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
     dateInput.addEventListener('change', loadData);
@@ -242,13 +218,11 @@
         onValue(ref(db, 'settings/etcOptions'), snap => { try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } });
         onValue(ref(db, 'settings/notification'), snap => { const data = snap.val(); if (data) notiSettings = data; });
         onValue(ref(db, 'members'), (snap) => {
-            try {
-                const data = snap.val();
-                if (!data) { members = []; } else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
-                const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
-                members.sort((a, b) => vOrder.findIndex(v => (a.village||"").startsWith(v)) - vOrder.findIndex(v => (b.village||"").startsWith(v)));
-                renderTable();
-            } catch(e) {}
+            const data = snap.val();
+            if (!data) { members = []; } 
+            else { members = Array.isArray(data) ? data : Object.values(data); members = members.filter(m => m && typeof m === 'object'); }
+            // 💡 자동 정렬 로직을 제거하여 사용자가 바꾼 순서가 유지되게 함
+            renderTable();
         });
         loadData();
     }
@@ -262,11 +236,8 @@
 
     function renderTable() {
         try {
-            const tbody = document.getElementById('mobileBody'); 
-            if(!tbody) return;
+            const tbody = document.getElementById('mobileBody'); if(!tbody) return;
             tbody.innerHTML = '';
-            
-            // 💡 주밤(sun_night) 추가
             let c = { sun: 0, sun_night: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
             let currentVil = "";
 
@@ -276,8 +247,7 @@
                 if(ch.sun) c.sun++; if(ch.sun_night) c.sun_night++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
                 
                 if (m.village !== currentVil) {
-                    const trH = document.createElement('tr');
-                    trH.className = 'village-header-row';
+                    const trH = document.createElement('tr'); trH.className = 'village-header-row';
                     trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
                     tbody.appendChild(trH); currentVil = m.village;
                 }
@@ -285,33 +255,43 @@
                 const safeName = m.name ? String(m.name) : "";
                 const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
                 const tr = document.createElement('tr');
-                
                 tr.innerHTML = `
-                    <td>${m.role || ""}</td><td>${dName}</td>
-                    <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
-                    <td class="check-cell" onclick="toggleCheck(${idx}, 'sun_night')">${ch.sun_night?'<span style="color:#0044cc;">O</span>':''}</td>
-                    <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
-                    <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
-                    <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
-                    <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
-                    <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>
-                    <td class="hide-on-print"><button class="btn-manage" onclick="openManage(${idx})">관리</button></td>
+                    <td>${m.role || ""}</td><td style="text-align:center; font-weight:bold;">${dName}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'O':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'sun_night')">${ch.sun_night?'O':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'O':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'O':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'O':''}</td>
+                    <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'O':''}</td>
+                    <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px;">${ch.etc}</span>`:''}</td>
+                    <td class="hide-on-print">
+                        <div style="display:flex; gap:2px; justify-content:center;">
+                            <button class="btn-manage" onclick="moveMember(${idx}, -1)">▲</button>
+                            <button class="btn-manage" onclick="moveMember(${idx}, 1)">▼</button>
+                            <button class="btn-manage" onclick="openManage(${idx})">수정</button>
+                        </div>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
             
-            document.getElementById('tot-sun').innerText = c.sun; 
-            document.getElementById('tot-sun-night').innerText = c.sun_night; 
-            document.getElementById('tot-tue').innerText = c.tue; 
-            document.getElementById('tot-wed').innerText = c.wed; 
-            document.getElementById('tot-fri').innerText = c.fri; 
-            document.getElementById('tot-vil').innerText = c.vil;
+            document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-sun-night').innerText = c.sun_night;
+            document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; 
+            document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
             
             buildPrintGrid();
             const dObj = new Date(getWeekKey(dateInput.value));
             document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
         } catch(e) {}
     }
+
+    // 💡 순서 이동 함수 (▲, ▼)
+    window.moveMember = (idx, dir) => {
+        if (dir === -1 && idx > 0) { [members[idx], members[idx-1]] = [members[idx-1], members[idx]]; } 
+        else if (dir === 1 && idx < members.length - 1) { [members[idx], members[idx+1]] = [members[idx+1], members[idx]]; }
+        else { return; }
+        set(ref(db, 'members'), members);
+    };
 
     window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playSound(); };
     window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); container.appendChild(clearBtn); document.getElementById('check-modal').style.display = 'flex'; };
@@ -320,92 +300,48 @@
 
     window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
     window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
-    
     window.openNotiSettings = () => { document.getElementById('noti-day').value = notiSettings.day || "0"; document.getElementById('noti-time').value = notiSettings.time || "14:00"; document.getElementById('noti-retry').value = notiSettings.retry || "1"; document.getElementById('noti-modal').style.display = 'flex'; };
-    window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value; const t = document.getElementById('noti-time').value; const r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정이 저장되었습니다.\n(※ 실제 발송은 푸시 서버 연동 후 작동합니다.)"); closeModal('noti-modal'); };
+    window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value; const t = document.getElementById('noti-time').value; const r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정 저장 완료"); closeModal('noti-modal'); };
 
     window.openAdd = () => { currentManageIdx = null; document.getElementById('manage-title').innerText = "새 인원 추가"; document.getElementById('manage-role').value = ""; document.getElementById('manage-name').value = ""; document.getElementById('btn-delete-member').style.display = "none"; document.getElementById('manage-modal').style.display = 'flex'; };
     window.openManage = (idx) => { currentManageIdx = idx; const m = members[idx]; document.getElementById('manage-title').innerText = "인원 정보 수정"; document.getElementById('manage-village').value = m.village; document.getElementById('manage-role').value = m.role; document.getElementById('manage-name').value = m.name; document.getElementById('btn-delete-member').style.display = "block"; document.getElementById('manage-modal').style.display = 'flex'; };
-    window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름을 입력하세요."); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
-    window.confirmDelete = () => { if(confirm("정말 이 인원을 삭제하시겠습니까?")) { members.splice(currentManageIdx, 1); set(ref(db, 'members'), members); closeModal('manage-modal'); } };
+    window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름 입력 필수"); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
+    window.confirmDelete = () => { if(confirm("정말 삭제하시겠습니까?")) { members.splice(currentManageIdx, 1); set(ref(db, 'members'), members); closeModal('manage-modal'); } };
 
-    // 🖨️ 굵은 폰트 + 주밤 추가된 새로운 종이 비율 엔진
     function buildPrintGrid() {
-        const pLeft = document.getElementById('printLeftHalf'); 
-        const pRight = document.getElementById('printRightHalf');
+        const pLeft = document.getElementById('printLeftHalf'); const pRight = document.getElementById('printRightHalf');
         if(!pLeft || !pRight) return;
-        
         const allVils = [...new Set(members.map(m => m.village || "미지정"))];
-        
         const generateHalfHtml = (vils) => {
             let html = '';
             vils.forEach(vName => {
                 const vMems = members.filter(m => (m.village || "미지정") === vName);
                 const mid = Math.ceil(vMems.length / 2);
-                const leftMems = vMems.slice(0, mid);
-                const rightMems = vMems.slice(mid);
-                
-                // 💡 16열 분배: 이름(12), 6체크(5x6=30), 기타(8) = 총합 50% (좌우 대칭 100%)
-                html += '<table class="print-table">';
-                html += '<colgroup><col style="width:12%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:8%"> <col style="width:12%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:8%"></colgroup>';
-                
+                const leftMems = vMems.slice(0, mid); const rightMems = vMems.slice(mid);
+                html += '<table class="print-table"><colgroup><col style="width:12%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:8%"> <col style="width:12%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:8%"></colgroup>';
                 html += `<tr><td colspan="16" class="print-village-title">${vName}</td></tr>`;
-                html += `<tr>
-                    <th>이름</th><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th>
-                    <th>이름</th><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th>
-                </tr>`;
-                
+                html += `<tr><th>이름</th><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th>이름</th><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
                 const rowCount = Math.max(leftMems.length, rightMems.length);
                 for(let i=0; i<rowCount; i++) {
                     const l = leftMems[i]; const r = rightMems[i];
                     html += '<tr>';
-                    // 좌측
-                    if (l) {
-                        const idx = members.indexOf(l); const ch = attendanceData[idx] || {}; const sName = l.name ? String(l.name) : "";
-                        html += `<td class="print-name-cell">${l.role?l.role+' ':''}${sName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`;
-                    } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
-                    // 우측
-                    if (r) {
-                        const idx = members.indexOf(r); const ch = attendanceData[idx] || {}; const sName = r.name ? String(r.name) : "";
-                        html += `<td class="print-name-cell">${r.role?r.role+' ':''}${sName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`;
-                    } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
+                    if (l) { const idx = members.indexOf(l); const ch = attendanceData[idx] || {}; html += `<td class="print-name-cell">${l.role?l.role+' ':''}${l.name||"" }</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`; }
+                    else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
+                    if (r) { const idx = members.indexOf(r); const ch = attendanceData[idx] || {}; html += `<td class="print-name-cell">${r.role?r.role+' ':''}${r.name||"" }</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`; }
+                    else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
                     html += '</tr>';
                 }
                 html += '</table>';
             });
             return html;
         };
-
         const halfIdx = allVils.findIndex(v => v.startsWith("11."));
         const splitPoint = halfIdx !== -1 ? halfIdx : Math.ceil(allVils.length / 2);
-        
-        pLeft.innerHTML = generateHalfHtml(allVils.slice(0, splitPoint)); 
-        pRight.innerHTML = generateHalfHtml(allVils.slice(splitPoint));
+        pLeft.innerHTML = generateHalfHtml(allVils.slice(0, splitPoint)); pRight.innerHTML = generateHalfHtml(allVils.slice(splitPoint));
     }
 
-    document.getElementById('imgBtn').addEventListener('click', () => {
-        document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0);
-        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText;
-        document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText;
-        document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText;
-        document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText;
-        document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText;
-        document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
-
-        setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500);
-    });
-
-    document.getElementById('pdfBtn').addEventListener('click', () => {
-        document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0);
-        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText;
-        document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText;
-        document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText;
-        document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText;
-        document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText;
-        document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
-
-        setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); const imgWidth = 210; const imgHeight = canvas.height * imgWidth / canvas.width; pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 10, imgWidth, imgHeight); pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500);
-    });
+    document.getElementById('imgBtn').addEventListener('click', () => { document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0); document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500); });
+    document.getElementById('pdfBtn').addEventListener('click', () => { document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0); document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); const imgWidth = 210; const imgHeight = canvas.height * imgWidth / canvas.width; pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 10, imgWidth, imgHeight); pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500); });
 
     init();
 </script>
