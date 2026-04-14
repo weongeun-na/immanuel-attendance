@@ -17,7 +17,7 @@
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         
-        .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; position: relative; }
+        .header { display: flex; flex-direction: column; align-items: center; border: 1px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; position: relative; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
         .header-spacer { width: 110px; } 
         .header-title { font-size: 16px; font-weight: bold; flex: 1; }
@@ -59,21 +59,24 @@
         .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-        #print-view { display: none; width: 1050px; background: white; padding: 20px; box-sizing: border-box; margin: 0 auto; color: #000; }
-        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+        /* 🖨️ 인쇄 전용(A4) : 꽉 찬 좌우 여백, 넓은 체크칸 적용 */
+        #print-view { display: none; width: 1200px; background: white; padding: 5px 2px; box-sizing: border-box; margin: 0 auto; color: #000; }
+        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; padding: 0 5px; }
         .print-title { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
         .print-summary-tbl { border-collapse: collapse; text-align: center; border: 1px solid #000; font-size: 12px; font-weight: 900; }
         .print-summary-tbl th, .print-summary-tbl td { border: 0.5px solid #000; padding: 4px 10px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
         
-        .print-grid { display: flex; gap: 15px; width: 100%; align-items: flex-start; }
+        .print-grid { display: flex; gap: 6px; width: 100%; align-items: flex-start; }
         .print-half { width: 50%; }
         
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; font-weight: 900; border: 1px solid #000; table-layout: fixed; margin-bottom: 8px; }
-        .print-table th, .print-table td { border: 0.5px solid #000; padding: 3px 1px; word-break: keep-all; letter-spacing: -1px; }
-        .print-table th { background-color: #e8f5e9; font-size: 10px; font-weight: 900; }
+        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; font-weight: 900; border: 1px solid #000; table-layout: fixed; margin-bottom: 8px; }
+        .print-table th, .print-table td { border: 0.5px solid #000; padding: 4px 0; word-break: keep-all; letter-spacing: -1px; }
+        .print-table th { background-color: #e8f5e9; font-size: 11px; font-weight: 900; }
         .print-village-title { font-weight: 900; font-size: 13px; text-align: left; padding-left: 5px; background-color: #c8e6c9; letter-spacing: -0.5px; }
-        .print-name-cell { text-align: center; font-weight: 900; font-size: 11px; letter-spacing: -0.5px; }
+        
+        /* 이름 한 줄 고정 및 중앙 정렬 */
+        .print-name-cell { text-align: center; font-weight: 900; font-size: 11px; letter-spacing: -0.5px; white-space: nowrap; overflow: visible; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -305,6 +308,7 @@
     window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름 입력 필수"); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
     window.confirmDelete = () => { if(confirm("정말 삭제하시겠습니까?")) { members.splice(currentManageIdx, 1); set(ref(db, 'members'), members); closeModal('manage-modal'); } };
 
+    // 🖨️ 인쇄 레이아웃 폭 대폭 확대 & 칸 분배 최적화
     function buildPrintGrid() {
         const pLeft = document.getElementById('printLeftHalf'); const pRight = document.getElementById('printRightHalf');
         if(!pLeft || !pRight) return;
@@ -315,7 +319,9 @@
                 const vMems = members.filter(m => (m.village || "미지정") === vName);
                 const mid = Math.ceil(vMems.length / 2);
                 const leftMems = vMems.slice(0, mid); const rightMems = vMems.slice(mid);
-                html += '<table class="print-table"><colgroup><col style="width:12%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:8%"> <col style="width:12%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:8%"></colgroup>';
+                
+                // 💡 폭 배분 변경: 이름 칸 12.5%, 출석칸 6개 각 5.5% (합 33%), 기타 4.5% = 딱 50%
+                html += '<table class="print-table"><colgroup><col style="width:12.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:4.5%"> <col style="width:12.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:4.5%"></colgroup>';
                 html += `<tr><td colspan="16" class="print-village-title">${vName}</td></tr>`;
                 html += `<tr><th>이름</th><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th>이름</th><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
                 const rowCount = Math.max(leftMems.length, rightMems.length);
@@ -323,12 +329,10 @@
                     const l = leftMems[i]; const r = rightMems[i];
                     html += '<tr>';
                     if (l) { const idx = members.indexOf(l); const ch = attendanceData[idx] || {}; 
-                             // 💡 직분(l.role)을 이름 앞에 추가
                              const displayName = (l.role ? l.role + ' ' : '') + (l.name || "");
                              html += `<td class="print-name-cell">${displayName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`; 
                     } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
                     if (r) { const idx = members.indexOf(r); const ch = attendanceData[idx] || {}; 
-                             // 💡 직분(r.role)을 이름 앞에 추가
                              const displayName = (r.role ? r.role + ' ' : '') + (r.name || "");
                              html += `<td class="print-name-cell">${displayName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`; 
                     } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
