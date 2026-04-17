@@ -16,7 +16,6 @@
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
         
-        /* 🔒 잠금 화면 스타일 */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; width: 80%; max-width: 300px; }
         .login-box h2 { margin-top: 0; color: #1976D2; letter-spacing: -1px; }
@@ -40,11 +39,7 @@
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
         .mobile-table th, .mobile-table td { border: 0.5px solid #666; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
         
-        .col-role { width: 9%; } 
-        .col-name { width: 14%; } 
-        .col-check { width: 8.5%; } 
-        .col-etc { width: 10%; } 
-        .col-manage { width: 15%; } 
+        .col-role { width: 9%; } .col-name { width: 14%; } .col-check { width: 8.5%; } .col-etc { width: 10%; } .col-manage { width: 15%; } 
         
         .village-header-row { background-color: #c8e6c9; }
         .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
@@ -66,7 +61,7 @@
         .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) : 💡 상하는 5px, 좌우는 20px로 안전 여백 설정! */
+        /* 🖨️ 인쇄 전용(A4) */
         #print-view { display: none; width: 1140px; background: white; padding: 5px 20px; box-sizing: border-box; margin: 0 auto; color: #000; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
         .print-title { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
@@ -81,8 +76,6 @@
         .print-table th, .print-table td { border: 0.5px solid #000; padding: 4px 0; word-break: keep-all; letter-spacing: -1px; }
         .print-table th { background-color: #e8f5e9; font-size: 11px; font-weight: 900; }
         .print-village-title { font-weight: 900; font-size: 13px; text-align: left; padding-left: 5px; background-color: #c8e6c9; letter-spacing: -0.5px; }
-        
-        /* 이름 한 줄 고정 및 중앙 정렬 */
         .print-name-cell { text-align: center; font-weight: 900; font-size: 11px; letter-spacing: -0.5px; white-space: nowrap; overflow: visible; }
     </style>
 </head>
@@ -140,9 +133,7 @@
         <h3>🔔 출석체크 알림 설정</h3>
         <p style="font-size:11px; color:#d32f2f; text-align:center; line-height:1.3; margin-top:0;">* 이 설정은 데이터베이스에 안전하게 저장됩니다.<br>* 실제 알림 발송은 푸시 서버 연동 후 작동합니다.</p>
         <label>푸시 발송 요일</label>
-        <select id="noti-day">
-            <option value="0">일요일</option><option value="1">월요일</option><option value="2">화요일</option><option value="3">수요일</option><option value="4">목요일</option><option value="5">금요일</option><option value="6">토요일</option>
-        </select>
+        <select id="noti-day"><option value="0">일요일</option><option value="1">월요일</option><option value="2">화요일</option><option value="3">수요일</option><option value="4">목요일</option><option value="5">금요일</option><option value="6">토요일</option></select>
         <label>푸시 발송 시각</label><input type="time" id="noti-time">
         <label>미체크자 재요청 (15분 간격)</label>
         <select id="noti-retry"><option value="0">재요청 안 함</option><option value="1">1회 재발송</option><option value="2">2회 재발송</option><option value="3">3회 재발송</option></select>
@@ -333,15 +324,7 @@
         } catch(e) {}
     }
 
-    window.moveMember = (idx, dir) => {
-        const targetIdx = idx + dir;
-        if (targetIdx < 0 || targetIdx >= members.length) return;
-        const weekKey = getWeekKey(dateInput.value);
-        const tempMem = members[idx]; members[idx] = members[targetIdx]; members[targetIdx] = tempMem;
-        const tempAtt = attendanceData[idx] || {}; attendanceData[idx] = attendanceData[targetIdx] || {}; attendanceData[targetIdx] = tempAtt;
-        set(ref(db, 'members'), members); set(ref(db, `attendance/${weekKey}`), attendanceData);
-    };
-
+    window.moveMember = (idx, dir) => { const targetIdx = idx + dir; if (targetIdx < 0 || targetIdx >= members.length) return; const weekKey = getWeekKey(dateInput.value); const tempMem = members[idx]; members[idx] = members[targetIdx]; members[targetIdx] = tempMem; const tempAtt = attendanceData[idx] || {}; attendanceData[idx] = attendanceData[targetIdx] || {}; attendanceData[targetIdx] = tempAtt; set(ref(db, 'members'), members); set(ref(db, `attendance/${weekKey}`), attendanceData); };
     window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playSound(); };
     window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); container.appendChild(clearBtn); document.getElementById('check-modal').style.display = 'flex'; };
     window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playSound(); closeModal('check-modal'); };
@@ -351,18 +334,15 @@
     window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
     window.openNotiSettings = () => { document.getElementById('noti-day').value = notiSettings.day || "0"; document.getElementById('noti-time').value = notiSettings.time || "14:00"; document.getElementById('noti-retry').value = notiSettings.retry || "1"; document.getElementById('noti-modal').style.display = 'flex'; };
     window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value; const t = document.getElementById('noti-time').value; const r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정 저장 완료"); closeModal('noti-modal'); };
-
     window.openAdd = () => { currentManageIdx = null; document.getElementById('manage-title').innerText = "새 인원 추가"; document.getElementById('manage-role').value = ""; document.getElementById('manage-name').value = ""; document.getElementById('btn-delete-member').style.display = "none"; document.getElementById('manage-modal').style.display = 'flex'; };
     window.openManage = (idx) => { currentManageIdx = idx; const m = members[idx]; document.getElementById('manage-title').innerText = "인원 정보 수정"; document.getElementById('manage-village').value = m.village; document.getElementById('manage-role').value = m.role; document.getElementById('manage-name').value = m.name; document.getElementById('btn-delete-member').style.display = "block"; document.getElementById('manage-modal').style.display = 'flex'; };
     window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름 입력 필수"); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
     window.confirmDelete = () => { if(confirm("정말 삭제하시겠습니까?")) { members.splice(currentManageIdx, 1); set(ref(db, 'members'), members); closeModal('manage-modal'); } };
 
-    // 🖨️ 인쇄 레이아웃 그리기 엔진 (연결 오류 완벽 해결!)
     function buildPrintGrid() {
-        const pLeft = document.getElementById('printLeftHalf'); 
-        const pRight = document.getElementById('printRightHalf');
-        if(!pLeft || !pRight) return; 
-
+        const pLeft = document.getElementById('printLeftHalf'); const pRight = document.getElementById('printRightHalf');
+        if(!pLeft || !pRight) return;
+        
         const allVils = [...new Set(members.map(m => m.village || "미지정"))];
         const generateHalfHtml = (vils) => {
             let html = '';
@@ -371,7 +351,6 @@
                 const mid = Math.ceil(vMems.length / 2);
                 const leftMems = vMems.slice(0, mid); const rightMems = vMems.slice(mid);
                 
-                // 폭 배분: 이름 칸 12.5%, 출석칸 6개 각 5.5% (합 33%), 기타 4.5% = 딱 50%
                 html += '<table class="print-table"><colgroup><col style="width:12.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:4.5%"> <col style="width:12.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:5.5%"><col style="width:4.5%"></colgroup>';
                 html += `<tr><td colspan="16" class="print-village-title">${vName}</td></tr>`;
                 html += `<tr><th>이름</th><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th>이름</th><th>주일</th><th>주밤</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
@@ -379,12 +358,10 @@
                 for(let i=0; i<rowCount; i++) {
                     const l = leftMems[i]; const r = rightMems[i];
                     html += '<tr>';
-                    if (l) { const idx = members.indexOf(l); const ch = attendanceData[idx] || {}; 
-                             const displayName = (l.role ? l.role + ' ' : '') + (l.name || "");
+                    if (l) { const idx = members.indexOf(l); const ch = attendanceData[idx] || {}; const displayName = (l.role ? l.role + ' ' : '') + (l.name || "");
                              html += `<td class="print-name-cell">${displayName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`; 
                     } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
-                    if (r) { const idx = members.indexOf(r); const ch = attendanceData[idx] || {}; 
-                             const displayName = (r.role ? r.role + ' ' : '') + (r.name || "");
+                    if (r) { const idx = members.indexOf(r); const ch = attendanceData[idx] || {}; const displayName = (r.role ? r.role + ' ' : '') + (r.name || "");
                              html += `<td class="print-name-cell">${displayName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`; 
                     } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
                     html += '</tr>';
@@ -400,8 +377,44 @@
 
     document.getElementById('imgBtn').addEventListener('click', () => { document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0); document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500); });
     
-    // 💡 PDF 가로(Landscape, 'l') 출력 유지
-    document.getElementById('pdfBtn').addEventListener('click', () => { document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0); document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4'); const imgWidth = 297; const imgHeight = canvas.height * imgWidth / canvas.width; pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 10, imgWidth, imgHeight); pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500); });
+    // 💡 Auto-Fit (자동 세로 조절) 엔진 탑재 완벽한 PDF 생성 코드
+    document.getElementById('pdfBtn').addEventListener('click', () => { 
+        document.getElementById('capture-area').style.display = 'none'; 
+        document.getElementById('print-view').style.display = 'block'; 
+        window.scrollTo(0,0); 
+        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; 
+        
+        setTimeout(() => { 
+            html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { 
+                const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4'); 
+                
+                const pageWidth = 297; // A4 가로 길이 (mm)
+                const pageHeight = 210; // A4 세로 길이 (mm)
+                const margin = 10; // 여백 (mm)
+                
+                const maxImgWidth = pageWidth - (margin * 2);
+                const maxImgHeight = pageHeight - (margin * 2);
+                
+                let imgWidth = maxImgWidth;
+                let imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                // 💡 만약 높이가 종이보다 길어지면, 높이를 종이에 맞추고 너비를 비율대로 줄임 (잘림 100% 방지)
+                if (imgHeight > maxImgHeight) {
+                    imgHeight = maxImgHeight;
+                    imgWidth = canvas.width * imgHeight / canvas.height;
+                }
+                
+                const x = (pageWidth - imgWidth) / 2; // 중앙 정렬
+                const y = margin; // 상단 여백
+                
+                pdf.addImage(canvas.toDataURL('image/png', 1.0), 'PNG', x, y, imgWidth, imgHeight); 
+                pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`); 
+                
+                document.getElementById('print-view').style.display = 'none'; 
+                document.getElementById('capture-area').style.display = 'block'; 
+            }); 
+        }, 500); 
+    });
 
     try { init(); } catch(e) {}
 </script>
