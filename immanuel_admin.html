@@ -61,8 +61,8 @@
         .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) : 💡 표 너비를 1350px로 늘려 좌우 여백을 꽉 채우도록 비율 수정! */
-        #print-view { display: none; width: 1350px; background: white; padding: 5px 5px; box-sizing: border-box; margin: 0 auto; color: #000; }
+        /* 🖨️ 인쇄 전용(A4) : html2canvas가 1350px 기준으로 캡처하도록 position:absolute 고정 */
+        #print-view { display: none; position: absolute; top: 0; left: -9999px; width: 1350px; background: white; padding: 5px 5px; box-sizing: border-box; color: #000; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
         .print-title { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-left: 5px; }
         
@@ -379,53 +379,79 @@
         pLeft.innerHTML = generateHalfHtml(allVils.slice(0, splitPoint)); pRight.innerHTML = generateHalfHtml(allVils.slice(splitPoint));
     }
 
-    document.getElementById('imgBtn').addEventListener('click', () => { 
-        document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0); 
-        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; 
-        setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500); 
+    document.getElementById('imgBtn').addEventListener('click', () => {
+        // 요약 수치 복사
+        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
+        // 화면 밖 절대위치에서 1350px 너비로 렌더링
+        const pv = document.getElementById('print-view');
+        pv.style.display = 'block';
+        setTimeout(() => {
+            html2canvas(pv, {
+                scale: 2,
+                backgroundColor: "#ffffff",
+                windowWidth: 1350,
+                width: 1350,
+                scrollX: 0,
+                scrollY: 0,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                pv.style.display = 'none';
+            });
+        }, 500);
     });
     
-    // 💡 꽉 찬 PDF 엔진 설정: 상하좌우를 A4 용지에 최대한 맞추어 인쇄 여백 최소화
-    document.getElementById('pdfBtn').addEventListener('click', () => { 
-        document.getElementById('capture-area').style.display = 'none'; 
-        document.getElementById('print-view').style.display = 'block'; 
-        window.scrollTo(0,0); 
-        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; 
-        
-        setTimeout(() => { 
-            html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { 
-                const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4'); 
-                
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                
-                // 좌우 여백과 상하 여백을 동일하게(5mm) 설정하여 꽉 채움
-                const marginX = 5; 
-                const marginY = 5; 
-                
-                const maxImgWidth = pageWidth - (marginX * 2);
+    // 💡 꽉 찬 PDF: windowWidth:1350으로 캡처 후 A4 용지에 stretch fill
+    document.getElementById('pdfBtn').addEventListener('click', () => {
+        // 요약 수치 복사
+        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
+        // 화면 밖 절대위치에서 1350px 너비로 렌더링
+        const pv = document.getElementById('print-view');
+        pv.style.display = 'block';
+
+        setTimeout(() => {
+            html2canvas(pv, {
+                scale: 2,
+                backgroundColor: "#ffffff",
+                windowWidth: 1350,
+                width: 1350,
+                scrollX: 0,
+                scrollY: 0,
+                useCORS: true
+            }).then(canvas => {
+                const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4');
+
+                const pageWidth  = pdf.internal.pageSize.getWidth();   // 297mm
+                const pageHeight = pdf.internal.pageSize.getHeight();  // 210mm
+
+                // 여백 3mm (최소화하여 꽉 채움)
+                const marginX = 3;
+                const marginY = 3;
+                const maxImgWidth  = pageWidth  - (marginX * 2);
                 const maxImgHeight = pageHeight - (marginY * 2);
-                
-                let imgWidth = maxImgWidth;
+
+                // 비율 유지하며 A4에 최대로 맞춤
+                let imgWidth  = maxImgWidth;
                 let imgHeight = (canvas.height * imgWidth) / canvas.width;
-                
-                // 만약 세로가 용지보다 길면 세로를 꽉 채우고 가로 비율을 맞춤
+
                 if (imgHeight > maxImgHeight) {
                     imgHeight = maxImgHeight;
-                    imgWidth = (canvas.width * imgHeight) / canvas.height;
+                    imgWidth  = (canvas.width * imgHeight) / canvas.height;
                 }
-                
-                // 정중앙 배치 계산
-                const x = (pageWidth - imgWidth) / 2;
-                const y = marginY; 
-                
-                pdf.addImage(canvas.toDataURL('image/png', 1.0), 'PNG', x, y, imgWidth, imgHeight); 
-                pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`); 
-                
-                document.getElementById('print-view').style.display = 'none'; 
-                document.getElementById('capture-area').style.display = 'block'; 
-            }); 
-        }, 500); 
+
+                // 정중앙 배치
+                const x = (pageWidth  - imgWidth)  / 2;
+                const y = (pageHeight - imgHeight) / 2;
+
+                pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', x, y, imgWidth, imgHeight);
+                pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
+
+                pv.style.display = 'none';
+            });
+        }, 500);
     });
 
     try { init(); } catch(e) {}
