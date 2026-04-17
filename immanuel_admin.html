@@ -61,22 +61,26 @@
         .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) */
-        #print-view { display: none; width: 1140px; background: white; padding: 5px 20px; box-sizing: border-box; margin: 0 auto; color: #000; }
-        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
-        .print-title { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
-        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 1px solid #000; font-size: 12px; font-weight: 900; }
-        .print-summary-tbl th, .print-summary-tbl td { border: 0.5px solid #000; padding: 4px 10px; }
+        /* 🖨️ 인쇄 전용(A4) : 💡 상하는 5px 유지, 좌우 25px 여백 추가. 폰트/높이 대폭 확대! */
+        #print-view { display: none; width: 1140px; background: white; padding: 5px 25px; box-sizing: border-box; margin: 0 auto; color: #000; }
+        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; }
+        .print-title { font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+        
+        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 2px solid #000; font-size: 14px; font-weight: 900; }
+        .print-summary-tbl th, .print-summary-tbl td { border: 1px solid #000; padding: 6px 12px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
         
         .print-grid { display: flex; gap: 15px; width: 100%; align-items: flex-start; }
         .print-half { width: 50%; }
         
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; font-weight: 900; border: 1px solid #000; table-layout: fixed; margin-bottom: 8px; }
-        .print-table th, .print-table td { border: 0.5px solid #000; padding: 4px 0; word-break: keep-all; letter-spacing: -1px; }
-        .print-table th { background-color: #e8f5e9; font-size: 11px; font-weight: 900; }
-        .print-village-title { font-weight: 900; font-size: 13px; text-align: left; padding-left: 5px; background-color: #c8e6c9; letter-spacing: -0.5px; }
-        .print-name-cell { text-align: center; font-weight: 900; font-size: 11px; letter-spacing: -0.5px; white-space: nowrap; overflow: visible; }
+        /* 테이블 줄간격, 폰트 크기 대폭 키움 (A4에 꽉 차게 보이기 위함) */
+        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 18px; font-weight: 900; border: 2px solid #000; table-layout: fixed; margin-bottom: 12px; }
+        .print-table th, .print-table td { border: 1px solid #000; padding: 6px 0; word-break: keep-all; letter-spacing: -1px; }
+        .print-table th { background-color: #e8f5e9; font-size: 13px; font-weight: 900; padding: 8px 0; }
+        .print-village-title { font-weight: 900; font-size: 16px; text-align: left; padding-left: 8px; background-color: #c8e6c9; letter-spacing: -0.5px; padding: 6px 8px; }
+        
+        /* 이름 한 줄 고정 및 폰트 확대 */
+        .print-name-cell { text-align: center; font-weight: 900; font-size: 14px; letter-spacing: -0.5px; white-space: nowrap; overflow: visible; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -359,10 +363,10 @@
                     const l = leftMems[i]; const r = rightMems[i];
                     html += '<tr>';
                     if (l) { const idx = members.indexOf(l); const ch = attendanceData[idx] || {}; const displayName = (l.role ? l.role + ' ' : '') + (l.name || "");
-                             html += `<td class="print-name-cell">${displayName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`; 
+                             html += `<td class="print-name-cell">${displayName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:13px; color:#d32f2f;">${ch.etc||''}</td>`; 
                     } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
                     if (r) { const idx = members.indexOf(r); const ch = attendanceData[idx] || {}; const displayName = (r.role ? r.role + ' ' : '') + (r.name || "");
-                             html += `<td class="print-name-cell">${displayName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:10px; color:#d32f2f;">${ch.etc||''}</td>`; 
+                             html += `<td class="print-name-cell">${displayName}</td><td>${ch.sun?'O':''}</td><td>${ch.sun_night?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:13px; color:#d32f2f;">${ch.etc||''}</td>`; 
                     } else { html += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>`; }
                     html += '</tr>';
                 }
@@ -375,9 +379,13 @@
         pLeft.innerHTML = generateHalfHtml(allVils.slice(0, splitPoint)); pRight.innerHTML = generateHalfHtml(allVils.slice(splitPoint));
     }
 
-    document.getElementById('imgBtn').addEventListener('click', () => { document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0); document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500); });
+    document.getElementById('imgBtn').addEventListener('click', () => { 
+        document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0); 
+        document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-sun-night').innerText = document.getElementById('tot-sun-night').innerText; document.getElementById('print-tot-tue').innerText = document.getElementById('tot-tue').innerText; document.getElementById('print-tot-wed').innerText = document.getElementById('tot-wed').innerText; document.getElementById('print-tot-fri').innerText = document.getElementById('tot-fri').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; 
+        setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500); 
+    });
     
-    // 💡 Auto-Fit (자동 세로 조절) 엔진 탑재 완벽한 PDF 생성 코드
+    // 💡 Auto-Fit (스마트 크기 조절 & 꽉 채움) 엔진 탑재!
     document.getElementById('pdfBtn').addEventListener('click', () => { 
         document.getElementById('capture-area').style.display = 'none'; 
         document.getElementById('print-view').style.display = 'block'; 
@@ -386,26 +394,31 @@
         
         setTimeout(() => { 
             html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff"}).then(canvas => { 
-                const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4'); 
+                // 1. 비율 계산 (가로가 넓으면 가로형, 세로가 길면 세로형 PDF 자동 생성)
+                const isLandscape = canvas.width > canvas.height;
+                const pdf = new window.jspdf.jsPDF(isLandscape ? 'l' : 'p', 'mm', 'a4'); 
                 
-                const pageWidth = 297; // A4 가로 길이 (mm)
-                const pageHeight = 210; // A4 세로 길이 (mm)
-                const margin = 10; // 여백 (mm)
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
                 
-                const maxImgWidth = pageWidth - (margin * 2);
-                const maxImgHeight = pageHeight - (margin * 2);
+                // 2. 여백 설정 (상하 5mm, 좌우 10mm로 꽉 채움)
+                const marginX = 10; 
+                const marginY = 5; 
+                
+                const maxImgWidth = pageWidth - (marginX * 2);
+                const maxImgHeight = pageHeight - (marginY * 2);
                 
                 let imgWidth = maxImgWidth;
-                let imgHeight = canvas.height * imgWidth / canvas.width;
+                let imgHeight = (canvas.height * imgWidth) / canvas.width;
                 
-                // 💡 만약 높이가 종이보다 길어지면, 높이를 종이에 맞추고 너비를 비율대로 줄임 (잘림 100% 방지)
+                // 3. 만약 높이가 종이를 초과하면 비율에 맞춰서 축소 (잘림 방지)
                 if (imgHeight > maxImgHeight) {
                     imgHeight = maxImgHeight;
-                    imgWidth = canvas.width * imgHeight / canvas.height;
+                    imgWidth = (canvas.width * imgHeight) / canvas.height;
                 }
                 
                 const x = (pageWidth - imgWidth) / 2; // 중앙 정렬
-                const y = margin; // 상단 여백
+                const y = marginY; 
                 
                 pdf.addImage(canvas.toDataURL('image/png', 1.0), 'PNG', x, y, imgWidth, imgHeight); 
                 pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`); 
