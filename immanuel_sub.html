@@ -94,6 +94,7 @@
 <script>
     const SECRET_PASSWORD = "1234"; 
     const AUTH_KEY = 'immanuel_sub_lock_v2'; 
+    let checkUtterance = null;
 
     document.addEventListener("DOMContentLoaded", () => {
         if(localStorage.getItem(AUTH_KEY) === 'true') {
@@ -108,7 +109,20 @@
             const dd = String(today.getDate()).padStart(2, '0');
             dInput.value = `${yyyy}-${mm}-${dd}`;
         }
+        
+        // 음성 엔진 워밍업
+        initCheckSound();
     });
+
+    function initCheckSound() {
+        checkUtterance = new SpeechSynthesisUtterance("출석");
+        checkUtterance.lang = 'ko-KR';
+        checkUtterance.rate = 2.5;
+        checkUtterance.volume = 1;
+        // 미리 로드해서 엔진 워밍업
+        window.speechSynthesis.speak(checkUtterance);
+        window.speechSynthesis.cancel();
+    }
 
     function checkPassword() {
         const input = document.getElementById('pw-input').value;
@@ -156,10 +170,12 @@
             try {
                 unlockAudio();
                 if (type === 'check') {
-                    const msg = new SpeechSynthesisUtterance("출석");
-                    msg.lang = 'ko-KR'; 
-                    msg.rate = 2.5;
-                    window.speechSynthesis.speak(msg);
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance("출석");
+                    utterance.lang = 'ko-KR';
+                    utterance.rate = 2.5;
+                    utterance.volume = 1;
+                    window.speechSynthesis.speak(utterance);
                 } else if (type === 'uncheck') {
                     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
                     osc.connect(gain); gain.connect(audioCtx.destination); 
