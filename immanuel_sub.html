@@ -10,39 +10,41 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛪️</text></svg>">
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
-        
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; width: 80%; max-width: 300px; }
         .login-box h2 { margin-top: 0; color: #1976D2; letter-spacing: -1px; }
         .login-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; text-align: center; letter-spacing: 2px; }
         .login-box button { width: 100%; padding: 12px; background: #1976D2; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
-
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; }
         .header-title { font-size: 16px; font-weight: bold; }
         .date-input { font-size: 18px; border: none; outline: none; color: #1976D2; font-weight: bold; text-align: center; background: transparent; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
         .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 3px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
-        
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 8px 2px; border: 1px solid #333; }
         .summary-box span { color: #0044cc; margin: 0 2px; font-size: 14px; }
-
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
-        
         .col-role { width: 11%; } .col-name { width: 17%; } .col-check { width: 12%; }
-        
         .village-header-row { background-color: #c8e6c9; }
         .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
         .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
-        
         .check-cell { cursor: pointer; font-weight: bold; font-size: 15px; user-select: none; background-color: #fafafa; }
         .check-cell:active { background-color: #e3f2fd; }
         .notice { text-align: center; font-size: 10px; color: #666; margin-bottom: 5px; word-break: keep-all; }
-
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; text-align: center; }
         .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
+        @media print {
+            body { margin: 0; padding: 0; background: white; }
+            .container { max-width: 100%; margin: 0; padding: 8px; box-shadow: none; }
+            .header { padding: 8px 4px; margin-bottom: 4px; border: 2px solid #333; }
+            .header-title { font-size: 15px; }
+            .week-label { font-size: 10px; }
+            .summary-box { margin-bottom: 6px; font-size: 12px; padding: 6px 2px; }
+            .mobile-table th, .mobile-table td { padding: 4px 0; font-size: 10px; }
+            .notice { display: none; }
+        }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -120,6 +122,71 @@
             document.getElementById('pw-input').value = ""; 
         }
     }
+
+    window.exportA4PDF = async function() {
+        if (typeof html2canvas === 'undefined' || typeof jsPDF === 'undefined') {
+            alert('html2canvas와 jsPDF 라이브러리가 필요합니다.');
+            return;
+        }
+        const container = document.getElementById('main-app');
+        const originalWidth = container.style.maxWidth;
+        const originalMargin = container.style.margin;
+        const originalPadding = container.style.padding;
+        container.style.maxWidth = '1350px';
+        container.style.margin = '0';
+        container.style.padding = '8px';
+        try {
+            const canvas = await html2canvas(container, {
+                scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff',
+                windowWidth: 1350, windowHeight: container.scrollHeight
+            });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({orientation: 'portrait', unit: 'mm', format: 'a4'});
+            const pdfWidth = 210;
+            const imgWidth = pdfWidth - 4;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 2, 2, imgWidth, imgHeight);
+            pdf.save(`임마누엘_출석부_${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch(e) {
+            console.error('PDF 생성 오류:', e);
+            alert('PDF 생성 중 오류가 발생했습니다.');
+        } finally {
+            container.style.maxWidth = originalWidth;
+            container.style.margin = originalMargin;
+            container.style.padding = originalPadding;
+        }
+    };
+
+    window.exportA4PNG = async function() {
+        if (typeof html2canvas === 'undefined') {
+            alert('html2canvas 라이브러리가 필요합니다.');
+            return;
+        }
+        const container = document.getElementById('main-app');
+        const originalWidth = container.style.maxWidth;
+        const originalMargin = container.style.margin;
+        const originalPadding = container.style.padding;
+        container.style.maxWidth = '1350px';
+        container.style.margin = '0';
+        container.style.padding = '8px';
+        try {
+            const canvas = await html2canvas(container, {
+                scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff',
+                windowWidth: 1350, windowHeight: container.scrollHeight
+            });
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `임마누엘_출석부_${new Date().toISOString().split('T')[0]}.png`;
+            link.click();
+        } catch(e) {
+            console.error('PNG 생성 오류:', e);
+            alert('PNG 생성 중 오류가 발생했습니다.');
+        } finally {
+            container.style.maxWidth = originalWidth;
+            container.style.margin = originalMargin;
+            container.style.padding = originalPadding;
+        }
+    };
 </script>
 
 <script type="module">
@@ -140,7 +207,6 @@
         const dateInput = document.getElementById('currentDate');
         let currentCheckIdx = null;
 
-        // 💡 오디오 로직 최적화
         let audioCtx = null;
         window.unlockAudio = function() {
             if (!audioCtx) {
@@ -155,8 +221,15 @@
             try {
                 unlockAudio();
                 if (type === 'check') {
-                    const msg = new SpeechSynthesisUtterance("출석");
-                    msg.lang = 'ko-KR'; msg.rate = 1.8; window.speechSynthesis.speak(msg);
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start(audioCtx.currentTime);
+                    osc.stop(audioCtx.currentTime + 0.15);
                 } else if (type === 'uncheck') {
                     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
                     osc.connect(gain); gain.connect(audioCtx.destination); 
@@ -191,7 +264,6 @@
             const day = d.getDay(); 
             const diff = (day >= 2) ? (day - 2) : (day + 5);
             d.setDate(d.getDate() - diff); 
-            
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const date = String(d.getDate()).padStart(2, '0');
@@ -228,26 +300,19 @@
                 tbody.innerHTML = '';
                 let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
                 let currentVil = "";
-
                 members.forEach((m, idx) => {
                     if(!m) return;
                     const ch = attendanceData[idx] || {};
                     if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
-                    
                     if (m.village !== currentVil) {
                         const trH = document.createElement('tr');
                         trH.className = 'village-header-row';
-                        trH.innerHTML = `
-                            <td colspan="2" class="village-header-name">${m.village || "미지정"}</td>
-                            <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마 마을</th><th>기타</th>
-                        `;
+                        trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th>`;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
-                    
                     const safeName = m.name ? String(m.name) : "";
                     const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
                     const tr = document.createElement('tr');
-                    
                     tr.innerHTML = `
                         <td>${m.role || ""}</td><td>${dName}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
@@ -259,7 +324,6 @@
                     `;
                     tbody.appendChild(tr);
                 });
-                
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
             } catch(e) {}
         }
