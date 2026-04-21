@@ -35,10 +35,22 @@
         .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; text-align: center; }
         .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
+        
+        /* 🚀 플로팅 상하 이동 버튼 스타일 */
+        .floating-btns { position: fixed; bottom: 20px; right: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
+        .float-btn { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.8); color: white; border: none; font-size: 16px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; }
+        .float-btn:active { background-color: rgba(25, 118, 210, 1); transform: scale(0.95); }
     </style>
 </head>
 <body onclick="unlockAudio()">
+
 <div id="login-screen"><div class="login-box"><h2>임마누엘 목자용</h2><p style="font-size:13px; color:#666;">출석부 접근을 위해<br>비밀번호를 입력해주세요.</p><input type="tel" id="pw-input" placeholder="비밀번호 4자리"><button onclick="checkPassword()">확 인</button></div></div>
+
+<div class="floating-btns" id="float-buttons">
+    <button class="float-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">▲</button>
+    <button class="float-btn" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})">▼</button>
+</div>
+
 <div id="main-app" style="display:none;" class="container"><div class="notice">일반 출석은 터치(O), '기타' 칸은 사유 팝업</div><div class="header"><div class="header-title">2026년 임마누엘 출석부 (목자용)</div><div><input type="date" class="date-input" id="currentDate"></div><div class="week-label" id="weekRange">데이터 연결 중...</div></div><div class="summary-box"><div>주일:<span id="tot-sun">0</span></div><div>화요:<span id="tot-tue">0</span></div><div>수요:<span id="tot-wed">0</span></div><div>금요:<span id="tot-fri">0</span></div><div>마을:<span id="tot-vil">0</span></div></div><table class="mobile-table"><colgroup><col class="col-role"><col class="col-name"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"></colgroup><tbody id="tableBody"></tbody></table></div>
 <div id="check-modal" class="modal-overlay"><div class="modal-content"><h3>사유 선택</h3><div id="check-buttons" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-bottom:20px;"></div><button style="width:100%; padding:12px; background:#d32f2f; color:white; border:none; border-radius:5px; font-weight:bold; margin-bottom:10px;" id="btn-etc-clear-sub">🗑️ 사유 지우기</button><button style="width:100%; padding:12px; background:#999; color:white; border:none; border-radius:5px; font-weight:bold;" onclick="closeModal('check-modal')">닫기</button></div></div>
 
@@ -65,7 +77,7 @@
         function playCheckSound(type) {
             try {
                 unlockAudio();
-                if (type === 'check') {
+                if (type === 'check' || type === 'etc') {
                     const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain(); osc1.connect(gain1); gain1.connect(audioCtx.destination); osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); gain1.gain.setValueAtTime(0.2, audioCtx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
                     const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain(); osc2.connect(gain2); gain2.connect(audioCtx.destination); osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15); gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4); osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
                 } else if (type === 'uncheck') {
@@ -113,7 +125,7 @@
         }
         window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playCheckSound(!currentVal ? 'check' : 'uncheck'); };
         window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); document.getElementById('btn-etc-clear-sub').onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
-        window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== "" ? 'check' : 'uncheck'); closeModal('check-modal'); };
+        window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== "" ? 'etc' : 'uncheck'); closeModal('check-modal'); };
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         init();
     } catch(err) {}
