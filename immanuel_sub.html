@@ -10,27 +10,35 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛪️</text></svg>">
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
+        
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; width: 80%; max-width: 300px; }
         .login-box h2 { margin-top: 0; color: #1976D2; letter-spacing: -1px; }
         .login-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; text-align: center; letter-spacing: 2px; }
         .login-box button { width: 100%; padding: 12px; background: #1976D2; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; }
         .header-title { font-size: 16px; font-weight: bold; }
-        .date-input { font-size: 16px; border: none; outline: none; color: #0044cc; font-weight: bold; text-align: center; background: transparent; cursor: pointer; }
+        .date-input { font-size: 18px; border: none; outline: none; color: #1976D2; font-weight: bold; text-align: center; background: transparent; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
         .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 3px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
+        
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 8px 2px; border: 1px solid #333; }
-        .summary-box span { color: #0044cc; margin: 0 3px; font-size: 14px; }
+        .summary-box span { color: #0044cc; margin: 0 2px; font-size: 14px; }
+
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
+        
         .col-role { width: 11%; } .col-name { width: 17%; } .col-check { width: 12%; }
+        
         .village-header-row { background-color: #c8e6c9; }
         .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
         .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
+        
         .check-cell { cursor: pointer; font-weight: bold; font-size: 15px; user-select: none; background-color: #fafafa; }
         .check-cell:active { background-color: #e3f2fd; }
         .notice { text-align: center; font-size: 10px; color: #666; margin-bottom: 5px; word-break: keep-all; }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; text-align: center; }
         .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
@@ -39,17 +47,79 @@
 </head>
 <body onclick="unlockAudio()">
 
-<div id="login-screen"><div class="login-box"><h2>임마누엘 목자용</h2><p style="font-size:13px; color:#666;">출석부 접근을 위해<br>비밀번호를 입력해주세요.</p><input type="tel" id="pw-input" placeholder="비밀번호 4자리"><button onclick="checkPassword()">확 인</button></div></div>
-<div id="main-app" style="display:none;" class="container"><div class="notice">일반 출석은 터치(O), '기타' 칸은 사유 팝업</div><div class="header"><div class="header-title">2026년 임마누엘 출석부 (목자용)</div><div><input type="date" class="date-input" id="currentDate"></div><div class="week-label" id="weekRange">데이터 연결 중...</div></div><div class="summary-box"><div>주일:<span id="tot-sun">0</span></div><div>화요:<span id="tot-tue">0</span></div><div>수요:<span id="tot-wed">0</span></div><div>금요:<span id="tot-fri">0</span></div><div>마을:<span id="tot-vil">0</span></div></div><table class="mobile-table"><colgroup><col class="col-role"><col class="col-name"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"></colgroup><tbody id="tableBody"></tbody></table></div>
-<div id="check-modal" class="modal-overlay"><div class="modal-content"><h3>사유 선택</h3><div id="check-buttons" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-bottom:20px;"></div><button style="width:100%; padding:12px; background:#999; color:white; border:none; border-radius:5px; font-weight:bold;" onclick="closeModal('check-modal')">닫기</button></div></div>
+<div id="login-screen">
+    <div class="login-box">
+        <h2>임마누엘 목자용</h2>
+        <p style="font-size:13px; color:#666;">출석부 접근을 위해<br>비밀번호를 입력해주세요.</p>
+        <input type="tel" id="pw-input" placeholder="비밀번호 4자리">
+        <button onclick="checkPassword()">확 인</button>
+    </div>
+</div>
+
+<div id="main-app" style="display:none;" class="container">
+    <div class="notice">일반 출석은 터치(O), '기타' 칸은 사유 팝업</div>
+    <div class="header">
+        <div class="header-title">2026년 임마누엘 출석부 (목자용)</div>
+        <div><input type="date" class="date-input" id="currentDate"></div>
+        <div class="week-label" id="weekRange">데이터 연결 중...</div>
+    </div>
+
+    <div class="summary-box">
+        <div>주일:<span id="tot-sun">0</span></div>
+        <div>화요:<span id="tot-tue">0</span></div>
+        <div>수요:<span id="tot-wed">0</span></div>
+        <div>금요:<span id="tot-fri">0</span></div>
+        <div>마을:<span id="tot-vil">0</span></div>
+    </div>
+
+    <table class="mobile-table">
+        <colgroup>
+            <col class="col-role"><col class="col-name">
+            <col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check">
+        </colgroup>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<div id="check-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>사유 선택</h3>
+        <div id="check-buttons" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-bottom:20px;"></div>
+        <button style="width:100%; padding:12px; background:#999; color:white; border:none; border-radius:5px; font-weight:bold;" onclick="closeModal('check-modal')">닫기</button>
+    </div>
+</div>
 
 <script>
-    const SECRET_PASSWORD = "1234", AUTH_KEY = 'immanuel_sub_lock_v2'; 
+    const SECRET_PASSWORD = "1234"; 
+    const AUTH_KEY = 'immanuel_sub_lock_v2'; 
+
     document.addEventListener("DOMContentLoaded", () => {
-        if(localStorage.getItem(AUTH_KEY) === 'true') { document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; }
-        const dInput = document.getElementById('currentDate'); if(dInput) { const today = new Date(); dInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`; }
+        if(localStorage.getItem(AUTH_KEY) === 'true') {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+        }
+        const dInput = document.getElementById('currentDate');
+        if(dInput) {
+            const today = new Date(); 
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            dInput.value = `${yyyy}-${mm}-${dd}`;
+        }
     });
-    function checkPassword() { const input = document.getElementById('pw-input').value; if(input === SECRET_PASSWORD) { localStorage.setItem(AUTH_KEY, 'true'); document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; } else { alert("비밀번호가 틀렸습니다."); document.getElementById('pw-input').value = ""; } }
+
+    function checkPassword() {
+        const input = document.getElementById('pw-input').value;
+        if(input === SECRET_PASSWORD) {
+            localStorage.setItem(AUTH_KEY, 'true');
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            window.scrollTo(0,0);
+        } else {
+            alert("비밀번호가 틀렸습니다. 다시 입력해주세요.");
+            document.getElementById('pw-input').value = ""; 
+        }
+    }
 </script>
 
 <script type="module">
@@ -57,77 +127,169 @@
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     try {
-        const firebaseConfig = { apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w", authDomain: "immanuel-attendance.firebaseapp.com", databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com", projectId: "immanuel-attendance" };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
+            authDomain: "immanuel-attendance.firebaseapp.com",
+            databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com",
+            projectId: "immanuel-attendance"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let members = [], attendanceData = {}, attOptions = [], dateInput = document.getElementById('currentDate'), currentCheckIdx = null, audioCtx = null;
+        let members = []; let attendanceData = {}; let attOptions = [];
+        const dateInput = document.getElementById('currentDate');
+        let currentCheckIdx = null;
 
-        // 💡 오디오 로직 수정: 체크 시 "출석", 체크 해제 시 "띠"
-        window.unlockAudio = function() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); };
-        
-        function playCheckSound(isCheck) {
+        // 💡 오디오 로직 최적화
+        let audioCtx = null;
+        window.unlockAudio = function() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const wakeTTS = new SpeechSynthesisUtterance("");
+                wakeTTS.volume = 0; window.speechSynthesis.speak(wakeTTS);
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        };
+
+        function playCheckSound(type) {
             try {
                 unlockAudio();
-                if (isCheck) {
+                if (type === 'check') {
                     const msg = new SpeechSynthesisUtterance("출석");
-                    msg.lang = 'ko-KR'; msg.rate = 1.2; window.speechSynthesis.speak(msg);
-                } else {
+                    msg.lang = 'ko-KR'; msg.rate = 1.8; window.speechSynthesis.speak(msg);
+                } else if (type === 'uncheck') {
                     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
                     osc.connect(gain); gain.connect(audioCtx.destination); 
                     osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
                     gain.gain.setValueAtTime(0.2, audioCtx.currentTime); 
                     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
                     osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'etc') {
+                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain();
+                    osc1.connect(gain1); gain1.connect(audioCtx.destination);
+                    osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); 
+                    gain1.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
+
+                    const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain();
+                    osc2.connect(gain2); gain2.connect(audioCtx.destination);
+                    osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); 
+                    gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
                 }
             } catch(e) {}
         }
 
         function getWeekKey(dateStr) {
-            let d = new Date(); if (dateStr) { let parsed = new Date(dateStr.replace(/[\.\/]/g, '-')); if (!isNaN(parsed.getTime())) d = parsed; }
-            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5); d.setDate(d.getDate() - diff); 
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            let d = new Date();
+            if (dateStr) {
+                let parsed = new Date(dateStr.replace(/[\.\/]/g, '-'));
+                if (!isNaN(parsed.getTime())) d = parsed;
+            }
+            const day = d.getDay(); 
+            const diff = (day >= 2) ? (day - 2) : (day + 5);
+            d.setDate(d.getDate() - diff); 
+            
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const date = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${date}`;
         }
+        
         dateInput.addEventListener('change', loadData);
 
         function init() {
             onValue(ref(db, 'settings/etcOptions'), snap => { try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } });
-            onValue(ref(db, 'members'), (snap) => { try { const data = snap.val(); if (!data) members = []; else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); } members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99)); renderTable(); } catch(e) {} });
+            onValue(ref(db, 'members'), (snap) => {
+                try {
+                    const data = snap.val();
+                    if (!data) { members = []; } else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
+                    const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
+                    members.sort((a, b) => vOrder.findIndex(v => (a.village||"").startsWith(v)) - vOrder.findIndex(v => (b.village||"").startsWith(v)));
+                    renderTable();
+                } catch(e) {}
+            });
             loadData();
         }
-        function loadData() { const weekKey = getWeekKey(dateInput.value); if (!weekKey) return; document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`; onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); }); }
+
+        function loadData() {
+            const weekKey = getWeekKey(dateInput.value); 
+            if (!weekKey) return;
+            document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
+            onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
+        }
 
         function renderTable() {
             try {
-                const tbody = document.getElementById('tableBody'); if(!tbody) return; tbody.innerHTML = '';
-                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 }, currentVil = "";
+                const tbody = document.getElementById('tableBody'); 
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
+                let currentVil = "";
+
                 members.forEach((m, idx) => {
-                    if(!m) return; const ch = attendanceData[idx] || {};
+                    if(!m) return;
+                    const ch = attendanceData[idx] || {};
                     if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
+                    
                     if (m.village !== currentVil) {
-                        const trH = document.createElement('tr'); trH.className = 'village-header-row';
-                        trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th>`;
+                        const trH = document.createElement('tr');
+                        trH.className = 'village-header-row';
+                        trH.innerHTML = `
+                            <td colspan="2" class="village-header-name">${m.village || "미지정"}</td>
+                            <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마 마을</th><th>기타</th>
+                        `;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
-                    const safeName = m.name ? String(m.name) : "", dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
+                    
+                    const safeName = m.name ? String(m.name) : "";
+                    const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${m.role || ""}</td><td>${dName}</td>
+                    
+                    tr.innerHTML = `
+                        <td>${m.role || ""}</td><td>${dName}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
-                        <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>`;
+                        <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>
+                    `;
                     tbody.appendChild(tr);
                 });
+                
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
             } catch(e) {}
         }
-        window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playCheckSound(!currentVal); };
-        window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); container.appendChild(clearBtn); document.getElementById('check-modal').style.display = 'flex'; };
-        window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== ""); closeModal('check-modal'); };
+
+        window.toggleCheck = (idx, day) => { 
+            const weekKey = getWeekKey(dateInput.value); 
+            const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; 
+            set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); 
+            playCheckSound(!currentVal ? 'check' : 'uncheck'); 
+        };
+        
+        window.openEtcCheck = (idx) => { 
+            currentCheckIdx = idx; 
+            const container = document.getElementById('check-buttons'); container.innerHTML = ''; 
+            attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); 
+            const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); 
+            document.getElementById('check-modal').style.display = 'flex'; 
+        };
+
+        window.saveEtcCheck = (val) => { 
+            const weekKey = getWeekKey(dateInput.value); 
+            set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); 
+            if (val !== "") { playCheckSound('etc'); } else { playCheckSound('uncheck'); }
+            closeModal('check-modal'); 
+        };
+        
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
         init();
-    } catch(err) {}
+    } catch(err) { console.log(err); }
 </script>
 </body>
 </html>
