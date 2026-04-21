@@ -56,6 +56,11 @@
         .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 20px; letter-spacing: -1px; font-weight: 900; }
         .print-table th { font-weight: 900; background-color: #c8e6c9; border: 3px solid #000; }
         .print-village-title { font-weight: 900; font-size: 24px; text-align: left; padding-left: 15px; background-color: #c8e6c9; border: 3px solid #000; }
+        
+        /* 🚀 플로팅 상하 이동 버튼 스타일 */
+        .floating-btns { position: fixed; bottom: 20px; right: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
+        .float-btn { width: 40px; height: 40px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.8); color: white; border: none; font-size: 16px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; }
+        .float-btn:active { background-color: rgba(25, 118, 210, 1); transform: scale(0.95); }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -63,6 +68,11 @@
 <div style="text-align: center; margin-bottom: 5px;">
     <button class="admin-btn btn-img" id="imgBtn">🖼️ 이미지 저장</button>
     <button class="admin-btn btn-pdf" id="pdfBtn">📄 PDF 저장</button>
+</div>
+
+<div class="floating-btns" id="float-buttons">
+    <button class="float-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">▲</button>
+    <button class="float-btn" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})">▼</button>
 </div>
 
 <div class="container" id="capture-area">
@@ -107,31 +117,29 @@
         const dateInput = document.getElementById('currentDate');
         let currentCheckIdx = null, currentManageIdx = null, audioCtx = null;
 
-        // 💡 오디오 피드백 수정 ("딩동", "삐")
         window.unlockAudio = function() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); };
         
         function playCheckSound(type) {
             try {
                 unlockAudio();
-                if (type === 'check') {
-                    // 💡 "딩동" 소리
-                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain();
-                    osc1.connect(gain1); gain1.connect(audioCtx.destination);
+                if (type === 'check' || type === 'etc') {
+                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain(); 
+                    osc1.connect(gain1); gain1.connect(audioCtx.destination); 
                     osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); 
-                    gain1.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                    gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    gain1.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+                    gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); 
                     osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
-                    const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain();
-                    osc2.connect(gain2); gain2.connect(audioCtx.destination);
+                    
+                    const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain(); 
+                    osc2.connect(gain2); gain2.connect(audioCtx.destination); 
                     osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); 
-                    gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15);
-                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15); 
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4); 
                     osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
                 } else if (type === 'uncheck') {
-                    // 💡 "삐!" 소리 (날카로운 단음)
                     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
                     osc.connect(gain); gain.connect(audioCtx.destination); 
-                    osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); // C6 고음
+                    osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); 
                     gain.gain.setValueAtTime(0.15, audioCtx.currentTime); 
                     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
                     osc.start(); osc.stop(audioCtx.currentTime + 0.1);
@@ -162,7 +170,8 @@
                     if(!m) return; const ch = attendanceData[idx] || {};
                     if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
                     if (m.village !== currentVil) {
-                        const trH = document.createElement('tr'); trH.className = 'village-header-row'; trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
+                        const trH = document.createElement('tr'); trH.className = 'village-header-row';
+                        trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
                     const safeName = m.name ? String(m.name) : "", dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
@@ -182,9 +191,14 @@
             } catch(e) {}
         }
 
-        window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playCheckSound(!currentVal ? 'check' : 'uncheck'); };
+        window.toggleCheck = (idx, day) => { 
+            const weekKey = getWeekKey(dateInput.value); 
+            const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; 
+            set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); 
+            playCheckSound(!currentVal ? 'check' : 'uncheck'); 
+        };
         window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); document.getElementById('btn-etc-clear').onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
-        window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== "" ? 'check' : 'uncheck'); closeModal('check-modal'); };
+        window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== "" ? 'etc' : 'uncheck'); closeModal('check-modal'); };
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
         window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
@@ -215,9 +229,10 @@
                 tLeft.innerHTML = generateHtml(allVils.slice(0, half)); tRight.innerHTML = generateHtml(allVils.slice(half));
             } catch(e) {}
         }
-        document.getElementById('imgBtn').addEventListener('click', () => { document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0); document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: -window.scrollY}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; }); }, 500); });
+        
+        document.getElementById('imgBtn').addEventListener('click', () => { document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; document.getElementById('float-buttons').style.display = 'none'; window.scrollTo(0,0); document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: -window.scrollY}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; document.getElementById('float-buttons').style.display = 'flex'; }); }, 500); });
         document.getElementById('pdfBtn').addEventListener('click', () => {
-            document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; window.scrollTo(0,0);
+            document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; document.getElementById('float-buttons').style.display = 'none'; window.scrollTo(0,0);
             document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
             setTimeout(() => { 
                 html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: -window.scrollY}).then(canvas => {
@@ -226,7 +241,7 @@
                     if (imgHeight > usableHeight) { imgHeight = usableHeight; imgWidth = canvas.width * imgHeight / canvas.height; }
                     const x = margin + ((usableWidth - imgWidth) / 2), y = margin + ((usableHeight - imgHeight) / 2);
                     pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, imgWidth, imgHeight); pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
-                    document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block';
+                    document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; document.getElementById('float-buttons').style.display = 'flex';
                 }); 
             }, 500);
         });
