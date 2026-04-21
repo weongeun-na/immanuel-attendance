@@ -15,35 +15,35 @@
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        
         .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; position: relative; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
         .header-spacer { width: 110px; } .header-title { font-size: 16px; font-weight: bold; flex: 1; }
         .header-btns { display: flex; gap: 3px; width: 110px; justify-content: flex-end; }
         .btn-settings { background: #333; color: white; border: none; border-radius: 3px; padding: 6px 5px; font-size: 10px; cursor: pointer; white-space: nowrap; }
+        
         .date-input { font-size: 18px; border: 1px solid #ccc; border-radius: 5px; padding: 5px; color: #1976D2; font-weight: bold; text-align: center; background-color: #fff; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
         .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 5px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
+        
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 8px 2px; border: 1px solid #333; }
         .summary-box span { color: #0044cc; margin: 0 2px; font-size: 14px; }
+
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
         
-        /* 💡 이름 칸 줄이고 관리 칸을 넓혀서 버튼이 들어갈 공간 확보 */
-        .col-role { width: 9%; } 
-        .col-name { width: 12%; } /* 축소 */
-        .col-check { width: 9%; } 
-        .col-etc { width: 9%; } 
-        .col-manage { width: 25%; } /* 대폭 확대 */
+        .col-role { width: 9%; } .col-name { width: 12%; } .col-check { width: 9%; } .col-etc { width: 9%; } .col-manage { width: 25%; } 
         
         .village-header-row { background-color: #c8e6c9; }
         .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
         .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
+        
         .check-cell { cursor: pointer; font-weight: bold; font-size: 15px; user-select: none; background-color: #fafafa; }
         .check-cell:active { background-color: #e3f2fd; }
+        
         .admin-btn { padding: 8px 12px; margin: 3px; cursor: pointer; border: none; border-radius: 5px; color: white; font-weight: bold; font-size: 12px; }
         .btn-img { background-color: #4CAF50; } .btn-pdf { background-color: #d32f2f; }
         .btn-add { background-color: #1976D2; width: 100%; margin-top: 10px; padding: 12px; font-size: 15px; }
         
-        /* 💡 관리버튼 크기 최적화 및 삐져나감 방지 */
         .btn-manage { background-color: #424242; padding: 4px; font-size: 10px; color: white; border-radius: 3px; border: none; cursor: pointer; white-space: nowrap; flex: 1; }
         .btn-move { background-color: #757575; padding: 4px; font-size: 10px; color: white; border-radius: 3px; border: none; cursor: pointer; white-space: nowrap; flex: 1; }
         .manage-wrapper { display: flex; justify-content: center; gap: 2px; padding: 0 2px; }
@@ -56,19 +56,24 @@
         .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
-        
-        #print-view { display: none; width: 1450px; background: white; padding: 10px 15px; box-sizing: border-box; margin: 0 auto; color: #000; }
+
+        /* 🖨️ 인쇄 전용(A4) 매우 진하고 굵은 선/글씨 적용 */
+        #print-view { display: none; background: white; padding: 10px 15px; box-sizing: border-box; margin: 0 auto; color: #000; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 5px; }
-        .print-title { font-size: 45px; font-weight: 900; letter-spacing: -2px; color: #000; }
-        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 4px solid #000; font-size: 24px; font-weight: 900; color: #000; }
+        .print-title { font-size: 50px; font-weight: 900; letter-spacing: -2px; color: #000; }
+        
+        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 4px solid #000; font-size: 26px; font-weight: 900; color: #000; }
         .print-summary-tbl th, .print-summary-tbl td { border: 2px solid #000; padding: 8px 25px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
+        
         .print-grid { display: flex; gap: 20px; width: 100%; }
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 22px; border: 4px solid #000; table-layout: fixed; font-weight: 900; color: #000; }
-        .print-table th, .print-table td { border: 2px solid #000; padding: 5px 2px; }
-        .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 20px; letter-spacing: -1px; font-weight: 900; }
+        
+        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 24px; border: 4px solid #000; table-layout: fixed; font-weight: 900; color: #000; }
+        .print-table th, .print-table td { border: 2px solid #000; padding: 6px 2px; }
+        
+        .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 22px; letter-spacing: -1px; font-weight: 900; }
         .print-table th { font-weight: 900; background-color: #c8e6c9; border: 3px solid #000; }
-        .print-village-title { font-weight: 900; font-size: 24px; text-align: left; padding-left: 15px; background-color: #c8e6c9; border: 3px solid #000; }
+        .print-village-title { font-weight: 900; font-size: 26px; text-align: left; padding-left: 15px; background-color: #c8e6c9; border: 3px solid #000; }
 
         .floating-btns { position: fixed; bottom: 20px; left: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
         .float-btn { width: 45px; height: 45px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.85); color: white; border: none; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; }
@@ -121,7 +126,16 @@
 <div id="settings-modal" class="modal-overlay"><div class="modal-content"><h3>'기타' 사유 설정</h3><p style="font-size:11px; color:#666; text-align:center;">쉼표(,)로 구분하여 입력하세요.</p><input type="text" id="settings-options" placeholder="예: 병원, 시외, 여행, 기타"><div class="modal-btns"><button style="background:#999; color:white;" onclick="closeModal('settings-modal')">취소</button><button style="background:#1976D2; color:white;" onclick="saveSettings()">저장</button></div></div></div>
 <div id="manage-modal" class="modal-overlay"><div class="modal-content"><h3 id="manage-title">인원 관리</h3><label>마을 선택</label><select id="manage-village"><option value="1. 섬김 마을">1. 섬김 마을</option><option value="2. 사랑스런 마을">2. 사랑스런 마을</option><option value="3. 워십 마을">3. 워십 마을</option><option value="4. 양떼 마을">4. 양떼 마을</option><option value="5. 은혜 마을">5. 은혜 마을</option><option value="6. 포도원 마을">6. 포도원 마을</option><option value="7. 회복 마을">7. 회복 마을</option><option value="8. 새생명 마을">8. 새생명 마을</option><option value="9. 청솔 마을">9. 청솔 마을</option><option value="10. 풍성한 마을">10. 풍성한 마을</option><option value="11. 상속자 마을">11. 상속자 마을</option><option value="12. 보배 마을">12. 보배 마을</option><option value="13. 순종 마을">13. 순종 마을</option><option value="14. 반석 마을">14. 반석 마을</option><option value="15. 지성소 마을">15. 지성소 마을</option><option value="16. 번성 마을">16. 번성 마을</option><option value="17. 권능 마을">17. 권능 마을</option><option value="18. 열매맺는 마을">18. 열매맺는 마을</option><option value="19. 온유 마을">19. 온유 마을</option><option value="20. 승리 마을">20. 승리 마을</option></select><label>직분</label><input type="text" id="manage-role" placeholder="예: 목자"><label>이름</label><input type="text" id="manage-name" placeholder="성함"><div class="modal-btns"><button id="btn-delete-member" style="background:#d32f2f; color:white; display:none;" onclick="confirmDelete()">삭제</button><button style="background:#999; color:white;" onclick="closeModal('manage-modal')">취소</button><button style="background:#1976D2; color:white;" onclick="saveManage()">저장</button></div></div></div>
 
-<div id="print-view"><div class="print-header-area"><div class="print-title">임마누엘 목장 <span class="print-date" id="printDateTxt"></span></div><table class="print-summary-tbl"><tr><th>주일 출석</th><th>마을 출석</th><th rowspan="2" style="padding: 0 15px;">총 계</th></tr><tr><td id="print-tot-sun">0</td><td id="print-tot-vil">0</td></tr></table></div><div class="print-grid"><div id="printLeftBodyArea" style="width:50%;"></div><div id="printRightBodyArea" style="width:50%;"></div></div></div>
+<div id="print-view">
+    <div class="print-header-area">
+        <div class="print-title">임마누엘 목장 <span class="print-date" id="printDateTxt"></span></div>
+        <table class="print-summary-tbl">
+            <tr><th>주일 출석</th><th>마을 출석</th><th rowspan="2" style="padding: 0 15px;">총 계</th></tr>
+            <tr><td id="print-tot-sun">0</td><td id="print-tot-vil">0</td></tr>
+        </table>
+    </div>
+    <div class="print-grid"><div id="printLeftBodyArea" style="width:50%;"></div><div id="printRightBodyArea" style="width:50%;"></div></div>
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -141,13 +155,23 @@
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     try {
-        const firebaseConfig = { apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w", authDomain: "immanuel-attendance.firebaseapp.com", databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com", projectId: "immanuel-attendance" };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
+            authDomain: "immanuel-attendance.firebaseapp.com",
+            databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com",
+            projectId: "immanuel-attendance"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let members = [], attendanceData = {}, attOptions = [], notiSettings = { day: "0", time: "14:00", retry: "1" }; 
+        
+        let members = []; let attendanceData = {}; let attOptions = [];
+        let notiSettings = { day: "0", time: "14:00", retry: "1" }; 
+        
         const dateInput = document.getElementById('currentDate');
-        let currentCheckIdx = null, currentManageIdx = null, audioCtx = null;
+        let currentCheckIdx = null; let currentManageIdx = null;
 
+        let audioCtx = null;
         window.unlockAudio = function() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -185,44 +209,67 @@
         }
 
         function getWeekKey(dateStr) {
-            let d = new Date(); if (dateStr) { let parsed = new Date(dateStr.replace(/[\.\/]/g, '-')); if (!isNaN(parsed.getTime())) d = parsed; }
-            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5); d.setDate(d.getDate() - diff); 
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            let d = new Date();
+            if (dateStr) {
+                let parsed = new Date(dateStr.replace(/[\.\/]/g, '-'));
+                if (!isNaN(parsed.getTime())) d = parsed;
+            }
+            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5);
+            d.setDate(d.getDate() - diff); 
+            const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const date = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${date}`;
         }
+
         dateInput.addEventListener('change', loadData);
 
         function init() {
             onValue(ref(db, 'settings/etcOptions'), snap => { try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } });
             onValue(ref(db, 'settings/notification'), snap => { const data = snap.val(); if (data) notiSettings = data; });
-            onValue(ref(db, 'members'), (snap) => { 
-                try { 
-                    const data = snap.val(); 
-                    if (!data) members = []; 
-                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); } 
-                    members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99)); 
-                    renderTable(); 
-                } catch(e) {} 
+            onValue(ref(db, 'members'), (snap) => {
+                try {
+                    const data = snap.val();
+                    if (!data) { members = []; } 
+                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
+                    members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99));
+                    renderTable();
+                } catch(e) {}
             });
             loadData();
         }
-        function loadData() { const weekKey = getWeekKey(dateInput.value); if (!weekKey) return; document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`; onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); }); }
+
+        function loadData() {
+            const weekKey = getWeekKey(dateInput.value);
+            if (!weekKey) return;
+            document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
+            onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
+        }
 
         function renderTable() {
             try {
-                const tbody = document.getElementById('mobileBody'); if(!tbody) return; tbody.innerHTML = '';
-                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 }, currentVil = "";
+                const tbody = document.getElementById('mobileBody'); 
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
+                let currentVil = "";
+
                 members.forEach((m, idx) => {
-                    if(!m) return; const ch = attendanceData[idx] || {};
+                    if(!m) return;
+                    const ch = attendanceData[idx] || {};
                     if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
+                    
                     if (m.village !== currentVil) {
-                        const trH = document.createElement('tr'); trH.className = 'village-header-row';
+                        const trH = document.createElement('tr');
+                        trH.className = 'village-header-row';
                         trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
-                    const safeName = m.name ? String(m.name) : "", dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
+                    
+                    const safeName = m.name ? String(m.name) : "";
+                    const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
                     const tr = document.createElement('tr');
-                    // 💡 한 줄로 깔끔하게 배치된 관리버튼 영역
-                    tr.innerHTML = `<td>${m.role || ""}</td><td>${dName}</td>
+                    
+                    tr.innerHTML = `
+                        <td>${m.role || ""}</td><td>${dName}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
@@ -235,11 +282,16 @@
                                 <button class="btn-move" onclick="moveMember(${idx}, 1)">▼</button>
                                 <button class="btn-manage" onclick="openManage(${idx})">관리</button>
                             </div>
-                        </td>`;
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
+                
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-                buildPrintGrid(); const dObj = new Date(getWeekKey(dateInput.value)); document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
+                
+                buildPrintGrid();
+                const dObj = new Date(getWeekKey(dateInput.value));
+                document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
             } catch(e) {}
         }
 
@@ -247,20 +299,32 @@
             const target = idx + dir;
             if (target < 0 || target >= members.length) return;
             if (members[idx].village !== members[target].village) return alert("같은 마을 내에서만 순서를 변경할 수 있습니다.");
+            
             const tempMem = members[idx]; members[idx] = members[target]; members[target] = tempMem;
             const weekKey = getWeekKey(dateInput.value);
             const tempAtt = attendanceData[idx] || {}; attendanceData[idx] = attendanceData[target] || {}; attendanceData[target] = tempAtt;
+            
             set(ref(db, 'members'), members); set(ref(db, `attendance/${weekKey}`), attendanceData);
         };
 
         window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playCheckSound(!currentVal ? 'check' : 'uncheck'); };
-        window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); document.getElementById('btn-etc-clear').onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
+        
+        window.openEtcCheck = (idx) => { 
+            currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; 
+            attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); 
+            document.getElementById('btn-etc-clear').onclick = () => saveEtcCheck(""); 
+            document.getElementById('check-modal').style.display = 'flex'; 
+        };
+
         window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== "" ? 'etc' : 'uncheck'); closeModal('check-modal'); };
+        
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
         window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
+        
         window.openNotiSettings = () => { document.getElementById('noti-day').value = notiSettings.day || "0"; document.getElementById('noti-time').value = notiSettings.time || "14:00"; document.getElementById('noti-retry').value = notiSettings.retry || "1"; document.getElementById('noti-modal').style.display = 'flex'; };
-        window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value, t = document.getElementById('noti-time').value, r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정이 저장되었습니다."); closeModal('noti-modal'); };
+        window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value; const t = document.getElementById('noti-time').value; const r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정이 저장되었습니다."); closeModal('noti-modal'); };
+
         window.openAdd = () => { currentManageIdx = null; document.getElementById('manage-title').innerText = "새 인원 추가"; document.getElementById('manage-role').value = ""; document.getElementById('manage-name').value = ""; document.getElementById('btn-delete-member').style.display = "none"; document.getElementById('manage-modal').style.display = 'flex'; };
         window.openManage = (idx) => { currentManageIdx = idx; const m = members[idx]; document.getElementById('manage-title').innerText = "인원 정보 수정"; document.getElementById('manage-village').value = m.village; document.getElementById('manage-role').value = m.role; document.getElementById('manage-name').value = m.name; document.getElementById('btn-delete-member').style.display = "block"; document.getElementById('manage-modal').style.display = 'flex'; };
         window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름을 입력하세요."); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
@@ -268,8 +332,11 @@
 
         function buildPrintGrid() {
             try {
-                const tLeft = document.getElementById('printLeftBodyArea'), tRight = document.getElementById('printRightBodyArea'); if(!tLeft || !tRight) return; tLeft.innerHTML = ''; tRight.innerHTML = '';
-                const allVils = [...new Set(members.map(m => m.village || "미지정"))], half = Math.ceil(allVils.length / 2);
+                const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
+                if(!tLeft || !tRight) return; tLeft.innerHTML = ''; tRight.innerHTML = '';
+                const allVils = [...new Set(members.map(m => m.village || "미지정"))];
+                const half = Math.ceil(allVils.length / 2);
+                
                 const generateHtml = (vils) => {
                     let h = '<table class="print-table"><colgroup><col style="width:23%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:17%"></colgroup><tbody>';
                     vils.forEach(vName => {
@@ -278,7 +345,13 @@
                         vMems.forEach(m => {
                             const idx = members.indexOf(m); const ch = attendanceData[idx] || {}; const safeName = m.name ? String(m.name) : "";
                             const printName = m.role ? `${m.role} ${safeName}` : safeName;
-                            h += `<tr><td class="print-name-cell">${printName}</td><td style="font-weight:900; color:#0044cc;">${ch.sun?'O':''}</td><td style="font-weight:900; color:#0044cc;">${ch.tue?'O':''}</td><td style="font-weight:900; color:#0044cc;">${ch.wed?'O':''}</td><td style="font-weight:900; color:#0044cc;">${ch.fri?'O':''}</td><td style="font-weight:900; color:#0044cc;">${ch.vil?'O':''}</td><td style="font-size:20px; color:#d32f2f; font-weight:900; letter-spacing:-1px;">${ch.etc||''}</td></tr>`;
+                            h += `<tr><td class="print-name-cell">${printName}</td>
+                                  <td style="font-weight:900; color:#0044cc;">${ch.sun?'O':''}</td>
+                                  <td style="font-weight:900; color:#0044cc;">${ch.tue?'O':''}</td>
+                                  <td style="font-weight:900; color:#0044cc;">${ch.wed?'O':''}</td>
+                                  <td style="font-weight:900; color:#0044cc;">${ch.fri?'O':''}</td>
+                                  <td style="font-weight:900; color:#0044cc;">${ch.vil?'O':''}</td>
+                                  <td style="font-size:20px; color:#d32f2f; font-weight:900; letter-spacing:-1px;">${ch.etc||''}</td></tr>`;
                         });
                     });
                     return h + '</tbody></table>';
@@ -286,41 +359,55 @@
                 tLeft.innerHTML = generateHtml(allVils.slice(0, half)); tRight.innerHTML = generateHtml(allVils.slice(half));
             } catch(e) {}
         }
-        
-        // 💡 좌우 10mm 고정 및 세로 최적화 마법
-        document.getElementById('imgBtn').addEventListener('click', () => { document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; document.getElementById('float-buttons').style.display = 'none'; window.scrollTo(0,0); document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText; setTimeout(() => { html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: -window.scrollY}).then(canvas => { const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click(); document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; document.getElementById('float-buttons').style.display = 'flex'; }); }, 500); });
-        document.getElementById('pdfBtn').addEventListener('click', () => {
-            document.getElementById('capture-area').style.display = 'none'; document.getElementById('print-view').style.display = 'block'; document.getElementById('float-buttons').style.display = 'none'; window.scrollTo(0,0);
-            document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
+
+        // 🚀 PDF 및 이미지 내보내기 마법 (A4 비율 완벽 계산)
+        function exportTo(type) {
+            document.getElementById('capture-area').style.display = 'none'; 
+            const printView = document.getElementById('print-view');
+            printView.style.display = 'block'; 
+            document.getElementById('float-buttons').style.display = 'none'; 
+            window.scrollTo(0,0);
+            
+            document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; 
+            document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
+
             setTimeout(() => { 
-                html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: -window.scrollY}).then(canvas => {
-                    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
-                    const pdfWidth = 210, pdfHeight = 297;
-                    const marginX = 10; // 좌우 10mm
-                    const marginY = 5;  // 상하 5mm (최대한 길게)
-                    
-                    const usableWidth = pdfWidth - (marginX * 2);
-                    const usableHeight = pdfHeight - (marginY * 2);
+                // 1. 임시 가로폭을 크게 잡아 실제 필요한 세로 높이를 정확히 측정
+                printView.style.width = '1600px'; 
+                
+                setTimeout(() => {
+                    // 2. 실제 세로 높이 기반으로 A4 인쇄 가능 비율(190:277)에 맞춘 새로운 가로 폭 계산
+                    const actualHeight = printView.scrollHeight;
+                    const targetWidth = actualHeight * (190 / 277);
+                    printView.style.width = targetWidth + 'px'; // 폭 재조정!
 
-                    let imgWidth = usableWidth;
-                    let imgHeight = canvas.height * imgWidth / canvas.width;
-                    
-                    if (imgHeight > usableHeight) { 
-                        imgHeight = usableHeight; 
-                        imgWidth = canvas.width * imgHeight / canvas.height; 
-                    }
-                    
-                    const x = marginX + ((usableWidth - imgWidth) / 2);
-                    const y = marginY + ((usableHeight - imgHeight) / 2);
+                    setTimeout(() => {
+                        html2canvas(printView, {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
+                            if (type === 'img') {
+                                const link = document.createElement('a'); 
+                                link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; 
+                                link.href = canvas.toDataURL("image/png"); 
+                                link.click();
+                            } else {
+                                const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
+                                // 3. 계산된 비율의 이미지를 x:10, y:10 좌표에 190x277 크기로 꽉 차게 삽입!
+                                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 190, 277); 
+                                pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
+                            }
+                            printView.style.display = 'none'; 
+                            document.getElementById('capture-area').style.display = 'block'; 
+                            document.getElementById('float-buttons').style.display = 'flex';
+                        }); 
+                    }, 150); // 레이아웃 재배치 대기
+                }, 50);
+            }, 50);
+        }
 
-                    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, imgWidth, imgHeight); 
-                    pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
-                    document.getElementById('print-view').style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; document.getElementById('float-buttons').style.display = 'flex';
-                }); 
-            }, 500);
-        });
+        document.getElementById('imgBtn').addEventListener('click', () => exportTo('img'));
+        document.getElementById('pdfBtn').addEventListener('click', () => exportTo('pdf'));
+
         init();
-    } catch(err) { console.error(err); }
+    } catch(err) { console.error("앱 초기화 오류 방어:", err); }
 </script>
 </body>
 </html>
