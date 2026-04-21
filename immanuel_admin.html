@@ -12,38 +12,43 @@
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; width: 80%; max-width: 300px; }
-        .login-box h2 { margin-top: 0; color: #d32f2f; letter-spacing: -1px; }
+        .login-box h2 { margin-top: 0; color: #1976D2; letter-spacing: -1px; }
         .login-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; text-align: center; letter-spacing: 2px; }
-        .login-box button { width: 100%; padding: 12px; background: #d32f2f; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .login-box button { width: 100%; padding: 12px; background: #1976D2; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #d32f2f; padding: 10px 5px; margin-bottom: 5px; text-align: center; background-color: #ffebee; }
-        .header-title { font-size: 16px; font-weight: bold; color: #d32f2f; }
-        .date-input { font-size: 18px; border: none; outline: none; color: #d32f2f; font-weight: bold; text-align: center; background: transparent; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
-        .week-label { font-size: 11px; color: #c62828; font-weight: bold; margin-top: 3px; padding: 3px 8px; border-radius: 3px; background-color: #ffcccc; }
-        .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #ffebee; padding: 8px 2px; border: 2px solid #d32f2f; }
-        .summary-box span { color: #c62828; margin: 0 2px; font-size: 14px; }
+        .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; }
+        .header-title { font-size: 16px; font-weight: bold; }
+        .date-input { font-size: 18px; border: none; outline: none; color: #1976D2; font-weight: bold; text-align: center; background: transparent; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
+        .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 3px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
+        .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 8px 2px; border: 1px solid #333; }
+        .summary-box span { color: #0044cc; margin: 0 2px; font-size: 14px; }
+        .export-buttons { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+        .export-btn { padding: 10px 15px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        .export-pdf { background: #1976D2; color: white; }
+        .export-png { background: #4CAF50; color: white; }
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
         .col-role { width: 11%; } .col-name { width: 17%; } .col-check { width: 12%; }
-        .village-header-row { background-color: #ffcccc; }
-        .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; color: #c62828; }
-        .village-header-row th { background-color: #ffcccc; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
+        .village-header-row { background-color: #c8e6c9; }
+        .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
+        .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
         .check-cell { cursor: pointer; font-weight: bold; font-size: 15px; user-select: none; background-color: #fafafa; }
-        .check-cell:active { background-color: #ffe0e0; }
+        .check-cell:active { background-color: #e3f2fd; }
         .notice { text-align: center; font-size: 10px; color: #666; margin-bottom: 5px; word-break: keep-all; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; text-align: center; }
-        .modal-content h3 { margin-top: 0; color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 10px; }
-        .opt-btn { padding: 10px 15px; background: #ffe0e0; border: 1px solid #d32f2f; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; color: #c62828; }
+        .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
+        .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
         @media print {
             body { margin: 0; padding: 0; background: white; }
             .container { max-width: 100%; margin: 0; padding: 8px; box-shadow: none; }
-            .header { padding: 8px 4px; margin-bottom: 4px; border: 2px solid #d32f2f; }
+            .header { padding: 8px 4px; margin-bottom: 4px; border: 2px solid #333; }
             .header-title { font-size: 15px; }
             .week-label { font-size: 10px; }
             .summary-box { margin-bottom: 6px; font-size: 12px; padding: 6px 2px; }
             .mobile-table th, .mobile-table td { padding: 4px 0; font-size: 10px; }
             .notice { display: none; }
+            .export-buttons { display: none; }
         }
     </style>
 </head>
@@ -72,6 +77,11 @@
         <div>수요:<span id="tot-wed">0</span></div>
         <div>금요:<span id="tot-fri">0</span></div>
         <div>마을:<span id="tot-vil">0</span></div>
+    </div>
+
+    <div class="export-buttons">
+        <button class="export-btn export-pdf" onclick="exportA4PDF()">📥 PDF 저장 (A4)</button>
+        <button class="export-btn export-png" onclick="exportA4PNG()">📥 이미지 저장 (A4)</button>
     </div>
 
     <table class="mobile-table">
@@ -221,15 +231,10 @@
             try {
                 unlockAudio();
                 if (type === 'check') {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-                    osc.start(audioCtx.currentTime);
-                    osc.stop(audioCtx.currentTime + 0.15);
+                    const msg = new SpeechSynthesisUtterance("출석");
+                    msg.lang = 'ko-KR'; 
+                    msg.rate = 2.5;
+                    window.speechSynthesis.speak(msg);
                 } else if (type === 'uncheck') {
                     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
                     osc.connect(gain); gain.connect(audioCtx.destination); 
