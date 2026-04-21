@@ -56,19 +56,21 @@
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) 꽉 차게 레이아웃 극대화 (가로폭 확장, 폰트 1.5배 증가) */
-        #print-view { display: none; width: 1480px; background: white; padding: 20px 20px; box-sizing: border-box; margin: 0 auto; }
-        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; padding: 0 10px; }
-        .print-title { font-size: 45px; font-weight: bold; letter-spacing: -1.5px; }
+        /* 🖨️ 인쇄 전용(A4) 꽉 차게 레이아웃 극대화 (세로형 폭 넓히기 & 글자 크기 1.5배 증가) */
+        #print-view { display: none; width: 1122px; background: white; padding: 10px 10px; box-sizing: border-box; margin: 0 auto; }
+        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 5px; }
+        .print-title { font-size: 38px; font-weight: bold; letter-spacing: -1.5px; }
         
-        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 2px solid #000; font-size: 20px; font-weight: bold; }
-        .print-summary-tbl th, .print-summary-tbl td { border: 1px solid #000; padding: 10px 25px; }
+        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 2px solid #000; font-size: 18px; font-weight: bold; }
+        .print-summary-tbl th, .print-summary-tbl td { border: 1px solid #000; padding: 6px 15px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
         
-        .print-grid { display: flex; gap: 30px; width: 100%; }
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 18px; border: 2px solid #000; table-layout: fixed; }
+        .print-grid { display: flex; gap: 15px; width: 100%; }
+        /* 💡 폰트 대폭 상향 & 패딩 최적화 */
+        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 17px; border: 2px solid #000; table-layout: fixed; }
         .print-table th, .print-table td { border: 1px solid #000; padding: 8px 2px; }
-        .print-village-title { font-weight: bold; font-size: 20px; text-align: left; padding-left: 15px; background-color: #c8e6c9; }
+        .print-table th { font-weight: bold; background-color: #c8e6c9; }
+        .print-village-title { font-weight: bold; font-size: 19px; text-align: left; padding-left: 10px; background-color: #c8e6c9; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -296,7 +298,7 @@
                     let h = '<table class="print-table"><colgroup><col style="width:16%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"></colgroup><tbody>';
                     vils.forEach(vName => {
                         const vMems = members.filter(m => (m.village || "미지정") === vName);
-                        h += `<tr style="background-color:#c8e6c9"><td class="print-village-title" colspan="7">${vName}</td></tr><tr style="background-color:#c8e6c9"><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마 마을</th><th>기타</th></tr>`;
+                        h += `<tr style="background-color:#c8e6c9"><td class="print-village-title" colspan="7">${vName}</td></tr><tr style="background-color:#c8e6c9"><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
                         vMems.forEach(m => {
                             const idx = members.indexOf(m); const ch = attendanceData[idx] || {}; const safeName = m.name ? String(m.name) : "";
                             h += `<tr><td>${m.role?m.role+' ':''}${safeName}</td><td>${ch.sun?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:16px; color:#d32f2f; font-weight:bold; letter-spacing:-1px;">${ch.etc||''}</td></tr>`;
@@ -308,7 +310,7 @@
             } catch(e) {}
         }
 
-        // 💡 여백 최소화 인쇄 로직 완벽 적용
+        // 💡 캡처 시 잘림 방지 및 세로(Portrait) 최적화로 꽉 차게 저장
         document.getElementById('imgBtn').addEventListener('click', () => {
             document.getElementById('capture-area').style.display = 'none'; 
             document.getElementById('print-view').style.display = 'block';
@@ -337,16 +339,19 @@
 
             setTimeout(() => { 
                 html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
-                    const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4'); 
-                    const pdfWidth = 297; const pdfHeight = 210;
+                    // 💡 'p' (Portrait, 세로) 용지로 변경하여 여백을 완전히 제거!
+                    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
+                    const pdfWidth = 210; const pdfHeight = 297; 
                     let imgWidth = pdfWidth;
                     let imgHeight = canvas.height * imgWidth / canvas.width;
                     
+                    // 세로로 살짝 길 경우 비율에 맞게 줄임
                     if (imgHeight > pdfHeight) {
                         imgHeight = pdfHeight;
                         imgWidth = canvas.width * imgHeight / canvas.height;
                     }
                     
+                    // A4 용지 정중앙 배치
                     const x = (pdfWidth - imgWidth) / 2;
                     const y = (pdfHeight - imgHeight) / 2;
 
