@@ -18,11 +18,8 @@
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; }
         .header-title { font-size: 16px; font-weight: bold; }
-        
-        /* 💡 모바일에서 날짜가 숨겨지는 현상 방지 (폭/모양 강제 지정) */
-        .date-input { font-size: 16px; border: 1px solid #ccc; border-radius: 5px; padding: 5px; color: #1976D2; font-weight: bold; text-align: center; background-color: #fff; cursor: pointer; width: auto; }
+        .date-input { font-size: 18px; border: 1px solid #ccc; border-radius: 5px; padding: 5px; color: #1976D2; font-weight: bold; text-align: center; background-color: #fff; cursor: pointer; width: auto; }
         .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 5px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
-        
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 8px 2px; border: 1px solid #333; }
         .summary-box span { color: #0044cc; margin: 0 2px; font-size: 14px; }
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
@@ -39,14 +36,12 @@
         .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
         
-        /* 🚀 플로팅 상하 이동 버튼 스타일 (좌측으로 이동) */
         .floating-btns { position: fixed; bottom: 20px; left: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
         .float-btn { width: 45px; height: 45px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.85); color: white; border: none; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; }
         .float-btn:active { background-color: rgba(25, 118, 210, 1); transform: scale(0.95); }
     </style>
 </head>
 <body onclick="unlockAudio()">
-
 <div id="login-screen"><div class="login-box"><h2>임마누엘 목자용</h2><p style="font-size:13px; color:#666;">출석부 접근을 위해<br>비밀번호를 입력해주세요.</p><input type="tel" id="pw-input" placeholder="비밀번호 4자리"><button onclick="checkPassword()">확 인</button></div></div>
 
 <div class="floating-btns" id="float-buttons">
