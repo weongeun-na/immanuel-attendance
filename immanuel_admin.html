@@ -6,90 +6,62 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>2026년 임마누엘 목장 출석부 (관리자)</title>
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path fill=%22%23800000%22 d=%22M15 45L50 15L85 45V90H15V45Z M45 45V28H55V45H45Z M45 70V80H55V70H45Z%22/></svg>">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
+    <title>2026년 임마누엘 목장 출석부 (관리자용)</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛪️</text></svg>">
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); text-align: center; width: 80%; max-width: 300px; }
+        .login-box h2 { margin-top: 0; color: #d32f2f; letter-spacing: -1px; }
+        .login-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; text-align: center; letter-spacing: 2px; }
+        .login-box button { width: 100%; padding: 12px; background: #d32f2f; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        
-        .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; position: relative; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
-        .header-spacer { width: 110px; } 
-        .header-title { font-size: 16px; font-weight: bold; flex: 1; }
-        .header-btns { display: flex; gap: 3px; width: 110px; justify-content: flex-end; }
-        .btn-settings { background: #333; color: white; border: none; border-radius: 3px; padding: 6px 5px; font-size: 10px; cursor: pointer; white-space: nowrap; }
-        
-        /* 💡 모바일에서 날짜가 숨겨지는 현상 방지 (폭/모양 강제 지정) */
-        .date-input { font-size: 18px; border: none; outline: none; color: #1976D2; font-weight: bold; text-align: center; background: transparent; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
-        .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 3px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
-        
-        .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 8px 2px; border: 1px solid #333; }
-        .summary-box span { color: #0044cc; margin: 0 2px; font-size: 14px; }
-
+        .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #d32f2f; padding: 10px 5px; margin-bottom: 5px; text-align: center; background-color: #ffebee; }
+        .header-title { font-size: 16px; font-weight: bold; color: #d32f2f; }
+        .date-input { font-size: 18px; border: none; outline: none; color: #d32f2f; font-weight: bold; text-align: center; background: transparent; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
+        .week-label { font-size: 11px; color: #c62828; font-weight: bold; margin-top: 3px; padding: 3px 8px; border-radius: 3px; background-color: #ffcccc; }
+        .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #ffebee; padding: 8px 2px; border: 2px solid #d32f2f; }
+        .summary-box span { color: #c62828; margin: 0 2px; font-size: 14px; }
         .mobile-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
         .mobile-table th, .mobile-table td { border: 1px solid #333; padding: 5px 0; font-size: 11px; line-height: 1.3; word-break: keep-all; }
-        
-        .col-role { width: 9%; } .col-name { width: 15%; } .col-check { width: 10.5%; } .col-etc { width: 10.5%; } .col-manage { width: 13%; } 
-        
-        .village-header-row { background-color: #c8e6c9; }
-        .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; }
-        .village-header-row th { background-color: #c8e6c9; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
-        
+        .col-role { width: 11%; } .col-name { width: 17%; } .col-check { width: 12%; }
+        .village-header-row { background-color: #ffcccc; }
+        .village-header-name { font-weight: bold; text-align: left; padding-left: 5px; font-size: 12px; letter-spacing: -0.5px; color: #c62828; }
+        .village-header-row th { background-color: #ffcccc; font-weight: bold; font-size: 10px; color: #333; padding: 3px 0; }
         .check-cell { cursor: pointer; font-weight: bold; font-size: 15px; user-select: none; background-color: #fafafa; }
-        .check-cell:active { background-color: #e3f2fd; }
-        
-        .admin-btn { padding: 8px 12px; margin: 3px; cursor: pointer; border: none; border-radius: 5px; color: white; font-weight: bold; font-size: 12px; }
-        .btn-img { background-color: #4CAF50; } .btn-pdf { background-color: #d32f2f; }
-        .btn-add { background-color: #1976D2; width: 100%; margin-top: 10px; padding: 12px; font-size: 15px; }
-        .btn-manage { background-color: #424242; padding: 4px 6px; font-size: 10px; color: white; border-radius: 3px; border: none; cursor: pointer; }
-
+        .check-cell:active { background-color: #ffe0e0; }
+        .notice { text-align: center; font-size: 10px; color: #666; margin-bottom: 5px; word-break: keep-all; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; box-sizing: border-box; }
-        .modal-content h3 { margin-top: 0; color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 10px; text-align: center; }
-        .modal-content label { display: block; margin: 10px 0 5px; font-weight: bold; font-size: 12px; color: #333; }
-        .modal-content select, .modal-content input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
-        .modal-btns { display: flex; gap: 8px; margin-top: 20px; }
-        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
-        .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
-
-        /* 🖨️ 인쇄 전용(A4) 가로폭 대폭 확대하여 빈 여백 없애기 (1600px) */
-        #print-view { display: none; width: 1600px; background: white; padding: 10px 20px; box-sizing: border-box; margin: 0 auto; }
-        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; padding: 0 5px; }
-        .print-title { font-size: 55px; font-weight: bold; letter-spacing: -2px; }
-        
-        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 3px solid #000; font-size: 26px; font-weight: bold; }
-        .print-summary-tbl th, .print-summary-tbl td { border: 2px solid #000; padding: 10px 30px; }
-        .print-summary-tbl th { background-color: #f0f0f0; }
-        
-        .print-grid { display: flex; gap: 30px; width: 100%; }
-        /* 표 글자 크기 특대형으로 확대 */
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 26px; border: 3px solid #000; table-layout: fixed; }
-        .print-table th, .print-table td { border: 2px solid #000; padding: 12px 2px; }
-        .print-table th { font-weight: bold; background-color: #c8e6c9; }
-        .print-village-title { font-weight: bold; font-size: 28px; text-align: left; padding-left: 15px; background-color: #c8e6c9; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 350px; text-align: center; }
+        .modal-content h3 { margin-top: 0; color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 10px; }
+        .opt-btn { padding: 10px 15px; background: #ffe0e0; border: 1px solid #d32f2f; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; color: #c62828; }
+        @media print {
+            body { margin: 0; padding: 0; background: white; }
+            .container { max-width: 100%; margin: 0; padding: 8px; box-shadow: none; }
+            .header { padding: 8px 4px; margin-bottom: 4px; border: 2px solid #d32f2f; }
+            .header-title { font-size: 15px; }
+            .week-label { font-size: 10px; }
+            .summary-box { margin-bottom: 6px; font-size: 12px; padding: 6px 2px; }
+            .mobile-table th, .mobile-table td { padding: 4px 0; font-size: 10px; }
+            .notice { display: none; }
+        }
     </style>
 </head>
 <body onclick="unlockAudio()">
 
-<div style="text-align: center; margin-bottom: 5px;">
-    <button class="admin-btn btn-img" id="imgBtn">🖼️ 이미지 저장</button>
-    <button class="admin-btn btn-pdf" id="pdfBtn">📄 PDF 저장</button>
+<div id="login-screen">
+    <div class="login-box">
+        <h2>임마누엘 관리자용</h2>
+        <p style="font-size:13px; color:#666;">출석부 접근을 위해<br>비밀번호를 입력해주세요.</p>
+        <input type="tel" id="pw-input" placeholder="비밀번호 4자리">
+        <button onclick="checkPassword()">확 인</button>
+    </div>
 </div>
 
-<div class="container" id="capture-area">
+<div id="main-app" style="display:none;" class="container">
+    <div class="notice">관리자용 - 모든 마을 출석 현황을 확인할 수 있습니다</div>
     <div class="header">
-        <div class="header-top">
-            <div class="header-spacer"></div>
-            <div class="header-title">임마누엘 출석부 (관리자)</div>
-            <div class="header-btns">
-                <button class="btn-settings" onclick="openNotiSettings()">🔔 알림설정</button>
-                <button class="btn-settings" onclick="openSettings()">사유설정</button>
-            </div>
-        </div>
+        <div class="header-title">2026년 임마누엘 출석부 (관리자용)</div>
         <div><input type="date" class="date-input" id="currentDate"></div>
         <div class="week-label" id="weekRange">데이터 연결 중...</div>
     </div>
@@ -105,47 +77,29 @@
     <table class="mobile-table">
         <colgroup>
             <col class="col-role"><col class="col-name">
-            <col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check">
-            <col class="col-etc"><col class="col-manage hide-on-print">
+            <col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check"><col class="col-check">
         </colgroup>
-        <tbody id="mobileBody"></tbody>
+        <tbody id="tableBody"></tbody>
     </table>
-    <button class="admin-btn btn-add hide-on-print" onclick="openAdd()">+ 새 인원 추가</button>
 </div>
 
-<div id="noti-modal" class="modal-overlay">
+<div id="check-modal" class="modal-overlay">
     <div class="modal-content">
-        <h3>🔔 출석체크 알림 설정</h3>
-        <p style="font-size:11px; color:#d32f2f; text-align:center; line-height:1.3; margin-top:0;">* 이 설정은 데이터베이스에 안전하게 저장됩니다.<br>* 실제 알림 발송은 푸시 서버 연동 후 작동합니다.</p>
-        <label>푸시 발송 요일</label>
-        <select id="noti-day"><option value="0">일요일</option><option value="1">월요일</option><option value="2">화요일</option><option value="3">수요일</option><option value="4">목요일</option><option value="5">금요일</option><option value="6">토요일</option></select>
-        <label>푸시 발송 시각</label><input type="time" id="noti-time">
-        <label>미체크자 재요청 (15분 간격)</label>
-        <select id="noti-retry"><option value="0">재요청 안 함</option><option value="1">1회 재발송</option><option value="2">2회 재발송</option><option value="3">3회 재발송</option></select>
-        <div class="modal-btns">
-            <button style="background:#999; color:white;" onclick="closeModal('noti-modal')">취소</button>
-            <button style="background:#1976D2; color:white;" onclick="saveNotiSettings()">설정 저장</button>
-        </div>
+        <h3>사유 선택</h3>
+        <div id="check-buttons" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-bottom:20px;"></div>
+        <button style="width:100%; padding:12px; background:#999; color:white; border:none; border-radius:5px; font-weight:bold;" onclick="closeModal('check-modal')">닫기</button>
     </div>
-</div>
-
-<div id="check-modal" class="modal-overlay"><div class="modal-content" style="text-align:center;"><h3>사유 선택</h3><div id="check-buttons" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-bottom:20px;"></div><button style="width:100%; padding:12px; background:#999; color:white; border:none; border-radius:5px; font-weight:bold;" onclick="closeModal('check-modal')">닫기</button></div></div>
-<div id="settings-modal" class="modal-overlay"><div class="modal-content"><h3>'기타' 사유 설정</h3><p style="font-size:11px; color:#666; text-align:center;">쉼표(,)로 구분하여 입력하세요.</p><input type="text" id="settings-options" placeholder="예: 병원, 시외, 여행, 기타"><div class="modal-btns"><button style="background:#999; color:white;" onclick="closeModal('settings-modal')">취소</button><button style="background:#1976D2; color:white;" onclick="saveSettings()">저장</button></div></div></div>
-<div id="manage-modal" class="modal-overlay"><div class="modal-content"><h3 id="manage-title">인원 관리</h3><label>마을 선택</label><select id="manage-village"><option value="1. 섬김 마을">1. 섬김 마을</option><option value="2. 사랑스런 마을">2. 사랑스런 마을</option><option value="3. 워십 마을">3. 워십 마을</option><option value="4. 양떼 마을">4. 양떼 마을</option><option value="5. 은혜 마을">5. 은혜 마을</option><option value="6. 포도원 마을">6. 포도원 마을</option><option value="7. 회복 마을">7. 회복 마을</option><option value="8. 새생명 마을">8. 새생명 마을</option><option value="9. 청솔 마을">9. 청솔 마을</option><option value="10. 풍성한 마을">10. 풍성한 마을</option><option value="11. 상속자 마을">11. 상속자 마을</option><option value="12. 보배 마을">12. 보배 마을</option><option value="13. 순종 마을">13. 순종 마을</option><option value="14. 반석 마을">14. 반석 마을</option><option value="15. 지성소 마을">15. 지성소 마을</option><option value="16. 번성 마을">16. 번성 마을</option><option value="17. 권능 마을">17. 권능 마을</option><option value="18. 열매맺는 마을">18. 열매맺는 마을</option><option value="19. 온유 마을">19. 온유 마을</option><option value="20. 승리 마을">20. 승리 마을</option></select><label>직분</label><input type="text" id="manage-role" placeholder="예: 목자"><label>이름</label><input type="text" id="manage-name" placeholder="성함"><div class="modal-btns"><button id="btn-delete-member" style="background:#d32f2f; color:white; display:none;" onclick="confirmDelete()">삭제</button><button style="background:#999; color:white;" onclick="closeModal('manage-modal')">취소</button><button style="background:#1976D2; color:white;" onclick="saveManage()">저장</button></div></div></div>
-
-<div id="print-view">
-    <div class="print-header-area">
-        <div class="print-title">임마누엘 목장 <span class="print-date" id="printDateTxt"></span></div>
-        <table class="print-summary-tbl">
-            <tr><th>주일 출석</th><th>마을 출석</th><th rowspan="2" style="padding: 0 15px;">총 계</th></tr>
-            <tr><td id="print-tot-sun">0</td><td id="print-tot-vil">0</td></tr>
-        </table>
-    </div>
-    <div class="print-grid"><div id="printLeftBodyArea" style="width:50%;"></div><div id="printRightBodyArea" style="width:50%;"></div></div>
 </div>
 
 <script>
+    const SECRET_PASSWORD = "0000"; 
+    const AUTH_KEY = 'immanuel_admin_lock_v2'; 
+
     document.addEventListener("DOMContentLoaded", () => {
+        if(localStorage.getItem(AUTH_KEY) === 'true') {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+        }
         const dInput = document.getElementById('currentDate');
         if(dInput) {
             const today = new Date(); 
@@ -155,6 +109,84 @@
             dInput.value = `${yyyy}-${mm}-${dd}`;
         }
     });
+
+    function checkPassword() {
+        const input = document.getElementById('pw-input').value;
+        if(input === SECRET_PASSWORD) {
+            localStorage.setItem(AUTH_KEY, 'true');
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            window.scrollTo(0,0);
+        } else {
+            alert("비밀번호가 틀렸습니다. 다시 입력해주세요.");
+            document.getElementById('pw-input').value = ""; 
+        }
+    }
+
+    window.exportA4PDF = async function() {
+        if (typeof html2canvas === 'undefined' || typeof jsPDF === 'undefined') {
+            alert('html2canvas와 jsPDF 라이브러리가 필요합니다.');
+            return;
+        }
+        const container = document.getElementById('main-app');
+        const originalWidth = container.style.maxWidth;
+        const originalMargin = container.style.margin;
+        const originalPadding = container.style.padding;
+        container.style.maxWidth = '1350px';
+        container.style.margin = '0';
+        container.style.padding = '8px';
+        try {
+            const canvas = await html2canvas(container, {
+                scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff',
+                windowWidth: 1350, windowHeight: container.scrollHeight
+            });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({orientation: 'portrait', unit: 'mm', format: 'a4'});
+            const pdfWidth = 210;
+            const imgWidth = pdfWidth - 4;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 2, 2, imgWidth, imgHeight);
+            pdf.save(`임마누엘_출석부_관리자_${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch(e) {
+            console.error('PDF 생성 오류:', e);
+            alert('PDF 생성 중 오류가 발생했습니다.');
+        } finally {
+            container.style.maxWidth = originalWidth;
+            container.style.margin = originalMargin;
+            container.style.padding = originalPadding;
+        }
+    };
+
+    window.exportA4PNG = async function() {
+        if (typeof html2canvas === 'undefined') {
+            alert('html2canvas 라이브러리가 필요합니다.');
+            return;
+        }
+        const container = document.getElementById('main-app');
+        const originalWidth = container.style.maxWidth;
+        const originalMargin = container.style.margin;
+        const originalPadding = container.style.padding;
+        container.style.maxWidth = '1350px';
+        container.style.margin = '0';
+        container.style.padding = '8px';
+        try {
+            const canvas = await html2canvas(container, {
+                scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff',
+                windowWidth: 1350, windowHeight: container.scrollHeight
+            });
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `임마누엘_출석부_관리자_${new Date().toISOString().split('T')[0]}.png`;
+            link.click();
+        } catch(e) {
+            console.error('PNG 생성 오류:', e);
+            alert('PNG 생성 중 오류가 발생했습니다.');
+        } finally {
+            container.style.maxWidth = originalWidth;
+            container.style.margin = originalMargin;
+            container.style.padding = originalPadding;
+        }
+    };
 </script>
 
 <script type="module">
@@ -171,19 +203,14 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
         let members = []; let attendanceData = {}; let attOptions = [];
-        let notiSettings = { day: "0", time: "14:00", retry: "1" }; 
-        
         const dateInput = document.getElementById('currentDate');
-        let currentCheckIdx = null; let currentManageIdx = null;
+        let currentCheckIdx = null;
 
-        // 💡 오디오 로직 최적화 ("출석", "띠", "딩동")
         let audioCtx = null;
         window.unlockAudio = function() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                // 💡 TTS 엔진 사전 예열 (딜레이 최소화)
                 const wakeTTS = new SpeechSynthesisUtterance("");
                 wakeTTS.volume = 0; window.speechSynthesis.speak(wakeTTS);
             }
@@ -194,13 +221,16 @@
             try {
                 unlockAudio();
                 if (type === 'check') {
-                    // "출석" TTS 발음
-                    const msg = new SpeechSynthesisUtterance("출석");
-                    msg.lang = 'ko-KR'; 
-                    msg.rate = 1.8; // 속도를 높여 딜레이를 줄이고 경쾌하게!
-                    window.speechSynthesis.speak(msg);
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start(audioCtx.currentTime);
+                    osc.stop(audioCtx.currentTime + 0.15);
                 } else if (type === 'uncheck') {
-                    // "띠" 
                     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
                     osc.connect(gain); gain.connect(audioCtx.destination); 
                     osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
@@ -208,17 +238,16 @@
                     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
                     osc.start(); osc.stop(audioCtx.currentTime + 0.1);
                 } else if (type === 'etc') {
-                    // 💡 "딩동"
                     const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain();
                     osc1.connect(gain1); gain1.connect(audioCtx.destination);
-                    osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); // High
+                    osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); 
                     gain1.gain.setValueAtTime(0.2, audioCtx.currentTime);
                     gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
                     osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
 
                     const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain();
                     osc2.connect(gain2); gain2.connect(audioCtx.destination);
-                    osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); // Low
+                    osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); 
                     gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15);
                     gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
                     osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
@@ -232,22 +261,23 @@
                 let parsed = new Date(dateStr.replace(/[\.\/]/g, '-'));
                 if (!isNaN(parsed.getTime())) d = parsed;
             }
-            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5);
+            const day = d.getDay(); 
+            const diff = (day >= 2) ? (day - 2) : (day + 5);
             d.setDate(d.getDate() - diff); 
-            const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const date = String(d.getDate()).padStart(2, '0');
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const date = String(d.getDate()).padStart(2, '0');
             return `${year}-${month}-${date}`;
         }
-
+        
         dateInput.addEventListener('change', loadData);
 
         function init() {
             onValue(ref(db, 'settings/etcOptions'), snap => { try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } });
-            onValue(ref(db, 'settings/notification'), snap => { const data = snap.val(); if (data) notiSettings = data; });
             onValue(ref(db, 'members'), (snap) => {
                 try {
                     const data = snap.val();
-                    if (!data) { members = []; } 
-                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
+                    if (!data) { members = []; } else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
                     const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
                     members.sort((a, b) => vOrder.findIndex(v => (a.village||"").startsWith(v)) - vOrder.findIndex(v => (b.village||"").startsWith(v)));
                     renderTable();
@@ -257,7 +287,7 @@
         }
 
         function loadData() {
-            const weekKey = getWeekKey(dateInput.value);
+            const weekKey = getWeekKey(dateInput.value); 
             if (!weekKey) return;
             document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
             onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
@@ -265,7 +295,7 @@
 
         function renderTable() {
             try {
-                const tbody = document.getElementById('mobileBody'); 
+                const tbody = document.getElementById('tableBody'); 
                 if(!tbody) return;
                 tbody.innerHTML = '';
                 let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
@@ -279,7 +309,10 @@
                     if (m.village !== currentVil) {
                         const trH = document.createElement('tr');
                         trH.className = 'village-header-row';
-                        trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
+                        trH.innerHTML = `
+                            <td colspan="2" class="village-header-name">${m.village || "미지정"}</td>
+                            <th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th>
+                        `;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
                     
@@ -295,16 +328,11 @@
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>
-                        <td class="hide-on-print"><button class="btn-manage" onclick="openManage(${idx})">관리</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
                 
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-                
-                buildPrintGrid();
-                const dObj = new Date(getWeekKey(dateInput.value));
-                document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
             } catch(e) {}
         }
 
@@ -315,8 +343,14 @@
             playCheckSound(!currentVal ? 'check' : 'uncheck'); 
         };
         
-        window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
-        
+        window.openEtcCheck = (idx) => { 
+            currentCheckIdx = idx; 
+            const container = document.getElementById('check-buttons'); container.innerHTML = ''; 
+            attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); 
+            const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); 
+            document.getElementById('check-modal').style.display = 'flex'; 
+        };
+
         window.saveEtcCheck = (val) => { 
             const weekKey = getWeekKey(dateInput.value); 
             set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); 
@@ -325,92 +359,9 @@
         };
         
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-        window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
-        window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
-        
-        window.openNotiSettings = () => { document.getElementById('noti-day').value = notiSettings.day || "0"; document.getElementById('noti-time').value = notiSettings.time || "14:00"; document.getElementById('noti-retry').value = notiSettings.retry || "1"; document.getElementById('noti-modal').style.display = 'flex'; };
-        window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value; const t = document.getElementById('noti-time').value; const r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정이 저장되었습니다."); closeModal('noti-modal'); };
-
-        window.openAdd = () => { currentManageIdx = null; document.getElementById('manage-title').innerText = "새 인원 추가"; document.getElementById('manage-role').value = ""; document.getElementById('manage-name').value = ""; document.getElementById('btn-delete-member').style.display = "none"; document.getElementById('manage-modal').style.display = 'flex'; };
-        window.openManage = (idx) => { currentManageIdx = idx; const m = members[idx]; document.getElementById('manage-title').innerText = "인원 정보 수정"; document.getElementById('manage-village').value = m.village; document.getElementById('manage-role').value = m.role; document.getElementById('manage-name').value = m.name; document.getElementById('btn-delete-member').style.display = "block"; document.getElementById('manage-modal').style.display = 'flex'; };
-        window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름을 입력하세요."); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
-        window.confirmDelete = () => { if(confirm("정말 이 인원을 삭제하시겠습니까?")) { members.splice(currentManageIdx, 1); set(ref(db, 'members'), members); closeModal('manage-modal'); } };
-
-        function buildPrintGrid() {
-            try {
-                const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
-                if(!tLeft || !tRight) return;
-                tLeft.innerHTML = ''; tRight.innerHTML = '';
-                const allVils = [...new Set(members.map(m => m.village || "미지정"))];
-                const half = Math.ceil(allVils.length / 2);
-                
-                const generateHtml = (vils) => {
-                    let h = '<table class="print-table"><colgroup><col style="width:16%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"></colgroup><tbody>';
-                    vils.forEach(vName => {
-                        const vMems = members.filter(m => (m.village || "미지정") === vName);
-                        h += `<tr style="background-color:#c8e6c9"><td class="print-village-title" colspan="7">${vName}</td></tr><tr style="background-color:#c8e6c9"><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
-                        vMems.forEach(m => {
-                            const idx = members.indexOf(m); const ch = attendanceData[idx] || {}; const safeName = m.name ? String(m.name) : "";
-                            h += `<tr><td>${m.role?m.role+' ':''}${safeName}</td><td>${ch.sun?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:20px; color:#d32f2f; font-weight:bold; letter-spacing:-1px;">${ch.etc||''}</td></tr>`;
-                        });
-                    });
-                    return h + '</tbody></table>';
-                };
-                tLeft.innerHTML = generateHtml(allVils.slice(0, half)); tRight.innerHTML = generateHtml(allVils.slice(half));
-            } catch(e) {}
-        }
-
-        document.getElementById('imgBtn').addEventListener('click', () => {
-            document.getElementById('capture-area').style.display = 'none'; 
-            document.getElementById('print-view').style.display = 'block';
-            window.scrollTo(0,0);
-            document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText;
-            document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
-
-            setTimeout(() => { 
-                html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
-                    const link = document.createElement('a'); 
-                    link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; 
-                    link.href = canvas.toDataURL("image/png"); 
-                    link.click();
-                    document.getElementById('print-view').style.display = 'none'; 
-                    document.getElementById('capture-area').style.display = 'block';
-                }); 
-            }, 500);
-        });
-
-        document.getElementById('pdfBtn').addEventListener('click', () => {
-            document.getElementById('capture-area').style.display = 'none'; 
-            document.getElementById('print-view').style.display = 'block';
-            window.scrollTo(0,0);
-            document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText;
-            document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
-
-            setTimeout(() => { 
-                html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
-                    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
-                    const pdfWidth = 210; const pdfHeight = 297; 
-                    let imgWidth = pdfWidth;
-                    let imgHeight = canvas.height * imgWidth / canvas.width;
-                    
-                    if (imgHeight > pdfHeight) {
-                        imgHeight = pdfHeight;
-                        imgWidth = canvas.width * imgHeight / canvas.height;
-                    }
-                    
-                    const x = (pdfWidth - imgWidth) / 2;
-                    const y = (pdfHeight - imgHeight) / 2;
-
-                    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, imgWidth, imgHeight);
-                    pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
-                    document.getElementById('print-view').style.display = 'none'; 
-                    document.getElementById('capture-area').style.display = 'block';
-                }); 
-            }, 500);
-        });
 
         init();
-    } catch(err) { console.error("앱 초기화 오류 방어:", err); }
+    } catch(err) { console.log(err); }
 </script>
 </body>
 </html>
