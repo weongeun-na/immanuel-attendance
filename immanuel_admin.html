@@ -9,6 +9,7 @@
     <title>2026년 임마누엘 목장 출석부 (관리자)</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path fill=%22%23800000%22 d=%22M15 45L50 15L85 45V90H15V45Z M45 45V28H55V45H45Z M45 70V80H55V70H45Z%22/></svg>">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
@@ -23,7 +24,6 @@
         .header-btns { display: flex; gap: 3px; width: 110px; justify-content: flex-end; }
         .btn-settings { background: #333; color: white; border: none; border-radius: 3px; padding: 6px 5px; font-size: 10px; cursor: pointer; white-space: nowrap; }
         
-        /* 💡 모바일에서 날짜가 숨겨지는 현상 방지 (폭/모양 강제 지정) */
         .date-input { font-size: 18px; border: none; outline: none; color: #1976D2; font-weight: bold; text-align: center; background: transparent; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
         .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 3px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
         
@@ -56,21 +56,26 @@
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) 가로폭 대폭 확대하여 빈 여백 없애기 (1600px) */
-        #print-view { display: none; width: 1600px; background: white; padding: 10px 20px; box-sizing: border-box; margin: 0 auto; }
-        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; padding: 0 5px; }
-        .print-title { font-size: 55px; font-weight: bold; letter-spacing: -2px; }
+        /* 🖨️ 인쇄 전용 영역: 여백 최소화 및 한 페이지 꽉 차게 */
+        #print-view { display: none; width: 1400px; background: white; padding: 5px 10px; box-sizing: border-box; margin: 0 auto; }
+        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; padding: 0 5px; }
+        .print-title { font-size: 40px; font-weight: bold; letter-spacing: -2px; }
         
-        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 3px solid #000; font-size: 26px; font-weight: bold; }
-        .print-summary-tbl th, .print-summary-tbl td { border: 2px solid #000; padding: 10px 30px; }
+        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 2px solid #000; font-size: 20px; font-weight: bold; }
+        .print-summary-tbl th, .print-summary-tbl td { border: 1px solid #000; padding: 5px 20px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
         
-        .print-grid { display: flex; gap: 30px; width: 100%; }
-        /* 표 글자 크기 특대형으로 확대 */
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 26px; border: 3px solid #000; table-layout: fixed; }
-        .print-table th, .print-table td { border: 2px solid #000; padding: 12px 2px; }
+        .print-grid { display: flex; gap: 15px; width: 100%; }
+        
+        /* 💡 표 높이 줄이고, 이름 칸 두 줄 방지 (white-space: nowrap) */
+        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 20px; border: 2px solid #000; table-layout: fixed; }
+        .print-table th, .print-table td { border: 1px solid #000; padding: 3px 2px; }
+        
+        /* 이름 칸이 절대 꺾이지 않도록 방어선 구축! */
+        .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 19px; letter-spacing: -1px; }
+        
         .print-table th { font-weight: bold; background-color: #c8e6c9; }
-        .print-village-title { font-weight: bold; font-size: 28px; text-align: left; padding-left: 15px; background-color: #c8e6c9; }
+        .print-village-title { font-weight: bold; font-size: 20px; text-align: left; padding-left: 10px; background-color: #c8e6c9; }
     </style>
 </head>
 <body onclick="unlockAudio()">
@@ -171,21 +176,17 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
         let members = []; let attendanceData = {}; let attOptions = [];
         let notiSettings = { day: "0", time: "14:00", retry: "1" }; 
-        
         const dateInput = document.getElementById('currentDate');
         let currentCheckIdx = null; let currentManageIdx = null;
 
-        // 💡 오디오 로직 최적화 ("출석", "띠", "딩동")
+        // 💡 오디오 로직
         let audioCtx = null;
         window.unlockAudio = function() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                // 💡 TTS 엔진 사전 예열 (딜레이 최소화)
-                const wakeTTS = new SpeechSynthesisUtterance("");
-                wakeTTS.volume = 0; window.speechSynthesis.speak(wakeTTS);
+                const wakeTTS = new SpeechSynthesisUtterance(""); wakeTTS.volume = 0; window.speechSynthesis.speak(wakeTTS);
             }
             if (audioCtx.state === 'suspended') audioCtx.resume();
         };
@@ -194,48 +195,20 @@
             try {
                 unlockAudio();
                 if (type === 'check') {
-                    // "출석" TTS 발음
-                    const msg = new SpeechSynthesisUtterance("출석");
-                    msg.lang = 'ko-KR'; 
-                    msg.rate = 1.8; // 속도를 높여 딜레이를 줄이고 경쾌하게!
-                    window.speechSynthesis.speak(msg);
+                    const msg = new SpeechSynthesisUtterance("출석"); msg.lang = 'ko-KR'; msg.rate = 1.8; window.speechSynthesis.speak(msg);
                 } else if (type === 'uncheck') {
-                    // "띠" 
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
-                    osc.connect(gain); gain.connect(audioCtx.destination); 
-                    osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
-                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime); 
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
                 } else if (type === 'etc') {
-                    // 💡 "딩동"
-                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain();
-                    osc1.connect(gain1); gain1.connect(audioCtx.destination);
-                    osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); // High
-                    gain1.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                    gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                    osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
-
-                    const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain();
-                    osc2.connect(gain2); gain2.connect(audioCtx.destination);
-                    osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); // Low
-                    gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15);
-                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-                    osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
+                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain(); osc1.connect(gain1); gain1.connect(audioCtx.destination); osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); gain1.gain.setValueAtTime(0.2, audioCtx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
+                    const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain(); osc2.connect(gain2); gain2.connect(audioCtx.destination); osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15); gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4); osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
                 }
             } catch(e) {}
         }
 
         function getWeekKey(dateStr) {
-            let d = new Date();
-            if (dateStr) {
-                let parsed = new Date(dateStr.replace(/[\.\/]/g, '-'));
-                if (!isNaN(parsed.getTime())) d = parsed;
-            }
-            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5);
-            d.setDate(d.getDate() - diff); 
-            const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const date = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${date}`;
+            let d = new Date(); if (dateStr) { let parsed = new Date(dateStr.replace(/[\.\/]/g, '-')); if (!isNaN(parsed.getTime())) d = parsed; }
+            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5); d.setDate(d.getDate() - diff); 
+            const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const date = String(d.getDate()).padStart(2, '0'); return `${year}-${month}-${date}`;
         }
 
         dateInput.addEventListener('change', loadData);
@@ -243,94 +216,48 @@
         function init() {
             onValue(ref(db, 'settings/etcOptions'), snap => { try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } });
             onValue(ref(db, 'settings/notification'), snap => { const data = snap.val(); if (data) notiSettings = data; });
-            onValue(ref(db, 'members'), (snap) => {
-                try {
-                    const data = snap.val();
-                    if (!data) { members = []; } 
-                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
-                    const vOrder = Array.from({length:20}, (_, i) => `${i+1}.`);
-                    members.sort((a, b) => vOrder.findIndex(v => (a.village||"").startsWith(v)) - vOrder.findIndex(v => (b.village||"").startsWith(v)));
-                    renderTable();
-                } catch(e) {}
-            });
+            onValue(ref(db, 'members'), (snap) => { try { const data = snap.val(); if (!data) { members = []; } else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); } members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99)); renderTable(); } catch(e) {} });
             loadData();
         }
 
-        function loadData() {
-            const weekKey = getWeekKey(dateInput.value);
-            if (!weekKey) return;
-            document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
-            onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
-        }
+        function loadData() { const weekKey = getWeekKey(dateInput.value); if (!weekKey) return; document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`; onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); }); }
 
         function renderTable() {
             try {
-                const tbody = document.getElementById('mobileBody'); 
-                if(!tbody) return;
-                tbody.innerHTML = '';
-                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
-                let currentVil = "";
-
+                const tbody = document.getElementById('mobileBody'); if(!tbody) return; tbody.innerHTML = '';
+                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 }, currentVil = "";
                 members.forEach((m, idx) => {
-                    if(!m) return;
-                    const ch = attendanceData[idx] || {};
+                    if(!m) return; const ch = attendanceData[idx] || {};
                     if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
-                    
                     if (m.village !== currentVil) {
-                        const trH = document.createElement('tr');
-                        trH.className = 'village-header-row';
-                        trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
+                        const trH = document.createElement('tr'); trH.className = 'village-header-row'; trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
-                    
-                    const safeName = m.name ? String(m.name) : "";
-                    const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
+                    const safeName = m.name ? String(m.name) : "", dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
                     const tr = document.createElement('tr');
-                    
-                    tr.innerHTML = `
-                        <td>${m.role || ""}</td><td>${dName}</td>
+                    tr.innerHTML = `<td>${m.role || ""}</td><td>${dName}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>
-                        <td class="hide-on-print"><button class="btn-manage" onclick="openManage(${idx})">관리</button></td>
-                    `;
+                        <td class="hide-on-print"><button class="btn-manage" onclick="openManage(${idx})">관리</button></td>`;
                     tbody.appendChild(tr);
                 });
-                
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-                
-                buildPrintGrid();
-                const dObj = new Date(getWeekKey(dateInput.value));
-                document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
+                buildPrintGrid(); const dObj = new Date(getWeekKey(dateInput.value)); document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
             } catch(e) {}
         }
 
-        window.toggleCheck = (idx, day) => { 
-            const weekKey = getWeekKey(dateInput.value); 
-            const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; 
-            set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); 
-            playCheckSound(!currentVal ? 'check' : 'uncheck'); 
-        };
-        
+        window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playCheckSound(!currentVal ? 'check' : 'uncheck'); };
         window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); const clearBtn = document.createElement('button'); clearBtn.className = 'opt-btn'; clearBtn.style.width = '100%'; clearBtn.innerText = "초기화 (빈칸)"; clearBtn.onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
-        
-        window.saveEtcCheck = (val) => { 
-            const weekKey = getWeekKey(dateInput.value); 
-            set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); 
-            if (val !== "") { playCheckSound('etc'); } else { playCheckSound('uncheck'); }
-            closeModal('check-modal'); 
-        };
-        
+        window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); if (val !== "") { playCheckSound('etc'); } else { playCheckSound('uncheck'); } closeModal('check-modal'); };
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
         window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
-        
         window.openNotiSettings = () => { document.getElementById('noti-day').value = notiSettings.day || "0"; document.getElementById('noti-time').value = notiSettings.time || "14:00"; document.getElementById('noti-retry').value = notiSettings.retry || "1"; document.getElementById('noti-modal').style.display = 'flex'; };
         window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value; const t = document.getElementById('noti-time').value; const r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정이 저장되었습니다."); closeModal('noti-modal'); };
-
         window.openAdd = () => { currentManageIdx = null; document.getElementById('manage-title').innerText = "새 인원 추가"; document.getElementById('manage-role').value = ""; document.getElementById('manage-name').value = ""; document.getElementById('btn-delete-member').style.display = "none"; document.getElementById('manage-modal').style.display = 'flex'; };
         window.openManage = (idx) => { currentManageIdx = idx; const m = members[idx]; document.getElementById('manage-title').innerText = "인원 정보 수정"; document.getElementById('manage-village').value = m.village; document.getElementById('manage-role').value = m.role; document.getElementById('manage-name').value = m.name; document.getElementById('btn-delete-member').style.display = "block"; document.getElementById('manage-modal').style.display = 'flex'; };
         window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름을 입력하세요."); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
@@ -338,20 +265,19 @@
 
         function buildPrintGrid() {
             try {
-                const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
-                if(!tLeft || !tRight) return;
-                tLeft.innerHTML = ''; tRight.innerHTML = '';
-                const allVils = [...new Set(members.map(m => m.village || "미지정"))];
-                const half = Math.ceil(allVils.length / 2);
+                const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea'); if(!tLeft || !tRight) return; tLeft.innerHTML = ''; tRight.innerHTML = '';
+                const allVils = [...new Set(members.map(m => m.village || "미지정"))], half = Math.ceil(allVils.length / 2);
                 
+                // 💡 인쇄 시 이름 1줄 방어막 설정 완료 (nowrap 속성)
                 const generateHtml = (vils) => {
-                    let h = '<table class="print-table"><colgroup><col style="width:16%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:14%"></colgroup><tbody>';
+                    let h = '<table class="print-table"><colgroup><col style="width:23%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:17%"></colgroup><tbody>';
                     vils.forEach(vName => {
                         const vMems = members.filter(m => (m.village || "미지정") === vName);
                         h += `<tr style="background-color:#c8e6c9"><td class="print-village-title" colspan="7">${vName}</td></tr><tr style="background-color:#c8e6c9"><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
                         vMems.forEach(m => {
                             const idx = members.indexOf(m); const ch = attendanceData[idx] || {}; const safeName = m.name ? String(m.name) : "";
-                            h += `<tr><td>${m.role?m.role+' ':''}${safeName}</td><td>${ch.sun?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:20px; color:#d32f2f; font-weight:bold; letter-spacing:-1px;">${ch.etc||''}</td></tr>`;
+                            const printName = m.role ? `${m.role} ${safeName}` : safeName;
+                            h += `<tr><td class="print-name-cell">${printName}</td><td>${ch.sun?'O':''}</td><td>${ch.tue?'O':''}</td><td>${ch.wed?'O':''}</td><td>${ch.fri?'O':''}</td><td>${ch.vil?'O':''}</td><td style="font-size:18px; color:#d32f2f; font-weight:bold; letter-spacing:-1px;">${ch.etc||''}</td></tr>`;
                         });
                     });
                     return h + '</tbody></table>';
@@ -360,6 +286,7 @@
             } catch(e) {}
         }
 
+        // 💡 1페이지에 딱 맞도록 스크롤과 높이를 제어
         document.getElementById('imgBtn').addEventListener('click', () => {
             document.getElementById('capture-area').style.display = 'none'; 
             document.getElementById('print-view').style.display = 'block';
@@ -368,7 +295,7 @@
             document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
 
             setTimeout(() => { 
-                html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
+                html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: -window.scrollY}).then(canvas => {
                     const link = document.createElement('a'); 
                     link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; 
                     link.href = canvas.toDataURL("image/png"); 
@@ -387,7 +314,7 @@
             document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
 
             setTimeout(() => { 
-                html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
+                html2canvas(document.getElementById('print-view'), {scale: 2, backgroundColor: "#ffffff", scrollY: -window.scrollY}).then(canvas => {
                     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
                     const pdfWidth = 210; const pdfHeight = 297; 
                     let imgWidth = pdfWidth;
