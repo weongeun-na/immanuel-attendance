@@ -52,20 +52,20 @@
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) */
-        #print-view { display: none; background: white; padding: 10px 15px; box-sizing: border-box; margin: 0 auto; color: #000; }
+        /* 🖨️ 인쇄 전용 영역 */
+        #print-view { display: none; width: 1600px; background: white; padding: 10px 15px; box-sizing: border-box; margin: 0 auto; color: #000; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 5px; }
         .print-title { font-size: 55px; font-weight: 900; letter-spacing: -2px; color: #000; }
         .print-summary-tbl { border-collapse: collapse; text-align: center; border: 4px solid #000; font-size: 26px; font-weight: 900; color: #000; }
         .print-summary-tbl th, .print-summary-tbl td { border: 2px solid #000; padding: 10px 25px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
+        
         .print-grid { display: flex; gap: 20px; width: 100%; }
         
         .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 28px; border: 4px solid #000; table-layout: fixed; font-weight: 900; color: #000; }
         .print-table th, .print-table td { border: 2px solid #000; padding: 8px 2px; }
         .print-table th { font-weight: 900; background-color: #c8e6c9; border: 3px solid #000; font-size: 24px; }
         
-        /* 💡 인쇄용 폰트 크기 추가 확대 */
         .print-vil-cell { font-size: 25px; font-weight: 900; letter-spacing: -1px; vertical-align: middle; }
         .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 26px; letter-spacing: -1px; font-weight: 900; padding: 6px 4px !important; }
 
@@ -329,17 +329,16 @@
                 const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
                 if(!tLeft || !tRight) return; tLeft.innerHTML = ''; tRight.innerHTML = '';
                 const allVils = [...new Set(members.map(m => m.village || "미지정"))];
-                const half = Math.ceil(members.length / 2);
                 
-                const generateHtml = (vils) => {
+                const generateHtml = (memsList) => {
                     let h = '<table class="print-table"><colgroup><col style="width:14%"><col style="width:18%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:23%"></colgroup><tbody>';
                     h += `<tr style="background-color:#c8e6c9"><th>마을</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
                     
                     let currentVillage = null;
                     let rowspanCount = 0;
 
-                    for (let i = 0; i < vils.length; i++) {
-                        const m = vils[i];
+                    for (let i = 0; i < memsList.length; i++) {
+                        const m = memsList[i];
                         const idx = members.indexOf(m); const ch = attendanceData[idx] || {}; const safeName = m.name ? String(m.name) : "";
                         const printName = m.role ? `${m.role} ${safeName}` : safeName;
                         const vName = (m.village || "미지정").replace(' 마을', ''); 
@@ -349,8 +348,8 @@
                         if (vName !== currentVillage) {
                             currentVillage = vName;
                             rowspanCount = 0;
-                            for (let j = i; j < vils.length; j++) {
-                                if ((vils[j].village || "미지정").replace(' 마을', '') === currentVillage) { rowspanCount++; } else { break; }
+                            for (let j = i; j < memsList.length; j++) {
+                                if ((memsList[j].village || "미지정").replace(' 마을', '') === currentVillage) { rowspanCount++; } else { break; }
                             }
                             h += `<td rowspan="${rowspanCount}" class="print-vil-cell">${currentVillage}</td>`;
                         }
@@ -385,36 +384,44 @@
             document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
 
             setTimeout(() => { 
+                // 💡 폭을 강제로 줄이지 않고 원래 크기(1600px) 그대로 캡처!
                 printView.style.width = '1600px'; 
-                
+
                 setTimeout(() => {
-                    const actualHeight = printView.scrollHeight;
-                    // 💡 상하 15mm, 좌우 10mm 에 맞춘 비율 계산
-                    const marginX = 10;
-                    const marginY = 15;
-                    const usableWidth = 210 - (marginX * 2); // 190
-                    const usableHeight = 297 - (marginY * 2); // 267
+                    html2canvas(printView, {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
+                        if (type === 'img') {
+                            const link = document.createElement('a'); 
+                            link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; 
+                            link.href = canvas.toDataURL("image/png"); 
+                            link.click();
+                        } else {
+                            const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
+                            // 💡 상하 25mm, 좌우 10mm 에 맞춘 완벽한 수학적 축소 로직
+                            const marginX = 10;
+                            const marginY = 25; // 기존 15mm에서 10mm 추가!
+                            const usableWidth = 210 - (marginX * 2); // 190mm
+                            const usableHeight = 297 - (marginY * 2); // 247mm
 
-                    const targetWidth = actualHeight * (usableWidth / usableHeight);
-                    printView.style.width = targetWidth + 'px'; 
-
-                    setTimeout(() => {
-                        html2canvas(printView, {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
-                            if (type === 'img') {
-                                const link = document.createElement('a'); 
-                                link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; 
-                                link.href = canvas.toDataURL("image/png"); 
-                                link.click();
-                            } else {
-                                const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
-                                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', marginX, marginY, usableWidth, usableHeight); 
-                                pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
+                            let imgWidth = usableWidth;
+                            let imgHeight = canvas.height * imgWidth / canvas.width;
+                            
+                            // 세로가 길면 비율 유지한 채로 더 축소
+                            if (imgHeight > usableHeight) { 
+                                imgHeight = usableHeight; 
+                                imgWidth = canvas.width * imgHeight / canvas.height; 
                             }
-                            printView.style.display = 'none'; 
-                            document.getElementById('capture-area').style.display = 'block'; 
-                            document.getElementById('float-buttons').style.display = 'flex';
-                        }); 
-                    }, 150); 
+                            
+                            // 정중앙 좌표 계산
+                            const x = marginX + ((usableWidth - imgWidth) / 2);
+                            const y = marginY + ((usableHeight - imgHeight) / 2);
+
+                            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, imgWidth, imgHeight); 
+                            pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
+                        }
+                        printView.style.display = 'none'; 
+                        document.getElementById('capture-area').style.display = 'block'; 
+                        document.getElementById('float-buttons').style.display = 'flex';
+                    }); 
                 }, 50);
             }, 50);
         }
