@@ -52,24 +52,23 @@
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용 영역: 폰트 최대치 + 여백 최소화 압축 모드 */
-        #print-view { display: none; background: white; padding: 5px 15px; box-sizing: border-box; margin: 0 auto; color: #000; }
+        /* 🖨️ 인쇄 전용 영역 */
+        #print-view { display: none; background: white; padding: 10px 15px; box-sizing: border-box; margin: 0 auto; color: #000; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 5px; }
-        .print-title { font-size: 60px; font-weight: 900; letter-spacing: -2px; color: #000; }
-        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 4px solid #000; font-size: 28px; font-weight: 900; color: #000; }
-        .print-summary-tbl th, .print-summary-tbl td { border: 2px solid #000; padding: 8px 25px; }
+        .print-title { font-size: 55px; font-weight: 900; letter-spacing: -2px; color: #000; }
+        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 4px solid #000; font-size: 26px; font-weight: 900; color: #000; }
+        .print-summary-tbl th, .print-summary-tbl td { border: 2px solid #000; padding: 10px 25px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
         
         .print-grid { display: flex; gap: 20px; width: 100%; }
         
-        /* 💡 폰트 엄청 키우고 패딩을 1px로 줄여서 세로 길이 다이어트! */
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 26px; border: 4px solid #000; table-layout: fixed; font-weight: 900; color: #000; }
-        .print-table th, .print-table td { border: 2px solid #000; padding: 2px 1px; line-height: 1.1; }
-        .print-table th { font-weight: 900; background-color: #c8e6c9; border: 3px solid #000; font-size: 26px; padding: 5px 0; }
+        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 28px; border: 4px solid #000; table-layout: fixed; font-weight: 900; color: #000; }
+        .print-table th, .print-table td { border: 2px solid #000; padding: 8px 2px; }
+        .print-table th { font-weight: 900; background-color: #c8e6c9; border: 3px solid #000; font-size: 24px; }
         
-        /* 💡 마을 폰트 28px, 이름 폰트 28px 대폭 확대 */
-        .print-vil-cell { font-size: 28px; font-weight: 900; letter-spacing: -1.5px; vertical-align: middle; }
-        .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 28px; letter-spacing: -1.5px; font-weight: 900; padding: 2px !important; }
+        /* 💡 마을 셀 2줄 방지 (nowrap) 적용 */
+        .print-vil-cell { font-size: 25px; font-weight: 900; letter-spacing: -1.5px; vertical-align: middle; white-space: nowrap; overflow: hidden; }
+        .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 26px; letter-spacing: -1px; font-weight: 900; padding: 6px 4px !important; }
 
         .floating-btns { position: fixed; bottom: 20px; left: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
         .float-btn { width: 45px; height: 45px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.85); color: white; border: none; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; }
@@ -151,16 +150,28 @@
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     try {
-        const firebaseConfig = { apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w", authDomain: "immanuel-attendance.firebaseapp.com", databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com", projectId: "immanuel-attendance" };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
+            authDomain: "immanuel-attendance.firebaseapp.com",
+            databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com",
+            projectId: "immanuel-attendance"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let members = []; let attendanceData = {}; let attOptions = []; let notiSettings = { day: "0", time: "14:00", retry: "1" }; 
+        
+        let members = []; let attendanceData = {}; let attOptions = [];
+        let notiSettings = { day: "0", time: "14:00", retry: "1" }; 
+        
         const dateInput = document.getElementById('currentDate');
         let currentCheckIdx = null; let currentManageIdx = null;
 
         let audioCtx = null;
         window.unlockAudio = function() {
-            if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const wakeTTS = new SpeechSynthesisUtterance(""); wakeTTS.volume = 0; window.speechSynthesis.speak(wakeTTS); }
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const wakeTTS = new SpeechSynthesisUtterance(""); wakeTTS.volume = 0; window.speechSynthesis.speak(wakeTTS);
+            }
             if (audioCtx.state === 'suspended') audioCtx.resume();
         };
 
@@ -170,87 +181,145 @@
                 if (type === 'check' || type === 'etc') {
                     const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain(); 
                     osc1.connect(gain1); gain1.connect(audioCtx.destination); 
-                    osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); gain1.gain.setValueAtTime(0.2, audioCtx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); 
+                    osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); 
+                    gain1.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+                    gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); 
                     osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
+                    
                     const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain(); 
                     osc2.connect(gain2); gain2.connect(audioCtx.destination); 
-                    osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15); gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4); 
+                    osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); 
+                    gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15); 
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4); 
                     osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
                 } else if (type === 'uncheck') {
                     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
                     osc.connect(gain); gain.connect(audioCtx.destination); 
-                    osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
+                    osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); 
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime); 
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
                     osc.start(); osc.stop(audioCtx.currentTime + 0.1);
                 }
             } catch(e) {}
         }
 
         function getWeekKey(dateStr) {
-            let d = new Date(); if (dateStr) { let parsed = new Date(dateStr.replace(/[\.\/]/g, '-')); if (!isNaN(parsed.getTime())) d = parsed; }
-            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5); d.setDate(d.getDate() - diff); 
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            let d = new Date();
+            if (dateStr) {
+                let parsed = new Date(dateStr.replace(/[\.\/]/g, '-'));
+                if (!isNaN(parsed.getTime())) d = parsed;
+            }
+            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5);
+            d.setDate(d.getDate() - diff); 
+            const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const date = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${date}`;
         }
+
         dateInput.addEventListener('change', loadData);
 
         function init() {
             onValue(ref(db, 'settings/etcOptions'), snap => { try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } });
             onValue(ref(db, 'settings/notification'), snap => { const data = snap.val(); if (data) notiSettings = data; });
-            onValue(ref(db, 'members'), (snap) => { try { const data = snap.val(); if (!data) { members = []; } else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); } members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99)); renderTable(); } catch(e) {} });
+            onValue(ref(db, 'members'), (snap) => {
+                try {
+                    const data = snap.val();
+                    if (!data) { members = []; } 
+                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
+                    members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99));
+                    renderTable();
+                } catch(e) {}
+            });
             loadData();
         }
 
         function loadData() {
-            const weekKey = getWeekKey(dateInput.value); if (!weekKey) return;
+            const weekKey = getWeekKey(dateInput.value);
+            if (!weekKey) return;
             document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
             onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
         }
 
         function renderTable() {
             try {
-                const tbody = document.getElementById('mobileBody'); if(!tbody) return; tbody.innerHTML = '';
-                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 }; let currentVil = "";
+                const tbody = document.getElementById('mobileBody'); 
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
+                let currentVil = "";
+
                 members.forEach((m, idx) => {
-                    if(!m) return; const ch = attendanceData[idx] || {};
+                    if(!m) return;
+                    const ch = attendanceData[idx] || {};
                     if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
+                    
                     if (m.village !== currentVil) {
-                        const trH = document.createElement('tr'); trH.className = 'village-header-row';
+                        const trH = document.createElement('tr');
+                        trH.className = 'village-header-row';
                         trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
-                    const safeName = m.name ? String(m.name) : ""; const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
+                    
+                    const safeName = m.name ? String(m.name) : "";
+                    const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${m.role || ""}</td><td>${dName}</td>
+                    
+                    tr.innerHTML = `
+                        <td>${m.role || ""}</td><td>${dName}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'fri')">${ch.fri?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>
-                        <td class="hide-on-print" style="vertical-align: middle;"><div class="manage-wrapper"><button class="btn-move" onclick="moveMember(${idx}, -1)">▲</button><button class="btn-move" onclick="moveMember(${idx}, 1)">▼</button><button class="btn-manage" onclick="openManage(${idx})">관리</button></div></td>`;
+                        <td class="hide-on-print" style="vertical-align: middle;">
+                            <div class="manage-wrapper">
+                                <button class="btn-move" onclick="moveMember(${idx}, -1)">▲</button>
+                                <button class="btn-move" onclick="moveMember(${idx}, 1)">▼</button>
+                                <button class="btn-manage" onclick="openManage(${idx})">관리</button>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
+                
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-                buildPrintGrid(); const dObj = new Date(getWeekKey(dateInput.value)); document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
+                
+                buildPrintGrid();
+                const dObj = new Date(getWeekKey(dateInput.value));
+                document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
             } catch(e) {}
         }
 
         window.moveMember = (idx, dir) => {
-            const target = idx + dir; if (target < 0 || target >= members.length) return;
+            const target = idx + dir;
+            if (target < 0 || target >= members.length) return;
             if (members[idx].village !== members[target].village) return alert("같은 마을 내에서만 순서를 변경할 수 있습니다.");
+            
             const tempMem = members[idx]; members[idx] = members[target]; members[target] = tempMem;
             const weekKey = getWeekKey(dateInput.value);
             const tempAtt = attendanceData[idx] || {}; attendanceData[idx] = attendanceData[target] || {}; attendanceData[target] = tempAtt;
+            
             set(ref(db, 'members'), members); set(ref(db, `attendance/${weekKey}`), attendanceData);
         };
 
         window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playCheckSound(!currentVal ? 'check' : 'uncheck'); };
-        window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); document.getElementById('btn-etc-clear').onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
+        
+        window.openEtcCheck = (idx) => { 
+            currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; 
+            attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); 
+            document.getElementById('btn-etc-clear').onclick = () => saveEtcCheck(""); 
+            document.getElementById('check-modal').style.display = 'flex'; 
+        };
+
         window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== "" ? 'etc' : 'uncheck'); closeModal('check-modal'); };
+        
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
         window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
+        
         window.openNotiSettings = () => { document.getElementById('noti-day').value = notiSettings.day || "0"; document.getElementById('noti-time').value = notiSettings.time || "14:00"; document.getElementById('noti-retry').value = notiSettings.retry || "1"; document.getElementById('noti-modal').style.display = 'flex'; };
         window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value; const t = document.getElementById('noti-time').value; const r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정이 저장되었습니다."); closeModal('noti-modal'); };
+
         window.openAdd = () => { currentManageIdx = null; document.getElementById('manage-title').innerText = "새 인원 추가"; document.getElementById('manage-role').value = ""; document.getElementById('manage-name').value = ""; document.getElementById('btn-delete-member').style.display = "none"; document.getElementById('manage-modal').style.display = 'flex'; };
         window.openManage = (idx) => { currentManageIdx = idx; const m = members[idx]; document.getElementById('manage-title').innerText = "인원 정보 수정"; document.getElementById('manage-village').value = m.village; document.getElementById('manage-role').value = m.role; document.getElementById('manage-name').value = m.name; document.getElementById('btn-delete-member').style.display = "block"; document.getElementById('manage-modal').style.display = 'flex'; };
         window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름을 입력하세요."); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
@@ -260,9 +329,11 @@
             try {
                 const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
                 if(!tLeft || !tRight) return; tLeft.innerHTML = ''; tRight.innerHTML = '';
+                const allVils = [...new Set(members.map(m => m.village || "미지정"))];
                 
                 const generateHtml = (memsList) => {
-                    let h = '<table class="print-table"><colgroup><col style="width:14%"><col style="width:18%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:23%"></colgroup><tbody>';
+                    // 💡 마을 너비 늘리고, 나머지 6개 칸(주일,화요,수요,금요,마을,기타) 비율 동일하게!
+                    let h = '<table class="print-table"><colgroup><col style="width:18%"><col style="width:22%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:10%"></colgroup><tbody>';
                     h += `<tr style="background-color:#c8e6c9"><th>마을</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
                     
                     let currentVillage = null;
@@ -291,7 +362,7 @@
                               <td style="font-weight:900; color:#0044cc;">${ch.wed?'O':''}</td>
                               <td style="font-weight:900; color:#0044cc;">${ch.fri?'O':''}</td>
                               <td style="font-weight:900; color:#0044cc;">${ch.vil?'O':''}</td>
-                              <td style="font-size:26px; color:#d32f2f; font-weight:900; letter-spacing:-1.5px;">${ch.etc||''}</td>
+                              <td style="font-size:24px; color:#d32f2f; font-weight:900; letter-spacing:-1.5px;">${ch.etc||''}</td>
                             </tr>`;
                     }
                     return h + '</tbody></table>';
@@ -315,19 +386,17 @@
             document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
 
             setTimeout(() => { 
-                // 💡 베이스 가로폭 고정하여 캡처 품질 확보
-                printView.style.width = '1400px'; 
+                printView.style.width = '1600px'; 
                 
                 setTimeout(() => {
                     const actualHeight = printView.scrollHeight;
-                    // 💡 [여백 10mm/15mm] A4 비율에 완벽히 맞추는 가로폭 늘리기!
                     const marginX = 10;
-                    const marginY = 15; // 15mm로 상하여백 증가!
-                    const usableWidth = 210 - (marginX * 2); // 190
-                    const usableHeight = 297 - (marginY * 2); // 267
+                    const marginY = 15; 
+                    const usableWidth = 210 - (marginX * 2); 
+                    const usableHeight = 297 - (marginY * 2); 
 
                     const targetWidth = actualHeight * (usableWidth / usableHeight);
-                    printView.style.width = targetWidth + 'px'; // 여기서 가로 쫙 늘어남!
+                    printView.style.width = targetWidth + 'px'; 
 
                     setTimeout(() => {
                         html2canvas(printView, {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
