@@ -52,7 +52,7 @@
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용(A4) 매우 진하고 굵은 선/글씨 + 구조조정 */
+        /* 🖨️ 인쇄 전용(A4) */
         #print-view { display: none; background: white; padding: 10px 15px; box-sizing: border-box; margin: 0 auto; color: #000; }
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 5px; }
         .print-title { font-size: 55px; font-weight: 900; letter-spacing: -2px; color: #000; }
@@ -65,9 +65,9 @@
         .print-table th, .print-table td { border: 2px solid #000; padding: 8px 2px; }
         .print-table th { font-weight: 900; background-color: #c8e6c9; border: 3px solid #000; font-size: 24px; }
         
-        /* 💡 새로 추가된 인쇄용 마을/이름 셀 스타일 */
-        .print-vil-cell { font-size: 22px; font-weight: 900; letter-spacing: -1px; vertical-align: middle; }
-        .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 24px; letter-spacing: -1px; font-weight: 900; padding: 6px 4px !important; }
+        /* 💡 인쇄용 폰트 크기 추가 확대 */
+        .print-vil-cell { font-size: 25px; font-weight: 900; letter-spacing: -1px; vertical-align: middle; }
+        .print-name-cell { white-space: nowrap; overflow: hidden; text-overflow: clip; font-size: 26px; letter-spacing: -1px; font-weight: 900; padding: 6px 4px !important; }
 
         .floating-btns { position: fixed; bottom: 20px; left: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
         .float-btn { width: 45px; height: 45px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.85); color: white; border: none; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; }
@@ -120,7 +120,16 @@
 <div id="settings-modal" class="modal-overlay"><div class="modal-content"><h3>'기타' 사유 설정</h3><p style="font-size:11px; color:#666; text-align:center;">쉼표(,)로 구분하여 입력하세요.</p><input type="text" id="settings-options" placeholder="예: 병원, 시외, 여행, 기타"><div class="modal-btns"><button style="background:#999; color:white;" onclick="closeModal('settings-modal')">취소</button><button style="background:#1976D2; color:white;" onclick="saveSettings()">저장</button></div></div></div>
 <div id="manage-modal" class="modal-overlay"><div class="modal-content"><h3 id="manage-title">인원 관리</h3><label>마을 선택</label><select id="manage-village"><option value="1. 섬김 마을">1. 섬김 마을</option><option value="2. 사랑스런 마을">2. 사랑스런 마을</option><option value="3. 워십 마을">3. 워십 마을</option><option value="4. 양떼 마을">4. 양떼 마을</option><option value="5. 은혜 마을">5. 은혜 마을</option><option value="6. 포도원 마을">6. 포도원 마을</option><option value="7. 회복 마을">7. 회복 마을</option><option value="8. 새생명 마을">8. 새생명 마을</option><option value="9. 청솔 마을">9. 청솔 마을</option><option value="10. 풍성한 마을">10. 풍성한 마을</option><option value="11. 상속자 마을">11. 상속자 마을</option><option value="12. 보배 마을">12. 보배 마을</option><option value="13. 순종 마을">13. 순종 마을</option><option value="14. 반석 마을">14. 반석 마을</option><option value="15. 지성소 마을">15. 지성소 마을</option><option value="16. 번성 마을">16. 번성 마을</option><option value="17. 권능 마을">17. 권능 마을</option><option value="18. 열매맺는 마을">18. 열매맺는 마을</option><option value="19. 온유 마을">19. 온유 마을</option><option value="20. 승리 마을">20. 승리 마을</option></select><label>직분</label><input type="text" id="manage-role" placeholder="예: 목자"><label>이름</label><input type="text" id="manage-name" placeholder="성함"><div class="modal-btns"><button id="btn-delete-member" style="background:#d32f2f; color:white; display:none;" onclick="confirmDelete()">삭제</button><button style="background:#999; color:white;" onclick="closeModal('manage-modal')">취소</button><button style="background:#1976D2; color:white;" onclick="saveManage()">저장</button></div></div></div>
 
-<div id="print-view"><div class="print-header-area"><div class="print-title">임마누엘 목장 <span class="print-date" id="printDateTxt"></span></div><table class="print-summary-tbl"><tr><th>주일 출석</th><th>마을 출석</th><th rowspan="2" style="padding: 0 15px;">총 계</th></tr><tr><td id="print-tot-sun">0</td><td id="print-tot-vil">0</td></tr></table></div><div class="print-grid"><div id="printLeftBodyArea" style="width:50%;"></div><div id="printRightBodyArea" style="width:50%;"></div></div></div>
+<div id="print-view">
+    <div class="print-header-area">
+        <div class="print-title">임마누엘 목장 <span class="print-date" id="printDateTxt"></span></div>
+        <table class="print-summary-tbl">
+            <tr><th>주일 출석</th><th>마을 출석</th><th rowspan="2" style="padding: 0 15px;">총 계</th></tr>
+            <tr><td id="print-tot-sun">0</td><td id="print-tot-vil">0</td></tr>
+        </table>
+    </div>
+    <div class="print-grid"><div id="printLeftBodyArea" style="width:50%;"></div><div id="printRightBodyArea" style="width:50%;"></div></div>
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -140,13 +149,23 @@
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     try {
-        const firebaseConfig = { apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w", authDomain: "immanuel-attendance.firebaseapp.com", databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com", projectId: "immanuel-attendance" };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOfUlA-aQfnNvxTm5X5MkOYPh7JRkAT-w",
+            authDomain: "immanuel-attendance.firebaseapp.com",
+            databaseURL: "https://immanuel-attendance-default-rtdb.firebaseio.com",
+            projectId: "immanuel-attendance"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let members = [], attendanceData = {}, attOptions = [], notiSettings = { day: "0", time: "14:00", retry: "1" }; 
+        
+        let members = []; let attendanceData = {}; let attOptions = [];
+        let notiSettings = { day: "0", time: "14:00", retry: "1" }; 
+        
         const dateInput = document.getElementById('currentDate');
-        let currentCheckIdx = null, currentManageIdx = null, audioCtx = null;
+        let currentCheckIdx = null; let currentManageIdx = null;
 
+        let audioCtx = null;
         window.unlockAudio = function() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -159,52 +178,92 @@
             try {
                 unlockAudio();
                 if (type === 'check' || type === 'etc') {
-                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain(); osc1.connect(gain1); gain1.connect(audioCtx.destination); osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); gain1.gain.setValueAtTime(0.2, audioCtx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
-                    const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain(); osc2.connect(gain2); gain2.connect(audioCtx.destination); osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15); gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4); osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
+                    const osc1 = audioCtx.createOscillator(); const gain1 = audioCtx.createGain(); 
+                    osc1.connect(gain1); gain1.connect(audioCtx.destination); 
+                    osc1.frequency.setValueAtTime(783.99, audioCtx.currentTime); 
+                    gain1.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+                    gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); 
+                    osc1.start(audioCtx.currentTime); osc1.stop(audioCtx.currentTime + 0.2);
+                    
+                    const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain(); 
+                    osc2.connect(gain2); gain2.connect(audioCtx.destination); 
+                    osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15); 
+                    gain2.gain.setValueAtTime(0.2, audioCtx.currentTime + 0.15); 
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4); 
+                    osc2.start(audioCtx.currentTime + 0.15); osc2.stop(audioCtx.currentTime + 0.4);
                 } else if (type === 'uncheck') {
-                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); 
+                    osc.connect(gain); gain.connect(audioCtx.destination); 
+                    osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); 
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime); 
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); 
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
                 }
             } catch(e) {}
         }
 
         function getWeekKey(dateStr) {
-            let d = new Date(); if (dateStr) { let parsed = new Date(dateStr.replace(/[\.\/]/g, '-')); if (!isNaN(parsed.getTime())) d = parsed; }
-            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5); d.setDate(d.getDate() - diff); 
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            let d = new Date();
+            if (dateStr) {
+                let parsed = new Date(dateStr.replace(/[\.\/]/g, '-'));
+                if (!isNaN(parsed.getTime())) d = parsed;
+            }
+            const day = d.getDay(); const diff = (day >= 2) ? (day - 2) : (day + 5);
+            d.setDate(d.getDate() - diff); 
+            const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const date = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${date}`;
         }
+
         dateInput.addEventListener('change', loadData);
 
         function init() {
             onValue(ref(db, 'settings/etcOptions'), snap => { try { let val = snap.val(); if (val && !Array.isArray(val)) val = Object.values(val); attOptions = (val && val.length > 0) ? val : ['병원', '시외', '여행', '기타']; } catch(e) { attOptions = ['병원', '시외', '여행', '기타']; } });
             onValue(ref(db, 'settings/notification'), snap => { const data = snap.val(); if (data) notiSettings = data; });
-            onValue(ref(db, 'members'), (snap) => { 
-                try { 
-                    const data = snap.val(); 
-                    if (!data) members = []; 
-                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); } 
-                    members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99)); 
-                    renderTable(); 
-                } catch(e) {} 
+            onValue(ref(db, 'members'), (snap) => {
+                try {
+                    const data = snap.val();
+                    if (!data) { members = []; } 
+                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
+                    members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99));
+                    renderTable();
+                } catch(e) {}
             });
             loadData();
         }
-        function loadData() { const weekKey = getWeekKey(dateInput.value); if (!weekKey) return; document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`; onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); }); }
+
+        function loadData() {
+            const weekKey = getWeekKey(dateInput.value);
+            if (!weekKey) return;
+            document.getElementById('weekRange').innerText = `${weekKey} (화) 시작 주간`;
+            onValue(ref(db, `attendance/${weekKey}`), (snap) => { attendanceData = snap.val() || {}; renderTable(); });
+        }
 
         function renderTable() {
             try {
-                const tbody = document.getElementById('mobileBody'); if(!tbody) return; tbody.innerHTML = '';
-                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 }, currentVil = "";
+                const tbody = document.getElementById('mobileBody'); 
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                let c = { sun: 0, tue: 0, wed: 0, fri: 0, vil: 0 };
+                let currentVil = "";
+
                 members.forEach((m, idx) => {
-                    if(!m) return; const ch = attendanceData[idx] || {};
+                    if(!m) return;
+                    const ch = attendanceData[idx] || {};
                     if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
+                    
                     if (m.village !== currentVil) {
-                        const trH = document.createElement('tr'); trH.className = 'village-header-row';
+                        const trH = document.createElement('tr');
+                        trH.className = 'village-header-row';
                         trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
-                    const safeName = m.name ? String(m.name) : "", dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
+                    
+                    const safeName = m.name ? String(m.name) : "";
+                    const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${m.role || ""}</td><td>${dName}</td>
+                    
+                    tr.innerHTML = `
+                        <td>${m.role || ""}</td><td>${dName}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
@@ -217,31 +276,49 @@
                                 <button class="btn-move" onclick="moveMember(${idx}, 1)">▼</button>
                                 <button class="btn-manage" onclick="openManage(${idx})">관리</button>
                             </div>
-                        </td>`;
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
+                
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-                buildPrintGrid(); const dObj = new Date(getWeekKey(dateInput.value)); document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
+                
+                buildPrintGrid();
+                const dObj = new Date(getWeekKey(dateInput.value));
+                document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
             } catch(e) {}
         }
 
         window.moveMember = (idx, dir) => {
-            const target = idx + dir; if (target < 0 || target >= members.length) return;
+            const target = idx + dir;
+            if (target < 0 || target >= members.length) return;
             if (members[idx].village !== members[target].village) return alert("같은 마을 내에서만 순서를 변경할 수 있습니다.");
+            
             const tempMem = members[idx]; members[idx] = members[target]; members[target] = tempMem;
             const weekKey = getWeekKey(dateInput.value);
             const tempAtt = attendanceData[idx] || {}; attendanceData[idx] = attendanceData[target] || {}; attendanceData[target] = tempAtt;
+            
             set(ref(db, 'members'), members); set(ref(db, `attendance/${weekKey}`), attendanceData);
         };
 
         window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playCheckSound(!currentVal ? 'check' : 'uncheck'); };
-        window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); document.getElementById('btn-etc-clear').onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
+        
+        window.openEtcCheck = (idx) => { 
+            currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; 
+            attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); 
+            document.getElementById('btn-etc-clear').onclick = () => saveEtcCheck(""); 
+            document.getElementById('check-modal').style.display = 'flex'; 
+        };
+
         window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== "" ? 'etc' : 'uncheck'); closeModal('check-modal'); };
+        
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
         window.saveSettings = () => { const opts = document.getElementById('settings-options').value.split(',').map(s=>s.trim()).filter(s=>s); if(opts.length>0) set(ref(db, 'settings/etcOptions'), opts); closeModal('settings-modal'); };
+        
         window.openNotiSettings = () => { document.getElementById('noti-day').value = notiSettings.day || "0"; document.getElementById('noti-time').value = notiSettings.time || "14:00"; document.getElementById('noti-retry').value = notiSettings.retry || "1"; document.getElementById('noti-modal').style.display = 'flex'; };
         window.saveNotiSettings = () => { const d = document.getElementById('noti-day').value; const t = document.getElementById('noti-time').value; const r = document.getElementById('noti-retry').value; set(ref(db, 'settings/notification'), { day: d, time: t, retry: r }); alert("알림 설정이 저장되었습니다."); closeModal('noti-modal'); };
+
         window.openAdd = () => { currentManageIdx = null; document.getElementById('manage-title').innerText = "새 인원 추가"; document.getElementById('manage-role').value = ""; document.getElementById('manage-name').value = ""; document.getElementById('btn-delete-member').style.display = "none"; document.getElementById('manage-modal').style.display = 'flex'; };
         window.openManage = (idx) => { currentManageIdx = idx; const m = members[idx]; document.getElementById('manage-title').innerText = "인원 정보 수정"; document.getElementById('manage-village').value = m.village; document.getElementById('manage-role').value = m.role; document.getElementById('manage-name').value = m.name; document.getElementById('btn-delete-member').style.display = "block"; document.getElementById('manage-modal').style.display = 'flex'; };
         window.saveManage = () => { const v = document.getElementById('manage-village').value, r = document.getElementById('manage-role').value, n = document.getElementById('manage-name').value; if(!n) return alert("이름을 입력하세요."); if(currentManageIdx === null) { members.push({ village:v, role:r, name:n }); } else { members[currentManageIdx] = { village:v, role:r, name:n }; } set(ref(db, 'members'), members); closeModal('manage-modal'); };
@@ -249,32 +326,31 @@
 
         function buildPrintGrid() {
             try {
-                const tLeft = document.getElementById('printLeftBodyArea'), tRight = document.getElementById('printRightBodyArea'); if(!tLeft || !tRight) return; tLeft.innerHTML = ''; tRight.innerHTML = '';
+                const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
+                if(!tLeft || !tRight) return; tLeft.innerHTML = ''; tRight.innerHTML = '';
+                const allVils = [...new Set(members.map(m => m.village || "미지정"))];
                 const half = Math.ceil(members.length / 2);
-                const leftMems = members.slice(0, half); const rightMems = members.slice(half);
                 
-                // 💡 마을, 이름 2칸으로 분리 & 같은 마을은 셀 병합(rowspan) 적용 완료!
-                const generateHtml = (memsList) => {
+                const generateHtml = (vils) => {
                     let h = '<table class="print-table"><colgroup><col style="width:14%"><col style="width:18%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:23%"></colgroup><tbody>';
                     h += `<tr style="background-color:#c8e6c9"><th>마을</th><th>이름</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
                     
                     let currentVillage = null;
                     let rowspanCount = 0;
 
-                    for (let i = 0; i < memsList.length; i++) {
-                        const m = memsList[i];
+                    for (let i = 0; i < vils.length; i++) {
+                        const m = vils[i];
                         const idx = members.indexOf(m); const ch = attendanceData[idx] || {}; const safeName = m.name ? String(m.name) : "";
                         const printName = m.role ? `${m.role} ${safeName}` : safeName;
-                        const vName = (m.village || "미지정").replace(' 마을', '');
+                        const vName = (m.village || "미지정").replace(' 마을', ''); 
 
                         h += `<tr>`;
 
-                        // 💡 같은 마을 묶어주기 로직
                         if (vName !== currentVillage) {
                             currentVillage = vName;
                             rowspanCount = 0;
-                            for (let j = i; j < memsList.length; j++) {
-                                if ((memsList[j].village || "미지정").replace(' 마을', '') === currentVillage) { rowspanCount++; } else { break; }
+                            for (let j = i; j < vils.length; j++) {
+                                if ((vils[j].village || "미지정").replace(' 마을', '') === currentVillage) { rowspanCount++; } else { break; }
                             }
                             h += `<td rowspan="${rowspanCount}" class="print-vil-cell">${currentVillage}</td>`;
                         }
@@ -290,6 +366,10 @@
                     }
                     return h + '</tbody></table>';
                 };
+                
+                const leftMems = members.slice(0, Math.ceil(members.length / 2));
+                const rightMems = members.slice(Math.ceil(members.length / 2));
+                
                 tLeft.innerHTML = generateHtml(leftMems); tRight.innerHTML = generateHtml(rightMems);
             } catch(e) {}
         }
@@ -306,22 +386,33 @@
 
             setTimeout(() => { 
                 printView.style.width = '1600px'; 
+                
                 setTimeout(() => {
                     const actualHeight = printView.scrollHeight;
-                    // 💡 마법의 10mm 여백 프롬프트 알고리즘 적용
-                    const targetWidth = actualHeight * (190 / 277);
+                    // 💡 상하 15mm, 좌우 10mm 에 맞춘 비율 계산
+                    const marginX = 10;
+                    const marginY = 15;
+                    const usableWidth = 210 - (marginX * 2); // 190
+                    const usableHeight = 297 - (marginY * 2); // 267
+
+                    const targetWidth = actualHeight * (usableWidth / usableHeight);
                     printView.style.width = targetWidth + 'px'; 
 
                     setTimeout(() => {
                         html2canvas(printView, {scale: 2, backgroundColor: "#ffffff", scrollY: 0}).then(canvas => {
                             if (type === 'img') {
-                                const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click();
+                                const link = document.createElement('a'); 
+                                link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; 
+                                link.href = canvas.toDataURL("image/png"); 
+                                link.click();
                             } else {
                                 const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
-                                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 190, 277); 
+                                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', marginX, marginY, usableWidth, usableHeight); 
                                 pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
                             }
-                            printView.style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; document.getElementById('float-buttons').style.display = 'flex';
+                            printView.style.display = 'none'; 
+                            document.getElementById('capture-area').style.display = 'block'; 
+                            document.getElementById('float-buttons').style.display = 'flex';
                         }); 
                     }, 150); 
                 }, 50);
