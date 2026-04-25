@@ -56,26 +56,27 @@
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용 영역 */
-        #print-view { display: none; background: white; padding: 10px 20px; box-sizing: border-box; margin: 0 auto; color: #000; font-family: 'Noto Sans KR', sans-serif; }
-        
+        /* 🖨️ 인쇄 전용 영역: 3단 배치 & 폭발적인 폰트 크기 */
+        #print-view { display: none; width: 1920px; background: white; padding: 10px 20px; box-sizing: border-box; margin: 0 auto; color: #000; font-family: 'Noto Sans KR', sans-serif; }
         #print-view * { white-space: nowrap !important; word-break: keep-all !important; }
 
-        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 5px; }
-        .print-title { font-size: 65px; font-weight: 900; letter-spacing: -2px; color: #000; }
-        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 4px solid #000; font-size: 30px; font-weight: 900; color: #000; }
+        .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; padding: 0 5px; }
+        .print-title { font-size: 70px; font-weight: 900; letter-spacing: -2px; color: #000; }
+        .print-summary-tbl { border-collapse: collapse; text-align: center; border: 4px solid #000; font-size: 32px; font-weight: 900; color: #000; }
         .print-summary-tbl th, .print-summary-tbl td { border: 2px solid #000; padding: 10px 30px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
         
-        .print-grid-container { width: 100%; border: none; border-collapse: collapse; table-layout: fixed; }
-        .print-grid-container td { border: none; padding: 0; vertical-align: top; }
+        /* 💡 3단 레이아웃 (Grid) 설정 */
+        .print-grid-container { display: flex; justify-content: space-between; gap: 15px; width: 100%; }
+        .print-chunk { width: 33.33%; }
         
-        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 28px; border: 4px solid #000; table-layout: fixed; font-weight: 900; color: #000; }
+        .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 34px; border: 4px solid #000; table-layout: fixed; font-weight: 900; color: #000; }
         .print-table th, .print-table td { border: 2px solid #000; padding: 6px 2px; }
-        .print-table th { font-weight: 900; background-color: #f0f0f0; border: 3px solid #000; font-size: 24px; letter-spacing: -1.5px; }
+        .print-table th { font-weight: 900; background-color: #f0f0f0; border: 3px solid #000; font-size: 28px; line-height: 1.1; padding: 6px 0; }
         
-        .print-vil-cell { font-size: 28px; font-weight: 900; letter-spacing: -1.5px; vertical-align: middle; text-align: left; padding-left: 15px !important; background-color: #c8e6c9; border: 3px solid #000; }
-        .print-name-cell { font-size: 28px; letter-spacing: -1.5px; font-weight: 900; padding: 6px 4px !important; }
+        /* 💡 가로로 쫙 펴지는 마을 헤더 스타일 */
+        .print-vil-cell { font-size: 32px; font-weight: 900; letter-spacing: -1.5px; text-align: center; background-color: #c8e6c9; border: 3px solid #000; padding: 6px 0 !important; color: #000; }
+        .print-name-cell { font-size: 34px; letter-spacing: -1.5px; font-weight: 900; padding: 8px 4px !important; }
 
         .floating-btns { position: fixed; bottom: 20px; left: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
         .float-btn { width: 45px; height: 45px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.85); color: white; border: none; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; }
@@ -137,12 +138,7 @@
         </table>
     </div>
     
-    <table class="print-grid-container">
-        <tr>
-            <td style="width: 50%; padding-right: 10px;" id="printLeftBodyArea"></td>
-            <td style="width: 50%; padding-left: 10px;" id="printRightBodyArea"></td>
-        </tr>
-    </table>
+    <div id="print-grid" class="print-grid-container"></div>
 </div>
 
 <script>
@@ -209,7 +205,8 @@
             onValue(ref(db, 'members'), (snap) => {
                 try {
                     const data = snap.val();
-                    if (!data) { members = []; } else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
+                    if (!data) { members = []; } 
+                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
                     members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99));
                     renderTable();
                 } catch(e) {}
@@ -254,8 +251,12 @@
                         </td>`;
                     tbody.appendChild(tr);
                 });
+                
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-                buildPrintGrid(); const dObj = new Date(getWeekKey(dateInput.value)); document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
+                
+                buildPrintGrid();
+                const dObj = new Date(getWeekKey(dateInput.value));
+                document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
             } catch(e) {}
         }
 
@@ -283,40 +284,49 @@
 
         function buildPrintGrid() {
             try {
-                const tLeft = document.getElementById('printLeftBodyArea'); const tRight = document.getElementById('printRightBodyArea');
-                if(!tLeft || !tRight) return; tLeft.innerHTML = ''; tRight.innerHTML = '';
+                const grid = document.getElementById('print-grid');
+                if(!grid) return; grid.innerHTML = '';
                 
-                const half = Math.ceil(members.length / 2);
+                // 💡 전체 명단을 3개로 똑같이 쪼개기 (3단 레이아웃)
+                const third1 = Math.ceil(members.length / 3);
+                const third2 = Math.ceil((members.length * 2) / 3);
+                const chunk1 = members.slice(0, third1);
+                const chunk2 = members.slice(third1, third2);
+                const chunk3 = members.slice(third2);
                 
+                // 💡 각 덩어리(Chunk)마다 테이블 하나씩 생성 (기타 칸 삭제됨!)
                 const generateHtml = (memsList) => {
-                    // 💡 정상적인 8열 테이블 생성 (1명당 1줄 차지!)
-                    let h = '<table class="print-table"><colgroup><col style="width:16%"><col style="width:20%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:19%"></colgroup><tbody>';
-                    h += `<tr style="background-color:#c8e6c9"><th>마을</th><th>성명</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
+                    let h = '<div class="print-chunk"><table class="print-table"><colgroup><col style="width:35%"><col style="width:13%"><col style="width:13%"><col style="width:13%"><col style="width:13%"><col style="width:13%"></colgroup><tbody>';
+                    h += `<tr style="background-color:#f0f0f0"><th>성명</th><th>주<br>일</th><th>화<br>요</th><th>수<br>요</th><th>금<br>요</th><th>마<br>을</th></tr>`;
                     
-                    const allVilsInList = [...new Set(memsList.map(m => (m.village || "미지정").replace(' 마을', '')))];
+                    let currentVillage = null;
 
-                    allVilsInList.forEach(vName => {
-                        const vMems = memsList.filter(m => (m.village || "미지정").replace(' 마을', '') === vName);
-                        for (let i = 0; i < vMems.length; i++) {
-                            h += `<tr>`;
-                            if (i === 0) h += `<td rowspan="${vMems.length}" class="print-vil-cell">${vName} 마을</td>`;
-                            
-                            const m1 = vMems[i]; const idx1 = members.indexOf(m1); const ch1 = attendanceData[idx1] || {};
-                            const name1 = m1.role ? `${m1.role} ${m1.name}` : (m1.name || "");
-                            
-                            h += `<td class="print-name-cell">${name1}</td>
-                                  <td style="color:#0044cc;">${ch1.sun?'O':''}</td><td style="color:#0044cc;">${ch1.tue?'O':''}</td><td style="color:#0044cc;">${ch1.wed?'O':''}</td><td style="color:#0044cc;">${ch1.fri?'O':''}</td><td style="color:#0044cc;">${ch1.vil?'O':''}</td>
-                                  <td style="font-size:24px; color:#000000; font-weight:900; letter-spacing:-1px;">${ch1.etc||''}</td>
-                                  </tr>`;
+                    memsList.forEach(m => {
+                        const idx = members.indexOf(m); const ch = attendanceData[idx] || {}; 
+                        const safeName = m.name ? String(m.name) : "";
+                        const printName = m.role ? `${m.role} ${safeName}` : safeName;
+                        const vName = (m.village || "미지정").replace(' 마을', ''); 
+
+                        // 💡 마을 이름은 6칸 전체를 차지하도록 colspan=6 으로 처리!
+                        if (vName !== currentVillage) {
+                            currentVillage = vName;
+                            h += `<tr><td colspan="6" class="print-vil-cell">${currentVillage} 마을</td></tr>`;
                         }
+
+                        h += `<tr>
+                                <td class="print-name-cell">${printName}</td>
+                                <td style="color:#0044cc;">${ch.sun?'O':''}</td>
+                                <td style="color:#0044cc;">${ch.tue?'O':''}</td>
+                                <td style="color:#0044cc;">${ch.wed?'O':''}</td>
+                                <td style="color:#0044cc;">${ch.fri?'O':''}</td>
+                                <td style="color:#0044cc;">${ch.vil?'O':''}</td>
+                              </tr>`;
                     });
-                    return h + '</tbody></table>';
+                    return h + '</tbody></table></div>';
                 };
                 
-                const leftMems = members.slice(0, half);
-                const rightMems = members.slice(half);
-                
-                tLeft.innerHTML = generateHtml(leftMems); tRight.innerHTML = generateHtml(rightMems);
+                // 3개의 테이블을 나란히 붙여넣기
+                grid.innerHTML = generateHtml(chunk1) + generateHtml(chunk2) + generateHtml(chunk3);
             } catch(e) {}
         }
         
@@ -324,13 +334,12 @@
             document.getElementById('capture-area').style.display = 'none'; 
             const printView = document.getElementById('print-view');
             
-            // 💡 모바일 브라우저의 좁은 해상도 무시 (절대 좌표 렌더링)
             printView.style.display = 'block'; 
             printView.style.position = 'absolute';
             printView.style.top = '0';
             printView.style.left = '0';
-            printView.style.width = '1800px'; 
-            printView.style.minWidth = '1800px';
+            printView.style.width = '1920px'; 
+            printView.style.minWidth = '1920px';
             printView.style.maxWidth = 'none'; 
             
             document.getElementById('float-buttons').style.display = 'none'; 
@@ -347,7 +356,11 @@
 
                 setTimeout(() => {
                     html2canvas(printView, {
-                        scale: 2, backgroundColor: "#ffffff", scrollY: 0, windowWidth: 1920, width: 1800
+                        scale: 2, 
+                        backgroundColor: "#ffffff", 
+                        scrollY: 0,
+                        windowWidth: 1920, 
+                        width: 1920
                     }).then(canvas => {
                         if (type === 'img') {
                             const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click();
@@ -360,11 +373,10 @@
                             pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
                         }
                         
-                        // 렌더링 후 스타일 복구
                         printView.style.position = ''; printView.style.top = ''; printView.style.left = ''; printView.style.minWidth = ''; printView.style.maxWidth = '';
                         printView.style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; document.getElementById('float-buttons').style.display = 'flex';
                     }); 
-                }, 150); 
+                }, 300); 
             }, 50);
         }
 
