@@ -8,19 +8,23 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>2026년 임마누엘 목장 출석부 (관리자)</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path fill=%22%23800000%22 d=%22M15 45L50 15L85 45V90H15V45Z M45 45V28H55V45H45Z M45 70V80H55V70H45Z%22/></svg>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 5px; background-color: #f4f4f9; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .header { display: flex; flex-direction: column; align-items: center; border: 2px solid #333; padding: 10px 5px; margin-bottom: 5px; text-align: center; position: relative; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
         .header-spacer { width: 110px; } .header-title { font-size: 16px; font-weight: bold; flex: 1; }
         .header-btns { display: flex; gap: 3px; width: 110px; justify-content: flex-end; }
         .btn-settings { background: #333; color: white; border: none; border-radius: 3px; padding: 6px 5px; font-size: 10px; cursor: pointer; white-space: nowrap; }
-        .date-input { font-size: 18px; border: 1px solid #ccc; border-radius: 5px; padding: 5px; color: #1976D2; font-weight: bold; text-align: center; background-color: #fff; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
+        .date-input { font-family: 'Noto Sans KR', sans-serif; font-size: 18px; border: 1px solid #ccc; border-radius: 5px; padding: 5px; color: #1976D2; font-weight: bold; text-align: center; background-color: #fff; cursor: pointer; width: 160px; -webkit-appearance: none; appearance: none; }
         .week-label { font-size: 11px; color: #0044cc; font-weight: bold; margin-top: 5px; padding: 3px 8px; border-radius: 3px; background-color: #e3f2fd; }
         .summary-box { display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 8px; font-weight: bold; color: #d32f2f; font-size: 13px; background: #fff8e1; padding: 8px 2px; border: 1px solid #333; }
         .summary-box span { color: #0044cc; margin: 0 2px; font-size: 14px; }
@@ -52,19 +56,21 @@
         .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .opt-btn { padding: 10px 15px; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; margin: 5px; cursor: pointer; font-size: 14px; }
 
-        /* 🖨️ 인쇄 전용 영역 (폰트 깨짐 완벽 방지) */
-        #print-view { display: none; background: white; padding: 10px 20px; box-sizing: border-box; margin: 0 auto; color: #000; }
+        /* 🖨️ 인쇄 전용 영역 */
+        #print-view { display: none; width: 1800px; background: white; padding: 10px 20px; box-sizing: border-box; margin: 0 auto; color: #000; font-family: 'Noto Sans KR', sans-serif; }
         
-        /* 💡 1. 절대 줄바꿈 금지 방어막 설정 */
+        /* 💡 폰 강제 찌그러짐 방지 자물쇠! */
         #print-view * { white-space: nowrap !important; word-break: keep-all !important; }
-        
+
         .print-header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 5px; }
         .print-title { font-size: 65px; font-weight: 900; letter-spacing: -2px; color: #000; }
         .print-summary-tbl { border-collapse: collapse; text-align: center; border: 4px solid #000; font-size: 30px; font-weight: 900; color: #000; }
         .print-summary-tbl th, .print-summary-tbl td { border: 2px solid #000; padding: 10px 30px; }
         .print-summary-tbl th { background-color: #f0f0f0; }
         
-        .print-grid { display: flex; gap: 20px; width: 100%; }
+        /* 💡 Flex 박스 대신, 무적의 테이블(Table) 뼈대로 교체하여 강제 축소 방지 */
+        .print-grid-container { width: 100%; border: none; border-collapse: collapse; table-layout: fixed; }
+        .print-grid-container td { border: none; padding: 0; vertical-align: top; }
         
         .print-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 28px; border: 4px solid #000; table-layout: fixed; font-weight: 900; color: #000; }
         .print-table th, .print-table td { border: 2px solid #000; padding: 6px 2px; }
@@ -132,7 +138,13 @@
             <tr><td id="print-tot-sun">0</td><td id="print-tot-vil">0</td></tr>
         </table>
     </div>
-    <div class="print-grid"><div id="printLeftBodyArea" style="width:50%;"></div><div id="printRightBodyArea" style="width:50%;"></div></div>
+    
+    <table class="print-grid-container">
+        <tr>
+            <td style="width: 50%; padding-right: 10px;" id="printLeftBodyArea"></td>
+            <td style="width: 50%; padding-left: 10px;" id="printRightBodyArea"></td>
+        </tr>
+    </table>
 </div>
 
 <script>
@@ -199,7 +211,8 @@
             onValue(ref(db, 'members'), (snap) => {
                 try {
                     const data = snap.val();
-                    if (!data) { members = []; } else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
+                    if (!data) { members = []; } 
+                    else { let dataArr = Array.isArray(data) ? data : Object.values(data); members = dataArr.filter(m => m && typeof m === 'object'); }
                     members.sort((a, b) => (parseInt(a.village) || 99) - (parseInt(b.village) || 99));
                     renderTable();
                 } catch(e) {}
@@ -221,14 +234,18 @@
                 members.forEach((m, idx) => {
                     if(!m) return; const ch = attendanceData[idx] || {};
                     if(ch.sun) c.sun++; if(ch.tue) c.tue++; if(ch.wed) c.wed++; if(ch.fri) c.fri++; if(ch.vil) c.vil++;
+                    
                     if (m.village !== currentVil) {
                         const trH = document.createElement('tr'); trH.className = 'village-header-row';
                         trH.innerHTML = `<td colspan="2" class="village-header-name">${m.village || "미지정"}</td><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th class="hide-on-print">관리</th>`;
                         tbody.appendChild(trH); currentVil = m.village;
                     }
+                    
                     const safeName = m.name ? String(m.name) : ""; const dName = safeName.includes('(') ? safeName.replace('(', '<br>(') : safeName;
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${m.role || ""}</td><td>${dName}</td>
+                    
+                    tr.innerHTML = `
+                        <td>${m.role || ""}</td><td>${dName}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'sun')">${ch.sun?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'tue')">${ch.tue?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'wed')">${ch.wed?'<span style="color:#0044cc;">O</span>':''}</td>
@@ -236,12 +253,21 @@
                         <td class="check-cell" onclick="toggleCheck(${idx}, 'vil')">${ch.vil?'<span style="color:#0044cc;">O</span>':''}</td>
                         <td class="check-cell" onclick="openEtcCheck(${idx})">${ch.etc?`<span style="color:#d32f2f; font-size:10px; font-weight:bold;">${ch.etc}</span>`:''}</td>
                         <td class="hide-on-print" style="vertical-align: middle;">
-                            <div class="manage-wrapper"><button class="btn-move" onclick="moveMember(${idx}, -1)">▲</button><button class="btn-move" onclick="moveMember(${idx}, 1)">▼</button><button class="btn-manage" onclick="openManage(${idx})">관리</button></div>
-                        </td>`;
+                            <div class="manage-wrapper">
+                                <button class="btn-move" onclick="moveMember(${idx}, -1)">▲</button>
+                                <button class="btn-move" onclick="moveMember(${idx}, 1)">▼</button>
+                                <button class="btn-manage" onclick="openManage(${idx})">관리</button>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
+                
                 document.getElementById('tot-sun').innerText = c.sun; document.getElementById('tot-tue').innerText = c.tue; document.getElementById('tot-wed').innerText = c.wed; document.getElementById('tot-fri').innerText = c.fri; document.getElementById('tot-vil').innerText = c.vil;
-                buildPrintGrid(); const dObj = new Date(getWeekKey(dateInput.value)); document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
+                
+                buildPrintGrid();
+                const dObj = new Date(getWeekKey(dateInput.value));
+                document.getElementById('printDateTxt').innerText = `(${dObj.getFullYear()}년 ${dObj.getMonth()+1}월 ${dObj.getDate()}일)`;
             } catch(e) {}
         }
 
@@ -256,7 +282,6 @@
 
         window.toggleCheck = (idx, day) => { const weekKey = getWeekKey(dateInput.value); const currentVal = attendanceData[idx] ? attendanceData[idx][day] : false; set(ref(db, `attendance/${weekKey}/${idx}/${day}`), !currentVal); playCheckSound(!currentVal ? 'check' : 'uncheck'); };
         window.openEtcCheck = (idx) => { currentCheckIdx = idx; const container = document.getElementById('check-buttons'); container.innerHTML = ''; attOptions.forEach((opt) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerText = opt; btn.onclick = () => saveEtcCheck(opt); container.appendChild(btn); }); document.getElementById('btn-etc-clear').onclick = () => saveEtcCheck(""); document.getElementById('check-modal').style.display = 'flex'; };
-        
         window.saveEtcCheck = (val) => { const weekKey = getWeekKey(dateInput.value); set(ref(db, `attendance/${weekKey}/${currentCheckIdx}/etc`), val); playCheckSound(val !== "" ? 'etc' : 'uncheck'); closeModal('check-modal'); };
         window.closeModal = (id) => document.getElementById(id).style.display = 'none';
         window.openSettings = () => { document.getElementById('settings-options').value = attOptions.join(', '); document.getElementById('settings-modal').style.display = 'flex'; };
@@ -276,34 +301,25 @@
                 const half = Math.ceil(members.length / 2);
                 
                 const generateHtml = (memsList) => {
-                    let h = '<table class="print-table"><colgroup><col style="width:16%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:9%"><col style="width:16%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:9%"></colgroup><tbody>';
-                    h += `<tr style="background-color:#c8e6c9"><th>성명</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th><th>성명</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
+                    let h = '<table class="print-table"><colgroup><col style="width:16%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:9%"></colgroup><tbody>';
+                    h += `<tr style="background-color:#c8e6c9"><th>성명</th><th>주일</th><th>화요</th><th>수요</th><th>금요</th><th>마을</th><th>기타</th></tr>`;
                     
                     const allVilsInList = [...new Set(memsList.map(m => (m.village || "미지정").replace(' 마을', '')))];
 
                     allVilsInList.forEach(vName => {
                         const vMems = memsList.filter(m => (m.village || "미지정").replace(' 마을', '') === vName);
-                        h += `<tr><td colspan="14" class="print-vil-cell">${vName} 마을</td></tr>`;
+                        h += `<tr><td colspan="7" class="print-vil-cell">${vName} 마을</td></tr>`;
 
-                        for (let i = 0; i < vMems.length; i += 2) {
-                            h += `<tr>`;
-                            
+                        for (let i = 0; i < vMems.length; i++) {
                             const m1 = vMems[i]; const idx1 = members.indexOf(m1); const ch1 = attendanceData[idx1] || {};
                             const name1 = m1.role ? `${m1.role} ${m1.name}` : (m1.name || "");
-                            h += `<td class="print-name-cell">${name1}</td>
+                            
+                            // 💡 기타 칸 색상 완전 검정(#000000) 변경 완료
+                            h += `<tr>
+                                  <td class="print-name-cell">${name1}</td>
                                   <td style="color:#0044cc;">${ch1.sun?'O':''}</td><td style="color:#0044cc;">${ch1.tue?'O':''}</td><td style="color:#0044cc;">${ch1.wed?'O':''}</td><td style="color:#0044cc;">${ch1.fri?'O':''}</td><td style="color:#0044cc;">${ch1.vil?'O':''}</td>
-                                  <td style="font-size:22px; color:#000000; font-weight:900; letter-spacing:-1px;">${ch1.etc||''}</td>`;
-                                  
-                            if (i + 1 < vMems.length) {
-                                const m2 = vMems[i+1]; const idx2 = members.indexOf(m2); const ch2 = attendanceData[idx2] || {};
-                                const name2 = m2.role ? `${m2.role} ${m2.name}` : (m2.name || "");
-                                h += `<td class="print-name-cell">${name2}</td>
-                                      <td style="color:#0044cc;">${ch2.sun?'O':''}</td><td style="color:#0044cc;">${ch2.tue?'O':''}</td><td style="color:#0044cc;">${ch2.wed?'O':''}</td><td style="color:#0044cc;">${ch2.fri?'O':''}</td><td style="color:#0044cc;">${ch2.vil?'O':''}</td>
-                                      <td style="font-size:22px; color:#000000; font-weight:900; letter-spacing:-1px;">${ch2.etc||''}</td>`;
-                            } else {
-                                h += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td>`;
-                            }
-                            h += `</tr>`;
+                                  <td style="font-size:22px; color:#000000; font-weight:900; letter-spacing:-1px;">${ch1.etc||''}</td>
+                                  </tr>`;
                         }
                     });
                     return h + '</tbody></table>';
@@ -320,13 +336,14 @@
             document.getElementById('capture-area').style.display = 'none'; 
             const printView = document.getElementById('print-view');
             
-            // 💡 캡처 시 모바일 화면 폭의 영향을 받지 않도록 강제 절대좌표 고정!
+            // 💡 2. 모바일 브라우저의 가로폭 강제 찌그러짐을 원천 차단하는 무적 로직
             printView.style.display = 'block'; 
             printView.style.position = 'absolute';
             printView.style.top = '0';
             printView.style.left = '0';
             printView.style.width = '1800px'; 
-            printView.style.minWidth = '1800px'; 
+            printView.style.minWidth = '1800px';
+            printView.style.maxWidth = 'none'; 
             
             document.getElementById('float-buttons').style.display = 'none'; 
             window.scrollTo(0,0);
@@ -334,6 +351,7 @@
             document.getElementById('print-tot-sun').innerText = document.getElementById('tot-sun').innerText; 
             document.getElementById('print-tot-vil').innerText = document.getElementById('tot-vil').innerText;
 
+            // 브라우저가 레이아웃을 다시 그릴 시간을 넉넉히 줌
             setTimeout(() => { 
                 const actualHeight = printView.scrollHeight;
                 const marginX = 10; const marginY = 15; 
@@ -345,12 +363,11 @@
                         scale: 2, 
                         backgroundColor: "#ffffff", 
                         scrollY: 0,
-                        windowWidth: 1800, // 데스크톱 해상도로 속이기
+                        windowWidth: 1920, // 스마트폰 환경을 PC 환경으로 속임
                         width: 1800
                     }).then(canvas => {
                         if (type === 'img') {
-                            const link = document.createElement('a'); 
-                            link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click();
+                            const link = document.createElement('a'); link.download = `임마누엘_${getWeekKey(dateInput.value)}.png`; link.href = canvas.toDataURL("image/png"); link.click();
                         } else {
                             const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4'); 
                             let imgWidth = usableWidth; let imgHeight = canvas.height * imgWidth / canvas.width;
@@ -360,16 +377,11 @@
                             pdf.save(`임마누엘_${getWeekKey(dateInput.value)}.pdf`);
                         }
                         
-                        // 렌더링 완료 후 스타일 원상복구
-                        printView.style.position = '';
-                        printView.style.top = '';
-                        printView.style.left = '';
-                        printView.style.minWidth = '';
-                        printView.style.display = 'none'; 
-                        document.getElementById('capture-area').style.display = 'block'; 
-                        document.getElementById('float-buttons').style.display = 'flex';
+                        // 렌더링 끝난 후 스타일 원상복구
+                        printView.style.position = ''; printView.style.top = ''; printView.style.left = ''; printView.style.minWidth = ''; printView.style.maxWidth = '';
+                        printView.style.display = 'none'; document.getElementById('capture-area').style.display = 'block'; document.getElementById('float-buttons').style.display = 'flex';
                     }); 
-                }, 150); 
+                }, 300); // 렌더링 딜레이를 살짝 주어 완벽하게 그려지게 함
             }, 50);
         }
 
